@@ -11,7 +11,6 @@ layout: null
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-/* ── BLUE-GREY THEME ── */
 :root {
   --p: #F29F67; --nav-bg: #0f172a; --sidebar-bg: #1e293b;
   --accent: #3b82f6; --bg-main: #f1f5f9; --cd: #ffffff;
@@ -35,7 +34,6 @@ body, html { margin: 0; padding: 0; height: 100vh; font-family: 'DM Sans', sans-
 .kv { font-size: 28px; font-weight: 700; color: var(--t1); font-family: 'Inter', sans-serif; }
 .sync-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .pg { display: none; } .pg.active { display: block; }
-
 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 th { background: #f8fafc; color: var(--t2); padding: 10px; font-size: 11px; text-align: left; border-bottom: 2px solid var(--br); }
 td { padding: 12px 10px; border-bottom: 1px solid var(--br); font-size: 13px; }
@@ -73,7 +71,7 @@ td { padding: 12px 10px; border-bottom: 1px solid var(--br); font-size: 13px; }
                 </div>
                 <div class="kc">
                     <div class="kl">Live Performance Table</div>
-                    <div id="ov-table-container"></div>
+                    <div id="ov-table-container">Data loading...</div>
                 </div>
             </div>
 
@@ -96,13 +94,14 @@ async function doSync() {
 
     try {
         const res = await fetch(PERF_URL);
+        if (!res.ok) throw new Error('Fetch failed');
         const csv = await res.text();
         processData(csv);
         status.innerText = "Connected";
         document.getElementById('last-time').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     } catch (e) {
         status.innerText = "Connection Error";
-        console.error(e);
+        console.error("Sync Failure:", e);
     } finally {
         if(icon) icon.classList.remove('fa-spin');
     }
@@ -110,16 +109,17 @@ async function doSync() {
 
 function processData(csv) {
     const lines = csv.split('\n').map(l => l.split(','));
-    const rows = lines.slice(1).filter(cols => cols.length >= 5); 
+    // Filter out empty rows and rows that don't have enough columns
+    const rows = lines.slice(1).filter(cols => cols.length >= 5 && cols[0].trim() !== ""); 
 
     let tAtt = 0, tEff = 0;
     let tableHtml = "<table><thead><tr><th>Rider</th><th>Batch</th><th>Orders</th><th>Att%</th><th>Eff%</th></tr></thead><tbody>";
 
     rows.forEach(cols => {
         const r = {
-            name: cols[0] || 'Unknown',
-            batch: cols[1] || '-',
-            orders: cols[2] || 0,
+            name: cols[0] ? cols[0].trim() : 'Unknown',
+            batch: cols[1] ? cols[1].trim() : '-',
+            orders: cols[2] ? cols[2].trim() : 0,
             att: parseFloat(cols[3]) || 0,
             eff: parseFloat(cols[5]) || 0
         };
@@ -139,13 +139,16 @@ function processData(csv) {
     tableHtml += "</tbody></table>";
     
     // Update KPI Cards
-    const avgA = (tAtt / rows.length).toFixed(1);
-    const avgE = (tEff / rows.length).toFixed(1);
+    const avgA = rows.length > 0 ? (tAtt / rows.length).toFixed(1) : 0;
+    const avgE = rows.length > 0 ? (tEff / rows.length).toFixed(1) : 0;
 
     document.getElementById('k-riders').innerText = rows.length;
     document.getElementById('k-att').innerText = avgA + "%";
     document.getElementById('k-eff').innerText = avgE + "%";
-    document.getElementById('ov-table-container').innerHTML = tableHtml;
+    
+    // Update table
+    const container = document.getElementById('ov-table-container');
+    if(container) container.innerHTML = tableHtml;
 }
 
 function go(id, el) {
@@ -156,8 +159,10 @@ function go(id, el) {
     document.getElementById('pg-title').innerText = el.innerText;
 }
 
-// Auto-run on refresh
-window.onload = doSync;
+// Ensure the function runs automatically on refresh
+window.onload = function() {
+    doSync();
+};
 </script>
 </body>
 </html>
