@@ -10,36 +10,44 @@ title: RiderOps Dashboard
 <title>RiderOps-Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
-    /* 1. FORCE THEME TO FULL WIDTH */
-    .container-lg, .wrapper, .main-content { 
+    /* 1. FORCE SLATE THEME TO FULL WIDTH */
+    .container-lg, .wrapper, .main-content, .section { 
         max-width: none !important; 
         margin: 0 !important; 
         padding: 0 !important; 
         width: 100% !important;
     }
 
-    /* 2. CORE PALETTE (Grey & Black) */
+    /* 2. DASHBOARD PALETTE (Grey/Black/Blue/Red) */
     body { 
-        background-color: #0d1117 !important; /* GitHub/Slate Dark Grey */
+        background-color: #0d1117 !important; /* GitHub Dark Grey */
         color: #ffffff !important; 
         margin: 0;
     }
 
-    /* 3. BLUE ACCENTS (Corporate Blue) */
-    .btn-sync, .status-active { 
+    /* Target the content area specifically */
+    section.main-content {
+        padding: 20px !important;
+        background: #0d1117 !important;
+    }
+
+    /* Blue for Action Buttons */
+    .btn-sync { 
         background-color: #007bff !important; 
-        border-radius: 6px;
+        border: none !important;
     }
 
-    /* 4. RED ALERTS (SOP Breach/Critical) */
+    /* Red for Alerts */
     .critical-performance, .sop-breach { 
-        background-color: #7a0000 !important; /* Professional Deep Red */
-        border: 1px solid #ff4d4d;
-        color: #ffffff !important;
+        background-color: #7a0000 !important; 
+        border: 1px solid #ff4d4d !important;
     }
 
-    /* 5. HIDE THEME HEADER (Optional) */
-    header { display: none !important; }
+    /* 3. CLEAN UP THEME HEADER */
+    header { 
+        padding: 1rem 2rem !important;
+        background: linear-gradient(90deg, #0d1117, #004085) !important;
+    }
 </style>
 </head>
 
