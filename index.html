@@ -6,12 +6,11 @@ layout: null
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>RiderOps | Bahrain Command Center</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<title>RiderOps | Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-/* ── BLUE-GREY ELEGANT PALETTE ────────────────── */
 :root {
   --p: #F29F67; --nav-bg: #0f172a; --sidebar-bg: #1e293b;
   --accent: #3b82f6; --bg-main: #f1f5f9; --cd: #ffffff;
@@ -19,11 +18,7 @@ layout: null
   --gn: #10b981; --rd: #ef4444; --am: #f59e0b;
 }
 
-[data-theme="dark"] {
-  --bg-main: #0f172a; --cd: #1e293b; --br: #334155; --t1: #f1f5f9; --t2: #94a3b8; --nav-bg: #020617;
-}
-
-body, html { margin: 0; padding: 0; height: 100vh; font-family: 'DM Sans', sans-serif; background: var(--bg-main); color: var(--t1); overflow: hidden; transition: 0.3s; }
+body, html { margin: 0; padding: 0; height: 100vh; font-family: 'DM Sans', sans-serif; background: var(--bg-main); color: var(--t1); overflow: hidden; }
 
 /* ── LAYOUT ───────────────────────────────────── */
 .wrapper { display: flex; height: 100vh; width: 100vw; }
@@ -48,53 +43,31 @@ body, html { margin: 0; padding: 0; height: 100vh; font-family: 'DM Sans', sans-
 .sync-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .pg { display: none; } .pg.active { display: block; }
 
-/* Table Styling */
-table { width: 100%; border-collapse: collapse; background: var(--cd); border-radius: 12px; overflow: hidden; border: 1px solid var(--br); }
-th { background: var(--nav-bg); color: white; padding: 12px; font-size: 12px; text-align: left; }
-td { padding: 12px; border-bottom: 1px solid var(--br); font-size: 13px; }
+table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; }
+th { background: #f8fafc; color: var(--t2); padding: 12px; font-size: 11px; text-transform: uppercase; text-align: left; border-bottom: 2px solid var(--br); }
+td { padding: 14px 12px; border-bottom: 1px solid var(--br); font-size: 13px; color: var(--t1); }
 </style>
-
-<script>
-// ── INLINE CHART ENGINE (YOUR ORIGINAL CODE) ────────────────
-var Chart=(function(){
-    function clr(ctx,w,h){ctx.clearRect(0,0,w,h);}
-    function rnd(n){return Math.round(n);}
-    function drawChart(canvas,cfg){
-        var ctx=canvas.getContext('2d');
-        var W=canvas.width=canvas.offsetWidth||300;
-        var H=canvas.height=canvas.offsetHeight||220;
-        clr(ctx,W,H);
-        var datasets=cfg.data.datasets||[];
-        var labels=cfg.data.labels||[];
-        // ... (Original drawChart logic is active here) ...
-        ctx.fillStyle='#9ca3af'; ctx.fillText("Chart Ready", W/2, H/2); // Placeholder for brevity
-    }
-    return function(canvas,cfg){ return { update: function(){ drawChart(canvas,cfg); } }; };
-})();
-</script>
 </head>
 <body>
 
 <div class="wrapper">
     <nav class="sidebar">
-        <div class="sb-hdr">RIDER<span style="color:var(--p)">OPS</span></div>
+        <div class="sb-hdr">KEETA <span style="color:var(--p)">OPS</span></div>
         <ul class="nav-links">
-            <li class="nav-item active" onclick="go('ov', this)"><i class="fas fa-th-large"></i> Overview</li>
-            <li class="nav-item" onclick="go('att', this)"><i class="fas fa-calendar-check"></i> Attendance</li>
-            <li class="nav-item" onclick="go('riders', this)"><i class="fas fa-motorcycle"></i> Rider Fleet</li>
-            <li class="nav-item" onclick="go('lb', this)"><i class="fas fa-trophy"></i> Leaderboard</li>
+            <li class="nav-item active" onclick="go('ov', this)"><i class="fas fa-chart-line"></i> Overview</li>
+            <li class="nav-item" onclick="go('riders', this)"><i class="fas fa-users"></i> Rider Fleet</li>
         </ul>
-        <div style="padding: 20px;"><button onclick="toggleTheme()" style="width:100%; padding:8px; border-radius:6px; border:1px solid #475569; background:none; color:#94a3b8; cursor:pointer;">🌓 Switch Theme</button></div>
+        <div style="padding: 20px; font-size: 10px; color: #475569;">LAST SYNC: <span id="last-time">--:--</span></div>
     </nav>
 
     <main class="main">
         <div class="top-bar">
             <div>
-                <h2 style="margin:0; font-size:18px;" id="pg-title">Overview</h2>
-                <span style="font-size:12px; color:var(--t2)" id="ss">📋 Connecting...</span>
+                <h2 style="margin:0; font-size:18px;" id="pg-title">Operations Overview</h2>
+                <span style="font-size:12px; color:var(--t2)" id="ss">📋 System Standby</span>
             </div>
             <button class="sync-btn" onclick="doSync()">
-                <i class="fas fa-sync" id="si"></i> Sync Now
+                <i class="fas fa-sync" id="si"></i> Sync Data
             </button>
         </div>
 
@@ -102,58 +75,89 @@ var Chart=(function(){
             <div id="pg-ov" class="pg active">
                 <div class="kg">
                     <div class="kc"><div class="kl">Total Riders</div><div class="kv" id="k-riders">0</div></div>
+                    <div class="kc"><div class="kl">Fleet Attendance</div><div class="kv" id="k-att">0%</div></div>
                     <div class="kc"><div class="kl">Avg Efficiency</div><div class="kv" id="k-eff">0%</div></div>
-                    <div class="kc"><div class="kl">SOP Breaches</div><div class="kv" id="k-sop">0</div></div>
                 </div>
                 <div class="kc">
-                    <canvas id="mainChart" style="height:250px; width:100%"></canvas>
+                    <div class="kl">Performance Table</div>
+                    <div id="ov-table-container"></div>
                 </div>
-            </div>
-
-            <div id="pg-att" class="pg">
-                <div class="kc" id="att-list">Attendance logs will appear here after sync.</div>
             </div>
 
             <div id="pg-riders" class="pg">
-                <div class="kc" id="rider-list">Fleet details will appear here after sync.</div>
+                <div class="kc" id="fleet-container">
+                    <div class="kl">Detailed Fleet Status</div>
+                    <div id="fleet-table-body"></div>
+                </div>
             </div>
         </div>
     </main>
 </div>
 
 <script>
-// ── YOUR ACTUAL DATA LOGIC (RE-CONNECTED) ──────────────────
+// ── DATA CONFIGURATION ───────────────────────────────────────
 var PERF_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?gid=1657315848&single=true&output=csv";
 
 async function doSync() {
     const icon = document.getElementById('si');
+    const status = document.getElementById('ss');
     icon.classList.add('fa-spin');
-    document.getElementById('ss').innerText = "Fetching Google Sheets...";
-    
+    status.innerText = "Fetching Live Data...";
+
     try {
         const res = await fetch(PERF_URL);
+        if (!res.ok) throw new Error('Fetch failed');
         const csv = await res.text();
         processData(csv);
-        document.getElementById('ss').innerText = "Sync Success: " + new Date().toLocaleTimeString();
+        status.innerText = "Sync Complete";
+        document.getElementById('last-time').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     } catch (e) {
-        document.getElementById('ss').innerText = "Sync Error!";
+        status.innerText = "Connection Error!";
+        console.error(e);
     } finally {
         icon.classList.remove('fa-spin');
     }
 }
 
 function processData(csv) {
-    const lines = csv.split('\n').slice(1);
-    let totalEff = 0;
+    const lines = csv.split('\n').map(l => l.split(','));
+    const data = lines.slice(1).filter(cols => cols.length > 3);
+
+    let totalAtt = 0, totalEff = 0, totalFill = 0;
+    let tableHtml = "<table><thead><tr><th>Rider</th><th>Orders</th><th>Att%</th><th>Fill%</th><th>Eff%</th></tr></thead><tbody>";
+
+    data.forEach(cols => {
+        // Mapping columns based on your sheet structure
+        const r = {
+            name: cols[0] || 'Unknown',
+            orders: parseInt(cols[1]) || 0,
+            att: parseFloat(cols[2]) || 0,
+            fill: parseFloat(cols[3]) || 0,
+            eff: parseFloat(cols[4]) || 0
+        };
+
+        totalAtt += r.att;
+        totalEff += r.eff;
+        totalFill += r.fill;
+
+        tableHtml += `<tr>
+            <td style="font-weight:600">${r.name}</td>
+            <td>${r.orders}</td>
+            <td style="color:${r.att >= 90 ? 'var(--gn)' : 'var(--rd)'}">${r.att}%</td>
+            <td>${r.fill}%</td>
+            <td style="font-weight:700; color:${r.eff >= 85 ? 'var(--gn)' : 'var(--am)'}">${r.eff}%</td>
+        </tr>`;
+    });
+
+    tableHtml += "</tbody></table>";
     
-    // Update IDs that the script looks for
-    document.getElementById('k-riders').innerText = lines.length;
+    // Update KPI Cards
+    document.getElementById('k-riders').innerText = data.length;
+    document.getElementById('k-att').innerText = (totalAtt / data.length).toFixed(1) + "%";
+    document.getElementById('k-eff').innerText = (totalEff / data.length).toFixed(1) + "%";
     
-    // (Add your loop here to parse 'lines' and calculate totals just like your old code)
-    // For example:
-    // lines.forEach(l => { ... totalEff += parseFloat(cols[2]); ... });
-    
-    document.getElementById('k-eff').innerText = "88.4%"; // Example value
+    // Update Table
+    document.getElementById('ov-table-container').innerHTML = tableHtml;
 }
 
 function go(id, el) {
@@ -164,12 +168,7 @@ function go(id, el) {
     document.getElementById('pg-title').innerText = el.innerText;
 }
 
-function toggleTheme() {
-    const root = document.documentElement;
-    if(root.getAttribute('data-theme') === 'dark') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', 'dark');
-}
-
+// Auto-run on load
 window.onload = doSync;
 </script>
 </body>
