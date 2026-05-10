@@ -10,31 +10,36 @@ title: RiderOps Dashboard
 <title>RiderOps-Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
-    /* Full-width fix for Jekyll Slate */
-    .container-lg, .wrapper { 
+    /* 1. FORCE THEME TO FULL WIDTH */
+    .container-lg, .wrapper, .main-content { 
         max-width: none !important; 
         margin: 0 !important; 
-        padding: 20px !important; 
+        padding: 0 !important; 
+        width: 100% !important;
     }
 
-    /* Core Palette: Grey & Black */
+    /* 2. CORE PALETTE (Grey & Black) */
     body { 
-        background-color: #0d1117 !important; /* Dark GitHub Grey/Black */
-        color: #c9d1d9 !important; 
+        background-color: #0d1117 !important; /* GitHub/Slate Dark Grey */
+        color: #ffffff !important; 
+        margin: 0;
     }
 
-    /* Red Alerts for Breaches */
-    .critical-performance, .sop-breach {
-        background-color: #7a0000 !important; /* Deep Red */
+    /* 3. BLUE ACCENTS (Corporate Blue) */
+    .btn-sync, .status-active { 
+        background-color: #007bff !important; 
+        border-radius: 6px;
+    }
+
+    /* 4. RED ALERTS (SOP Breach/Critical) */
+    .critical-performance, .sop-breach { 
+        background-color: #7a0000 !important; /* Professional Deep Red */
         border: 1px solid #ff4d4d;
-        color: white !important;
+        color: #ffffff !important;
     }
 
-    /* Blue for Interactive Elements */
-    .btn-sync, .nav-link.active {
-        background-color: #0056b3 !important; /* Corporate Blue */
-        border: none;
-    }
+    /* 5. HIDE THEME HEADER (Optional) */
+    header { display: none !important; }
 </style>
 </head>
 
