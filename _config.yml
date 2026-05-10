@@ -1,11 +1,3 @@
-remote_theme: cotes2020/jekyll-theme-chirpy
 title: RiderOps Dashboard
-description: High-performance fleet management dashboard.
-
-# Chirpy needs these to function correctly:
-lang: en
-timezone: Asia/Bahrain
-
-# This ensures your custom CSS doesn't get totally overwritten
-sass:
-  style: compressed
+description: High-performance fleet management.
+# Remove remote_theme for now to fix the buttons
