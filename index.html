@@ -95,6 +95,7 @@ td { padding: 14px 12px; border-bottom: 1px solid var(--br); font-size: 13px; co
 </div>
 
 <script>
+<script>
 // ── DATA CONFIGURATION ───────────────────────────────────────
 var PERF_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
 
@@ -111,7 +112,6 @@ async function doSync() {
         processData(csv);
         status.innerText = "Sync Complete";
         
-        // Update the timestamp if the element exists
         const timeEl = document.getElementById('last-time');
         if(timeEl) timeEl.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     } catch (e) {
@@ -125,13 +125,12 @@ async function doSync() {
 function processData(csv) {
     // Split into rows and remove the header row
     const lines = csv.split('\n').map(l => l.split(','));
-    const rows = lines.slice(1).filter(cols => cols.length >= 5); // Ensure row has data
+    const rows = lines.slice(1).filter(cols => cols.length >= 5); 
 
     let totalAtt = 0, totalEff = 0, totalOrders = 0;
     let tableHtml = "<table><thead><tr><th>Rider</th><th>Batch</th><th>Orders</th><th>Att %</th><th>Eff %</th></tr></thead><tbody>";
 
     rows.forEach(cols => {
-        // Clean data: removing '%' signs and converting to numbers
         const r = {
             name: cols[0] ? cols[0].trim() : 'Unknown',
             batch: cols[1] ? cols[1].trim() : '-',
@@ -145,7 +144,6 @@ function processData(csv) {
         totalAtt += r.att;
         totalEff += r.eff;
 
-        // Build Table Row with color coding
         tableHtml += `<tr>
             <td style="font-weight:600">${r.name}</td>
             <td style="color:var(--t2)">${r.batch}</td>
@@ -157,29 +155,17 @@ function processData(csv) {
 
     tableHtml += "</tbody></table>";
     
-    // Calculate averages
+    // Calculate and Update KPI Cards
     const avgAtt = rows.length > 0 ? (totalAtt / rows.length).toFixed(1) : 0;
     const avgEff = rows.length > 0 ? (totalEff / rows.length).toFixed(1) : 0;
 
-    // Update the UI Cards
     if(document.getElementById('k-riders')) document.getElementById('k-riders').innerText = rows.length;
     if(document.getElementById('k-att')) document.getElementById('k-att').innerText = avgAtt + "%";
     if(document.getElementById('k-eff')) document.getElementById('k-eff').innerText = avgEff + "%";
     
-    // Update the Main Table container
+    // Update the Table container
     const container = document.getElementById('ov-table-container') || document.getElementById('data-log');
     if(container) container.innerHTML = tableHtml;
-}
-
-// Automatically sync when the page opens
-window.onload = doSync;    
-    // Update KPI Cards
-    document.getElementById('k-riders').innerText = data.length;
-    document.getElementById('k-att').innerText = (totalAtt / data.length).toFixed(1) + "%";
-    document.getElementById('k-eff').innerText = (totalEff / data.length).toFixed(1) + "%";
-    
-    // Update Table
-    document.getElementById('ov-table-container').innerHTML = tableHtml;
 }
 
 function go(id, el) {
@@ -190,8 +176,10 @@ function go(id, el) {
     document.getElementById('pg-title').innerText = el.innerText;
 }
 
-// Auto-run on load
-window.onload = doSync;
+// Auto-run sync on page load
+window.onload = function() {
+    doSync();
+};
 </script>
 </body>
 </html>
