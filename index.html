@@ -10,9 +10,31 @@ title: RiderOps Dashboard
 <title>RiderOps-Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
-    .container-lg { max-width: none !important; padding: 0 !important; }
-    .main-content { max-width: none !important; padding: 2rem !important; } 
-    body { background: transparent !important; }
+    /* Full-width fix for Jekyll Slate */
+    .container-lg, .wrapper { 
+        max-width: none !important; 
+        margin: 0 !important; 
+        padding: 20px !important; 
+    }
+
+    /* Core Palette: Grey & Black */
+    body { 
+        background-color: #0d1117 !important; /* Dark GitHub Grey/Black */
+        color: #c9d1d9 !important; 
+    }
+
+    /* Red Alerts for Breaches */
+    .critical-performance, .sop-breach {
+        background-color: #7a0000 !important; /* Deep Red */
+        border: 1px solid #ff4d4d;
+        color: white !important;
+    }
+
+    /* Blue for Interactive Elements */
+    .btn-sync, .nav-link.active {
+        background-color: #0056b3 !important; /* Corporate Blue */
+        border: none;
+    }
 </style>
 </head>
 
