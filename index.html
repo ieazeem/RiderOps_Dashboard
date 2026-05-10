@@ -7,9 +7,16 @@ title: RiderOps Dashboard
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>Keeta Workforce</title>
+<title>RiderOps-Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
 <script>
+<style>
+      .container-lg { max-width: none !important; padding: 0 !important; }
+      .main-content { max-width: none !important; padding: 2rem !important; } /* Added for extra safety */
+      body { background: transparent !important; }
+    </style>
+  </head>
+   
 // ── Inline Mini Chart (no CDN needed) ───────────────────────
 var Chart=(function(){
 function clr(ctx,w,h){ctx.clearRect(0,0,w,h);}
