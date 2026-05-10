@@ -6,11 +6,12 @@ layout: null
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>RiderOps | Command Center</title>
+<title>RiderOps | Bahrain</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
+/* ── BLUE-GREY THEME ── */
 :root {
   --p: #F29F67; --nav-bg: #0f172a; --sidebar-bg: #1e293b;
   --accent: #3b82f6; --bg-main: #f1f5f9; --cd: #ffffff;
@@ -19,33 +20,25 @@ layout: null
 }
 
 body, html { margin: 0; padding: 0; height: 100vh; font-family: 'DM Sans', sans-serif; background: var(--bg-main); color: var(--t1); overflow: hidden; }
-
-/* ── LAYOUT ───────────────────────────────────── */
 .wrapper { display: flex; height: 100vh; width: 100vw; }
-
 .sidebar { width: 260px; background: var(--nav-bg); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
 .sb-hdr { padding: 24px; font-family: 'Syne', sans-serif; font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .nav-links { list-style: none; padding: 15px; flex: 1; }
 .nav-item { padding: 12px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #94a3b8; transition: 0.2s; font-size: 14px; margin-bottom: 4px; }
 .nav-item.active, .nav-item:hover { background: var(--accent); color: white; }
-
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .top-bar { background: var(--cd); padding: 16px 24px; border-bottom: 1px solid var(--br); display: flex; justify-content: space-between; align-items: center; }
-
 .scroll-area { padding: 24px; overflow-y: auto; flex: 1; }
-
-/* ── UI COMPONENTS ────────────────────────────── */
 .kg { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .kc { background: var(--cd); border: 1px solid var(--br); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .kl { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--t2); margin-bottom: 6px; }
 .kv { font-size: 28px; font-weight: 700; color: var(--t1); font-family: 'Inter', sans-serif; }
-
 .sync-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .pg { display: none; } .pg.active { display: block; }
 
-table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; }
-th { background: #f8fafc; color: var(--t2); padding: 12px; font-size: 11px; text-transform: uppercase; text-align: left; border-bottom: 2px solid var(--br); }
-td { padding: 14px 12px; border-bottom: 1px solid var(--br); font-size: 13px; color: var(--t1); }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th { background: #f8fafc; color: var(--t2); padding: 10px; font-size: 11px; text-align: left; border-bottom: 2px solid var(--br); }
+td { padding: 12px 10px; border-bottom: 1px solid var(--br); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -57,14 +50,14 @@ td { padding: 14px 12px; border-bottom: 1px solid var(--br); font-size: 13px; co
             <li class="nav-item active" onclick="go('ov', this)"><i class="fas fa-chart-line"></i> Overview</li>
             <li class="nav-item" onclick="go('riders', this)"><i class="fas fa-users"></i> Rider Fleet</li>
         </ul>
-        <div style="padding: 20px; font-size: 10px; color: #475569;">LAST SYNC: <span id="last-time">--:--</span></div>
+        <div style="padding: 20px; font-size: 10px; color: #475569;">SYNC: <span id="last-time">--:--</span></div>
     </nav>
 
     <main class="main">
         <div class="top-bar">
             <div>
-                <h2 style="margin:0; font-size:18px;" id="pg-title">Operations Overview</h2>
-                <span style="font-size:12px; color:var(--t2)" id="ss">📋 System Standby</span>
+                <h2 style="margin:0; font-size:18px;" id="pg-title">Dashboard</h2>
+                <span style="font-size:12px; color:var(--t2)" id="ss">📋 Standby</span>
             </div>
             <button class="sync-btn" onclick="doSync()">
                 <i class="fas fa-sync" id="si"></i> Sync Data
@@ -75,78 +68,68 @@ td { padding: 14px 12px; border-bottom: 1px solid var(--br); font-size: 13px; co
             <div id="pg-ov" class="pg active">
                 <div class="kg">
                     <div class="kc"><div class="kl">Total Riders</div><div class="kv" id="k-riders">0</div></div>
-                    <div class="kc"><div class="kl">Fleet Attendance</div><div class="kv" id="k-att">0%</div></div>
-                    <div class="kc"><div class="kl">Avg Efficiency</div><div class="kv" id="k-eff">0%</div></div>
+                    <div class="kc"><div class="kl">Attendance</div><div class="kv" id="k-att">0%</div></div>
+                    <div class="kc"><div class="kl">Efficiency</div><div class="kv" id="k-eff">0%</div></div>
                 </div>
                 <div class="kc">
-                    <div class="kl">Performance Table</div>
+                    <div class="kl">Live Performance Table</div>
                     <div id="ov-table-container"></div>
                 </div>
             </div>
 
             <div id="pg-riders" class="pg">
-                <div class="kc" id="fleet-container">
-                    <div class="kl">Detailed Fleet Status</div>
-                    <div id="fleet-table-body"></div>
-                </div>
+                <div class="kc"><div class="kl">Full Fleet Details</div><div id="fleet-container">Select Sync to load.</div></div>
             </div>
         </div>
     </main>
 </div>
 
 <script>
-<script>
-// ── DATA CONFIGURATION ───────────────────────────────────────
+// ── DATA LOGIC ──
 var PERF_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
 
 async function doSync() {
     const icon = document.getElementById('si');
     const status = document.getElementById('ss');
     if(icon) icon.classList.add('fa-spin');
-    status.innerText = "Fetching Live Data...";
+    status.innerText = "Syncing with Google...";
 
     try {
         const res = await fetch(PERF_URL);
-        if (!res.ok) throw new Error('Fetch failed');
         const csv = await res.text();
         processData(csv);
-        status.innerText = "Sync Complete";
-        
-        const timeEl = document.getElementById('last-time');
-        if(timeEl) timeEl.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        status.innerText = "Connected";
+        document.getElementById('last-time').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     } catch (e) {
-        status.innerText = "Connection Error!";
-        console.error("Sync Error:", e);
+        status.innerText = "Connection Error";
+        console.error(e);
     } finally {
         if(icon) icon.classList.remove('fa-spin');
     }
 }
 
 function processData(csv) {
-    // Split into rows and remove the header row
     const lines = csv.split('\n').map(l => l.split(','));
     const rows = lines.slice(1).filter(cols => cols.length >= 5); 
 
-    let totalAtt = 0, totalEff = 0, totalOrders = 0;
-    let tableHtml = "<table><thead><tr><th>Rider</th><th>Batch</th><th>Orders</th><th>Att %</th><th>Eff %</th></tr></thead><tbody>";
+    let tAtt = 0, tEff = 0;
+    let tableHtml = "<table><thead><tr><th>Rider</th><th>Batch</th><th>Orders</th><th>Att%</th><th>Eff%</th></tr></thead><tbody>";
 
     rows.forEach(cols => {
         const r = {
-            name: cols[0] ? cols[0].trim() : 'Unknown',
-            batch: cols[1] ? cols[1].trim() : '-',
-            orders: parseInt(cols[2]) || 0,
+            name: cols[0] || 'Unknown',
+            batch: cols[1] || '-',
+            orders: cols[2] || 0,
             att: parseFloat(cols[3]) || 0,
-            fill: parseFloat(cols[4]) || 0,
             eff: parseFloat(cols[5]) || 0
         };
 
-        totalOrders += r.orders;
-        totalAtt += r.att;
-        totalEff += r.eff;
+        tAtt += r.att;
+        tEff += r.eff;
 
         tableHtml += `<tr>
             <td style="font-weight:600">${r.name}</td>
-            <td style="color:var(--t2)">${r.batch}</td>
+            <td>${r.batch}</td>
             <td>${r.orders}</td>
             <td style="color:${r.att >= 90 ? 'var(--gn)' : 'var(--rd)'}">${r.att}%</td>
             <td style="font-weight:700; color:${r.eff >= 85 ? 'var(--gn)' : 'var(--am)'}">${r.eff}%</td>
@@ -155,17 +138,14 @@ function processData(csv) {
 
     tableHtml += "</tbody></table>";
     
-    // Calculate and Update KPI Cards
-    const avgAtt = rows.length > 0 ? (totalAtt / rows.length).toFixed(1) : 0;
-    const avgEff = rows.length > 0 ? (totalEff / rows.length).toFixed(1) : 0;
+    // Update KPI Cards
+    const avgA = (tAtt / rows.length).toFixed(1);
+    const avgE = (tEff / rows.length).toFixed(1);
 
-    if(document.getElementById('k-riders')) document.getElementById('k-riders').innerText = rows.length;
-    if(document.getElementById('k-att')) document.getElementById('k-att').innerText = avgAtt + "%";
-    if(document.getElementById('k-eff')) document.getElementById('k-eff').innerText = avgEff + "%";
-    
-    // Update the Table container
-    const container = document.getElementById('ov-table-container') || document.getElementById('data-log');
-    if(container) container.innerHTML = tableHtml;
+    document.getElementById('k-riders').innerText = rows.length;
+    document.getElementById('k-att').innerText = avgA + "%";
+    document.getElementById('k-eff').innerText = avgE + "%";
+    document.getElementById('ov-table-container').innerHTML = tableHtml;
 }
 
 function go(id, el) {
@@ -176,10 +156,8 @@ function go(id, el) {
     document.getElementById('pg-title').innerText = el.innerText;
 }
 
-// Auto-run sync on page load
-window.onload = function() {
-    doSync();
-};
+// Auto-run on refresh
+window.onload = doSync;
 </script>
 </body>
 </html>
