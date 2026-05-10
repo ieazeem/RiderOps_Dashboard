@@ -3,161 +3,1288 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>Keeta Workforce | Professional Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
+<title>Keeta Workforce</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<script>
+// ── Inline Mini Chart (no CDN needed) ───────────────────────
+var Chart=(function(){
+function clr(ctx,w,h){ctx.clearRect(0,0,w,h);}
+function rnd(n){return Math.round(n);}
 
-<style>
-/* ── UPDATED THEME: PROFESSIONAL BLUE-GREY ── */
-:root {
-  --p: #F29F67;           /* Accent Orange */
-  --nav-bg: #0f172a;      /* Dark Navy Sidebar */
-  --sidebar-bg: #1e293b;  /* Slate Blue */
-  --accent: #3b82f6;      /* Bright Blue */
-  --bg-main: #f1f5f9;     /* Light Grey Content Bg */
-  --cd: #ffffff;          /* White Cards */
-  --br: #e2e8f0;          /* Border Color */
-  --t1: #1e293b;          /* Heading Text */
-  --t2: #64748b;          /* Subtext */
-  --gn: #10b981; --rd: #ef4444; --am: #f59e0b; --bl: #3b82f6; --tl: #14b8a6; --gd: #f59e0b;
+function drawChart(canvas,cfg){
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width=canvas.offsetWidth||canvas.parentElement.offsetWidth||300;
+  var H=canvas.height=canvas.offsetHeight||220;
+  clr(ctx,W,H);
+
+  var type=cfg.type||'bar';
+  var datasets=cfg.data.datasets||[];
+  var labels=cfg.data.labels||[];
+  var opts=cfg.options||{};
+  var scales=opts.scales||{};
+  var yScale=scales.y||{};
+  var y2Scale=scales.y2||null;
+
+  var PAD={top:16,right:y2Scale?45:16,bottom:32,left:44};
+  var W2=W-PAD.left-PAD.right;
+  var H2=H-PAD.top-PAD.bottom;
+  if(W2<10||H2<10) return;
+
+  var allY=[];
+  datasets.forEach(function(ds){
+    if(ds.yAxisID==='y2') return;
+    (ds.data||[]).forEach(function(v){if(v!=null)allY.push(v);});
+  });
+  var yMin=yScale.min!=null?yScale.min:Math.min.apply(null,allY.concat([0]));
+  var yMax=yScale.max!=null?yScale.max:Math.max.apply(null,allY.concat([100]));
+  if(yMax===yMin){yMax=yMin+1;}
+
+  var allY2=[];
+  datasets.forEach(function(ds){
+    if(ds.yAxisID==='y2')(ds.data||[]).forEach(function(v){if(v!=null)allY2.push(v);});
+  });
+  var y2Min=0,y2Max=Math.max.apply(null,allY2.concat([1]));
+
+  function fy(v,mn,mx){return PAD.top+H2-(v-mn)/(mx-mn)*H2;}
+  function fx(i,n){return PAD.left+(i+0.5)*(W2/n);}
+
+  ctx.strokeStyle='#E8EDF4'; ctx.lineWidth=1;
+  var steps=5;
+  for(var s=0;s<=steps;s++){
+    var yv=yMin+(yMax-yMin)*s/steps;
+    var py=fy(yv,yMin,yMax);
+    ctx.beginPath();ctx.moveTo(PAD.left,py);ctx.lineTo(W-PAD.right,py);ctx.stroke();
+    ctx.fillStyle='#A8B4C4';ctx.font='10px Plus Jakarta Sans,sans-serif';ctx.textAlign='right';
+    var lbl=yScale.callback?yScale.callback(rnd(yv)):rnd(yv);
+    ctx.fillText(lbl,PAD.left-4,py+3);
+  }
+
+  ctx.fillStyle='#A8B4C4';ctx.font='9px Plus Jakarta Sans,sans-serif';ctx.textAlign='center';
+  var maxLbls=Math.floor(W2/40);
+  var step2=Math.max(1,Math.ceil(labels.length/maxLbls));
+  labels.forEach(function(l,i){
+    if(i%step2!==0) return;
+    ctx.fillText(l,fx(i,labels.length),H-6);
+  });
+
+  if(y2Scale&&allY2.length){
+    var y2steps=4;
+    ctx.textAlign='left';ctx.fillStyle='#2563EB';
+    for(var s=0;s<=y2steps;s++){
+      var yv2=y2Min+(y2Max-y2Min)*s/y2steps;
+      var py2=fy(yv2,y2Min,y2Max);
+      var lbl2=y2Scale.callback?y2Scale.callback(rnd(yv2)):rnd(yv2);
+      ctx.fillText(lbl2,W-PAD.right+4,py2+3);
+    }
+  }
+
+  var barDS=datasets.filter(function(ds){return(ds.type||type)==='bar';});
+
+  datasets.forEach(function(ds,di){
+    var data=ds.data||[];
+    var isY2=ds.yAxisID==='y2';
+    var mn=isY2?y2Min:yMin, mx=isY2?y2Max:yMax;
+    var t=ds.type||type;
+    var color=ds.borderColor||ds.backgroundColor||'#2563EB';
+
+    if(t==='bar'){
+      var bIdx=barDS.indexOf(ds);
+      var bnd=barDS.length;
+      var bW=W2/labels.length*0.72/Math.max(bnd,1);
+      ctx.globalAlpha=0.85;
+      data.forEach(function(v,i){
+        if(v==null) return;
+        var x=PAD.left+i*(W2/labels.length)+(W2/labels.length*0.14)+bIdx*bW;
+        var y=fy(Math.max(v,mn),mn,mx);
+        var barH=fy(mn,mn,mx)-y;
+        var bg=Array.isArray(ds.backgroundColor)?ds.backgroundColor[i]:ds.backgroundColor;
+        ctx.fillStyle=bg||'rgba(37,99,235,0.8)';
+        ctx.beginPath();
+        var r=ds.borderRadius||0;
+        ctx.roundRect?ctx.roundRect(x,y,bW,barH,r):ctx.rect(x,y,bW,barH);
+        ctx.fill();
+      });
+      ctx.globalAlpha=1;
+    } else {
+      ctx.beginPath();
+      ctx.strokeStyle=typeof color==='string'?color:'#2563EB';
+      ctx.lineWidth=ds.borderWidth||2;
+      if(ds.borderDash) ctx.setLineDash(ds.borderDash);
+      else ctx.setLineDash([]);
+      var first=true;
+      data.forEach(function(v,i){
+        if(v==null) return;
+        var x=fx(i,data.length), y=fy(v,mn,mx);
+        if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      if(ds.fill&&data.length){
+        ctx.beginPath();
+        var bg=ds.backgroundColor||'rgba(37,99,235,0.07)';
+        ctx.fillStyle=bg;
+        data.forEach(function(v,i){
+          if(v==null) return;
+          var x=fx(i,data.length),y=fy(v,mn,mx);
+          if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        });
+        var last=data.length-1;
+        ctx.lineTo(fx(last,data.length),fy(mn,mn,mx));
+        ctx.lineTo(fx(0,data.length),fy(mn,mn,mx));
+        ctx.closePath();ctx.fill();
+      }
+
+      var pr=ds.pointRadius!=null?ds.pointRadius:3;
+      if(pr>0){
+        data.forEach(function(v,i){
+          if(v==null) return;
+          ctx.beginPath();
+          ctx.arc(fx(i,data.length),fy(v,mn,mx),pr,0,Math.PI*2);
+          ctx.fillStyle=ds.pointBackgroundColor||ctx.strokeStyle;
+          ctx.fill();
+          if(ds.pointBorderColor){ctx.strokeStyle=ds.pointBorderColor;ctx.lineWidth=ds.pointBorderWidth||1;ctx.stroke();}
+        });
+      }
+    }
+  });
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body, html { height: 100vh; width: 100vw; font-family: 'DM Sans', sans-serif; background: var(--bg-main); color: var(--t1); overflow: hidden; }
+function ChartInst(canvas,cfg){
+  this._canvas=canvas; this._cfg=cfg;
+  if(canvas&&canvas.getContext) drawChart(canvas,cfg);
+}
+ChartInst.prototype.destroy=function(){
+  if(this._canvas){var ctx=this._canvas.getContext('2d');ctx.clearRect(0,0,this._canvas.width,this._canvas.height);}
+};
+ChartInst.prototype.update=function(){if(this._canvas)drawChart(this._canvas,this._cfg);};
 
-/* ── LAYOUT STRUCTURE ── */
-.app-wrapper { display: flex; height: 100vh; width: 100vw; }
-
-/* Sidebar Navigation */
-.sidebar { width: 240px; background: var(--nav-bg); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-.sb-header { padding: 25px 20px; font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); }
-.nav-links { list-style: none; padding: 20px 10px; flex: 1; }
-.nav-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #94a3b8; transition: 0.2s; font-size: 14px; margin-bottom: 4px; border: none; background: transparent; width: 100%; text-align: left; }
-.nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-.nav-item.on { background: var(--accent); color: white; }
-
-/* Content Area */
-.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-.top-bar { background: var(--cd); padding: 15px 30px; border-bottom: 1px solid var(--br); display: flex; justify-content: space-between; align-items: center; }
-.content-scroll { padding: 24px; overflow-y: auto; flex: 1; }
-
-/* ── ALIGNED COMPONENTS ── */
-.kg { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
-.kc { background: var(--cd); border: 1px solid var(--br); border-radius: 12px; padding: 20px; border-top: 4px solid var(--a, #ccc); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.kl { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--t2); margin-bottom: 8px; letter-spacing: 0.5px; }
-.kv { font-size: 32px; font-weight: 700; color: var(--t1); font-family: 'Inter', sans-serif; line-height: 1; }
-.ks { font-size: 11px; color: var(--t2); margin-top: 6px; }
-
-.card { background: var(--cd); border-radius: 12px; border: 1px solid var(--br); padding: 20px; margin-bottom: 20px; }
-.ct { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-.cs { font-size: 12px; color: var(--t2); margin-bottom: 15px; }
-
-/* Buttons & Inputs */
-.sbtn { padding: 8px 16px; border-radius: 8px; border: none; background: var(--p); color: var(--nav-bg); font-weight: 700; cursor: pointer; transition: 0.2s; }
-.sbtn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-/* Pages Hidden by Default */
-.pg { display: none; }
-.pg.on { display: block; }
-
-/* Table Styling */
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th { text-align: left; padding: 12px; border-bottom: 2px solid var(--br); color: var(--t2); font-size: 11px; text-transform: uppercase; }
-td { padding: 12px; border-bottom: 1px solid var(--br); font-size: 13px; }
-
-/* Badges */
-.klv { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; background: #dcfce7; color: #15803d; margin-left: 5px; }
-.ktg { font-size: 10px; margin-top: 8px; padding: 3px 10px; border-radius: 20px; display: inline-block; font-weight: 700; }
-.tok { background: #dcfce7; color: #15803d; }
-</style>
-
-<script>
-/* ── PRESERVING YOUR ORIGINAL CHART ENGINE ── */
-var Chart=(function(){
-  // All your internal Chart drawing logic (clr, rnd, drawChart, etc.) 
-  // from the original file remains exactly the same here.
-  // [Original Chart logic omitted for brevity, but kept in full in your real file]
+return function(canvas,cfg){return new ChartInst(canvas,cfg);};
 })();
 </script>
-</head>
+<style>
+:root{
+  --blue:#1D4ED8;
+  --blue-mid:#2563EB;
+  --blue-light:#3B82F6;
+  --blue-pale:#EFF4FF;
+  --blue-border:#BFDBFE;
+  --dk:#0F172A;
+  --dk2:#1E293B;
+  --slate:#334155;
+  --mid:#64748B;
+  --soft:#94A3B8;
+  --gn:#059669;
+  --gn-bg:#ECFDF5;
+  --gn-bd:#A7F3D0;
+  --am:#D97706;
+  --am-bg:#FFFBEB;
+  --am-bd:#FDE68A;
+  --rd:#DC2626;
+  --rd-bg:#FEF2F2;
+  --rd-bd:#FECACA;
+  --bg:#F8FAFC;
+  --cd:#FFFFFF;
+  --br:#E2E8F0;
+  --t1:#0F172A;
+  --t2:#64748B;
+  /* Legacy orange refs remapped to blue */
+  --p:var(--blue-mid);
+  --bl:var(--blue-light);
+  --tl:#0891B2;
+  --gd:#0284C7;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;color:var(--t1);}
+button,input,select{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;}
 
+/* ─── HEADER ─── */
+.hdr{
+  background:var(--dk);
+  padding:16px 20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.kbadge{
+  background:var(--blue-mid);
+  color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:700;
+  font-size:13px;
+  padding:5px 11px;
+  border-radius:6px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+.htitle{color:#F1F5F9;font-size:14px;font-weight:600;letter-spacing:0.01em;}
+.hsub{color:#475569;font-size:11px;margin-top:1px;letter-spacing:0.02em;}
+.ldot{width:7px;height:7px;border-radius:50%;background:#10B981;animation:pulse 2s infinite;display:inline-block;margin-right:6px;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(16,185,129,0)}}
+.ltext{color:#64748B;font-size:12px;}
+
+/* ─── STATUS BAR ─── */
+.sbar{
+  background:var(--dk2);
+  padding:9px 20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.sinfo{font-size:11px;color:#475569;letter-spacing:0.01em;}
+.sbtn{
+  padding:6px 16px;border-radius:6px;border:1px solid var(--blue-mid);
+  background:transparent;color:var(--blue-light);font-size:11px;font-weight:600;
+  letter-spacing:0.04em;text-transform:uppercase;
+  transition:all .2s;
+}
+.sbtn:hover{background:var(--blue-mid);color:#fff;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.spinning{animation:spin .8s linear infinite;display:inline-block;}
+
+/* ─── TABS ─── */
+.tabs{
+  background:var(--cd);
+  border-bottom:1px solid var(--br);
+  display:flex;overflow-x:auto;padding:0 16px;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{
+  padding:14px 16px;border:none;background:none;
+  font-size:12px;font-weight:600;color:var(--soft);
+  border-bottom:2px solid transparent;white-space:nowrap;margin-bottom:-1px;
+  letter-spacing:0.02em;transition:color .15s,border-color .15s;
+}
+.tab:hover{color:var(--slate);}
+.tab.on{color:var(--blue-mid);border-bottom-color:var(--blue-mid);}
+
+/* ─── LAYOUT ─── */
+.wrap{padding:18px 16px 80px;}
+.pg{display:none;}.pg.on{display:block;}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--cd);
+  border-radius:10px;
+  border:1px solid var(--br);
+  padding:18px;
+  margin-bottom:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+.ct{font-weight:700;font-size:13px;letter-spacing:0.01em;color:var(--dk);margin-bottom:2px;}
+.cs{font-size:11px;color:var(--soft);margin-bottom:14px;letter-spacing:0.01em;}
+
+/* ─── KPI GRID ─── */
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.kc{
+  background:var(--cd);
+  border:1px solid var(--br);
+  border-radius:10px;
+  padding:14px 16px;
+  border-top:3px solid var(--a,var(--br));
+  box-shadow:0 1px 2px rgba(0,0,0,.03);
+  transition:box-shadow .2s;
+}
+.kc:hover{box-shadow:0 4px 12px rgba(0,0,0,.07);}
+.kl{font-size:10px;color:var(--mid);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:6px;}
+.kv{font-size:26px;font-weight:300;line-height:1;letter-spacing:-0.5px;color:var(--dk);}
+.ks{font-size:10px;color:var(--soft);margin-top:5px;letter-spacing:0.01em;}
+.ktg{font-size:9px;margin-top:6px;padding:2px 8px;border-radius:4px;display:inline-block;font-weight:700;letter-spacing:0.03em;}
+.tok{background:var(--gn-bg);color:var(--gn);border:1px solid var(--gn-bd);}
+.twn{background:var(--am-bg);color:var(--am);border:1px solid var(--am-bd);}
+.tcr{background:var(--rd-bg);color:var(--rd);border:1px solid var(--rd-bd);}
+.klv{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:700;background:var(--blue-pale);color:var(--blue-mid);border:1px solid var(--blue-border);vertical-align:middle;}
+
+/* ─── ALERTS ─── */
+.al{border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;border:1px solid;}
+.al-r{background:var(--rd-bg);border-color:var(--rd-bd);color:#991B1B;}
+.al-a{background:var(--am-bg);border-color:var(--am-bd);color:#92400E;}
+.al-g{background:var(--gn-bg);border-color:var(--gn-bd);color:#065F46;}
+.al-b{background:var(--blue-pale);border-color:var(--blue-border);color:#1E40AF;}
+.aln{font-size:12px;font-weight:700;letter-spacing:0.01em;}
+.alx{font-size:11px;opacity:.8;margin-top:2px;line-height:1.5;}
+.arr{font-size:11px;font-weight:700;opacity:.6;}
+
+/* ─── SLA BARS ─── */
+.sla-item{margin-bottom:14px;}
+.sla-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;font-weight:500;}
+.trk{height:5px;background:var(--br);border-radius:99px;}
+.trf{height:5px;border-radius:99px;}
+
+/* ─── STAT GRID ─── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.si{background:var(--bg);border-radius:8px;border:1px solid var(--br);padding:12px;text-align:center;}
+.sv{font-size:20px;font-weight:300;letter-spacing:-0.5px;color:var(--dk);}
+.sl{font-size:10px;color:var(--mid);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;}
+
+/* ─── PERF TOGGLE ─── */
+.perf-tog{display:flex;gap:2px;background:var(--bg);border-radius:7px;padding:3px;border:1px solid var(--br);}
+.ptb{padding:5px 12px;border:none;background:transparent;font-size:11px;font-weight:600;color:var(--mid);border-radius:5px;letter-spacing:0.02em;}
+.ptb.on{background:var(--cd);color:var(--blue-mid);box-shadow:0 1px 4px rgba(0,0,0,.1);}
+
+/* ─── RIDERS ─── */
+.addbtn{
+  width:100%;padding:13px;border-radius:8px;border:none;
+  background:var(--blue-mid);color:#fff;font-size:14px;font-weight:700;
+  margin-bottom:12px;letter-spacing:0.02em;
+  box-shadow:0 2px 8px rgba(37,99,235,.25);
+  transition:all .2s;
+}
+.addbtn:hover{background:var(--blue);box-shadow:0 4px 16px rgba(37,99,235,.35);}
+.srch{
+  width:100%;padding:11px 14px;border-radius:8px;border:1.5px solid var(--br);
+  font-size:14px;margin-bottom:10px;outline:none;-webkit-appearance:none;
+  background:var(--cd);color:var(--t1);
+  transition:border-color .15s;
+}
+.srch:focus{border-color:var(--blue-mid);box-shadow:0 0 0 3px rgba(37,99,235,.08);}
+.srch::placeholder{color:var(--soft);}
+.frow2{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.frow2::-webkit-scrollbar{display:none;}
+.fb{
+  padding:6px 14px;border-radius:6px;border:1.5px solid var(--br);
+  background:var(--cd);color:var(--mid);font-size:11px;font-weight:600;white-space:nowrap;
+  letter-spacing:0.03em;transition:all .15s;
+}
+.fb:hover{border-color:var(--blue-border);color:var(--blue-mid);background:var(--blue-pale);}
+.fb.on{background:var(--dk);color:#fff;border-color:var(--dk);}
+
+/* ─── RIDER CARDS ─── */
+.rc{
+  background:var(--cd);border-radius:10px;border:1px solid var(--br);
+  padding:14px 16px;margin-bottom:8px;border-left:3px solid var(--br);
+  box-shadow:0 1px 2px rgba(0,0,0,.03);transition:box-shadow .2s;
+}
+.rc:hover{box-shadow:0 3px 10px rgba(0,0,0,.06);}
+.rc.crit{border-left-color:var(--rd);}
+.rc.warn{border-left-color:var(--am);}
+.rc.act{border-left-color:var(--gn);}
+.rn{font-weight:700;font-size:14px;color:var(--dk);}
+.ri{font-size:11px;color:var(--soft);margin-top:2px;}
+.rz{font-size:11px;color:var(--mid);margin-top:2px;}
+.bdg{padding:3px 9px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.ba{background:var(--gn-bg);color:var(--gn);border:1px solid var(--gn-bd);}
+.bw{background:var(--am-bg);color:var(--am);border:1px solid var(--am-bd);}
+.bc{background:var(--rd-bg);color:var(--rd);border:1px solid var(--rd-bd);}
+
+/* ─── METRICS GRID ─── */
+.mts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+.mt{text-align:center;background:var(--bg);border-radius:7px;padding:8px 4px;border:1px solid var(--br);}
+.mv{font-size:14px;font-weight:600;letter-spacing:-.3px;color:var(--dk);}
+.ml{font-size:9px;color:var(--soft);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+
+/* ─── ACTION BOXES ─── */
+.ax{border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:11px;line-height:1.6;border:1px solid;}
+.au{background:var(--rd-bg);border-color:var(--rd-bd);color:#7F1D1D;}
+.aw{background:var(--am-bg);border-color:var(--am-bd);color:#78350F;}
+.ao{background:var(--gn-bg);border-color:var(--gn-bd);color:#064E3B;}
+.axl{font-weight:700;font-size:10px;text-transform:uppercase;margin-bottom:3px;letter-spacing:0.06em;}
+.sba{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
+.sb1{background:var(--gn-bg);color:var(--gn);}.sb2{background:var(--am-bg);color:var(--am);}.sb3{background:var(--rd-bg);color:var(--rd);}
+.ph{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:700;margin-left:6px;border:1px solid;}
+.pHI{background:var(--rd-bg);border-color:var(--rd-bd);color:var(--rd);}
+.pMD{background:var(--am-bg);border-color:var(--am-bd);color:var(--am);}
+.pLO{background:var(--bg);border-color:var(--br);color:var(--soft);}
+
+/* ─── ATTENDANCE BADGES ─── */
+.attP{background:var(--gn-bg);color:var(--gn);padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid var(--gn-bd);}
+.attL{background:var(--am-bg);color:var(--am);padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid var(--am-bd);}
+.attA{background:var(--rd-bg);color:var(--rd);padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid var(--rd-bd);}
+.attS{background:var(--bg);color:var(--soft);padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid var(--br);}
+
+/* ─── ZONE CARDS ─── */
+.zc2{background:var(--cd);border-radius:10px;border:1px solid var(--br);padding:18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.03);}
+.zn{font-weight:700;font-size:16px;color:var(--dk);}
+.zs{font-size:11px;color:var(--soft);margin-bottom:12px;margin-top:2px;}
+
+/* ─── LEADERBOARD ─── */
+.lbc{
+  background:var(--cd);border-radius:10px;border:1px solid var(--br);
+  padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;
+  box-shadow:0 1px 2px rgba(0,0,0,.03);transition:box-shadow .2s;
+}
+.lbc:hover{box-shadow:0 3px 10px rgba(0,0,0,.06);}
+.lrk{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
+
+/* ─── FORM OVERLAY ─── */
+.fov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:998;backdrop-filter:blur(2px);}
+.fov.on{display:block;}
+.fwp{
+  position:fixed;bottom:0;left:0;right:0;background:var(--cd);
+  border-radius:16px 16px 0 0;z-index:999;max-height:88vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .3s ease;
+  padding-bottom:env(safe-area-inset-bottom,20px);
+  border-top:1px solid var(--br);
+}
+.fwp.on{transform:translateY(0);}
+.fdg{width:36px;height:3px;background:var(--br);border-radius:99px;margin:14px auto 18px;}
+.finner{padding:0 18px 24px;}
+.ftl{font-weight:700;font-size:16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;color:var(--dk);}
+.fcl{background:none;border:none;font-size:20px;color:var(--soft);line-height:1;}
+.frw{margin-bottom:12px;}
+.flb{font-size:11px;font-weight:700;color:var(--slate);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;}
+.fin,.fsl{
+  width:100%;padding:12px 13px;border-radius:8px;border:1.5px solid var(--br);
+  font-size:15px;color:var(--t1);background:var(--cd);outline:none;-webkit-appearance:none;display:block;
+  transition:border-color .15s,box-shadow .15s;
+}
+.fin:focus,.fsl:focus{border-color:var(--blue-mid);box-shadow:0 0 0 3px rgba(37,99,235,.08);}
+.fgr{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fact{display:flex;gap:10px;margin-top:18px;}
+.bcn{flex:1;padding:13px;border-radius:8px;border:1.5px solid var(--br);background:var(--cd);color:var(--slate);font-size:14px;font-weight:600;}
+.bsv{flex:2;padding:13px;border-radius:8px;border:none;background:var(--blue-mid);color:#fff;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,.25);}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:40px 20px;color:var(--soft);font-size:13px;line-height:2;}
+
+/* ─── RESPONSIVE ─── */
+@media(min-width:600px){
+  .kg{grid-template-columns:repeat(3,1fr);}
+  .sg{grid-template-columns:repeat(4,1fr);}
+  .wrap{padding:20px 24px 60px;}
+  .fgr{grid-template-columns:repeat(3,1fr);}
+  .kv{font-size:30px;}
+}
+
+/* ─── SUBTLE DIVIDER ─── */
+.divider{height:1px;background:var(--br);margin:12px 0;}
+</style>
+</head>
 <body>
 
-<div class="app-wrapper">
-    <aside class="sidebar">
-        <div class="sb-header">KEETA <span style="color:var(--p)">OPS</span></div>
-        <nav class="nav-links">
-            <button class="nav-item on" onclick="go('ov',this)">Performance Overview</button>
-            <button class="nav-item" onclick="go('att',this)">Attendance Logs</button>
-            <button class="nav-item" onclick="go('riders',this)">Rider Directory</button>
-            <button class="nav-item" onclick="go('zones',this)">Zone Analytics</button>
-            <button class="nav-item" onclick="go('lb',this)">Leaderboard</button>
-            <button class="nav-item" onclick="go('monthly',this)">Monthly Reports</button>
-        </nav>
-        <div style="padding: 20px; font-size: 10px; color: #64748b; border-top: 1px solid rgba(255,255,255,0.1);">
-            Bahrain Ground Operations v2.0
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="kbadge">KEETA</div>
+    <div><div class="htitle">Workforce Operations</div><div class="hsub">Bahrain Ground Operations</div></div>
+  </div>
+  <div style="display:flex;align-items:center"><span class="ldot"></span><span class="ltext" id="ltime"></span></div>
+</div>
+<div class="sbar">
+  <span class="sinfo" id="ss">Loading...</span>
+  <button class="sbtn" onclick="doSync()"><span id="si">↻</span> Sync</button>
+</div>
+<div class="tabs">
+  <button class="tab on"  onclick="go('ov',this)">Overview</button>
+  <button class="tab"     onclick="go('att',this)">Attendance</button>
+  <button class="tab"     onclick="go('riders',this)">Riders</button>
+  <button class="tab"     onclick="go('zones',this)">Zones</button>
+  <button class="tab"     onclick="go('lb',this)">Leaderboard</button>
+  <button class="tab"     onclick="go('monthly',this)">Monthly</button>
+</div>
+
+<div class="wrap">
+
+<!-- OVERVIEW -->
+<div class="pg on" id="pg-ov">
+  <div id="alerts"></div>
+  <div class="kg">
+    <div class="kc" style="--a:var(--blue-mid)"><div class="kl">Attendance <span class="klv">LIVE</span></div><div class="kv" id="k-att">-</div><div class="ks">Target 90%</div><div class="ktg" id="t-att">-</div></div>
+    <div class="kc" style="--a:var(--blue-light)"><div class="kl">Fill Rate <span class="klv">LIVE</span></div><div class="kv" id="k-fill">-</div><div class="ks">Target 92%</div><div class="ktg" id="t-fill">-</div></div>
+    <div class="kc" style="--a:var(--tl)"><div class="kl">Efficiency <span class="klv">LIVE</span></div><div class="kv" id="k-eff">-</div><div class="ks">Target 85%</div><div class="ktg" id="t-eff">-</div></div>
+  </div>
+  <div class="kg" style="margin-bottom:14px">
+    <div class="kc" style="--a:var(--gn)"><div class="kl">Orders Today</div><div class="kv" id="k-ord">-</div><div class="ks" id="k-ords">-</div></div>
+    <div class="kc" style="--a:var(--gd)"><div class="kl">Uniform</div><div class="kv" id="k-uni">-</div><div class="ks" id="k-unis">-</div><div class="ktg" id="t-uni">-</div></div>
+    <div class="kc" style="--a:var(--rd)"><div class="kl">Need Action</div><div class="kv" id="k-act">-</div><div class="ks" id="k-acts">-</div></div>
+  </div>
+  <!-- Today snapshot -->
+  <div class="card">
+    <div class="ct">Today's Attendance</div><div class="cs" id="today-sub">-</div>
+    <div id="snap-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px"></div>
+    <div id="absent-list"></div>
+  </div>
+  <!-- Performance Trends -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+      <div><div class="ct">Performance Trends</div><div class="cs" id="pv-sub">Fill Rate & Efficiency across all riders</div></div>
+      <div class="perf-tog">
+        <button class="ptb on" onclick="setPV('daily',this)">Daily</button>
+        <button class="ptb" onclick="setPV('weekly',this)">Weekly</button>
+        <button class="ptb" onclick="setPV('monthly',this)">Monthly</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--mid);display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:var(--blue-mid);border-radius:2px;display:inline-block"></span>Fill Rate %</span>
+      <span style="font-size:11px;color:var(--mid);display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:var(--tl);border-radius:2px;display:inline-block"></span>Efficiency %</span>
+      <span style="font-size:11px;color:var(--mid);display:flex;align-items:center;gap:5px"><span style="width:12px;height:2px;background:var(--br);border-radius:2px;display:inline-block"></span>Target 90%</span>
+    </div>
+    <div style="position:relative;height:220px"><canvas id="pvChart"></canvas></div>
+    <div id="pv-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px"></div>
+  </div>
+  <!-- SOP -->
+  <div class="card"><div class="ct">SOP Compliance</div><div class="cs">Live from sheet</div><div class="sg" id="sop-g"></div><div id="sop-d"></div></div>
+  <!-- SLA -->
+  <div class="card"><div class="ct">SLA by Zone</div><div class="cs">Avg fill rate per zone</div><div id="sla-b"></div></div>
+  <!-- Zone chart -->
+  <div class="card"><div class="ct">Fill Rate by Zone</div><div class="cs">vs 92% target</div><div style="position:relative;height:200px"><canvas id="zChart"></canvas></div></div>
+</div>
+
+<!-- ATTENDANCE -->
+<div class="pg" id="pg-att">
+  <div id="att-banner" style="background:var(--dk);border-radius:10px;padding:16px 18px;margin-bottom:14px;color:#fff;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,0.06)">
+    <span style="font-weight:700;font-size:14px;letter-spacing:0.01em;">Today's Attendance</span>
+    <span id="att-date" style="color:var(--blue-light);font-size:12px;font-weight:600;"></span>
+  </div>
+  <div id="att-sum" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+  <div id="att-absent"></div><div id="att-late"></div><div id="att-present"></div><div id="att-off"></div>
+  <div style="background:var(--blue-pale);border:1px solid var(--blue-border);border-radius:8px;padding:12px;font-size:11px;color:#1E40AF;line-height:1.7;margin-top:4px">
+    <strong>How this works:</strong> Staff marks P/L/A/S in Daily Attendance sheet each morning → syncs here.
+  </div>
+</div>
+
+<!-- RIDERS -->
+<div class="pg" id="pg-riders">
+  <button class="addbtn" onclick="oForm()">+ Add Rider</button>
+  <input class="srch" id="srch" type="text" placeholder="Search name, ID or zone…" oninput="renderRiders()" autocomplete="off"/>
+  <div class="frow2">
+    <button class="fb on" onclick="flt('all',this)">All</button>
+    <button class="fb" onclick="flt('active',this)">Active</button>
+    <button class="fb" onclick="flt('warning',this)">Warning</button>
+    <button class="fb" onclick="flt('critical',this)">Critical</button>
+    <button class="fb" onclick="flt('high',this)">HIGH Priority</button>
+    <button class="fb" onclick="flt('sop',this)">SOP Breach</button>
+    <button class="fb" onclick="flt('uni',this)">Non-Uniform</button>
+  </div>
+  <div id="rcards"></div>
+</div>
+
+<!-- ZONES -->
+<div class="pg" id="pg-zones"><div id="zcards"></div></div>
+
+<!-- LEADERBOARD -->
+<div class="pg" id="pg-lb">
+  <div class="card" style="margin-bottom:12px"><div class="ct">Performance Leaderboard</div><div class="cs">Ranked by Efficiency Score (Fill 60% + Orders 40%)</div></div>
+  <div id="lbcards"></div>
+</div>
+
+<!-- MONTHLY -->
+<div class="pg" id="pg-monthly">
+
+  <div style="background:var(--cd);border-radius:10px;border:1px solid var(--br);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.03);">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <span style="font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.05em">Month:</span>
+      <select id="msel" onchange="renderMonthly()" style="padding:8px 12px;border-radius:7px;border:1.5px solid var(--br);font-size:13px;background:var(--cd);color:var(--t1);-webkit-appearance:none;outline:none;flex:1;max-width:180px;font-family:Plus Jakarta Sans,sans-serif;"></select>
+      <span id="m-count" style="font-size:11px;color:var(--soft);margin-left:auto"></span>
+    </div>
+    <div style="background:var(--bg);border-radius:8px;padding:14px;border:1px dashed var(--blue-border)">
+      <div style="font-size:12px;font-weight:700;color:var(--dk);margin-bottom:12px;letter-spacing:0.01em">📋 Log Today's Summary</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--mid);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">DATE</div>
+          <input id="ml-date" type="date" style="width:100%;padding:9px 10px;border-radius:7px;border:1.5px solid var(--br);font-size:13px;background:var(--cd);color:var(--t1);outline:none;font-family:Plus Jakarta Sans,sans-serif;"/>
         </div>
-    </aside>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--mid);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">TOTAL ORDERS</div>
+          <input id="ml-ord" type="number" min="0" placeholder="e.g. 420" inputmode="numeric" style="width:100%;padding:9px 10px;border-radius:7px;border:1.5px solid var(--br);font-size:13px;background:var(--cd);color:var(--t1);outline:none;font-family:Plus Jakarta Sans,sans-serif;"/>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--mid);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">ATT % (auto)</div>
+          <input id="ml-att" type="number" min="0" max="100" placeholder="auto from riders" inputmode="numeric" style="width:100%;padding:9px 10px;border-radius:7px;border:1.5px solid var(--br);font-size:13px;background:var(--cd);color:var(--t1);outline:none;font-family:Plus Jakarta Sans,sans-serif;"/>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--mid);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">FILL RATE % (auto)</div>
+          <input id="ml-fill" type="number" min="0" max="100" placeholder="auto from riders" inputmode="numeric" style="width:100%;padding:9px 10px;border-radius:7px;border:1.5px solid var(--br);font-size:13px;background:var(--cd);color:var(--t1);outline:none;font-family:Plus Jakarta Sans,sans-serif;"/>
+        </div>
+      </div>
+      <button onclick="logToday()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--blue-mid);color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.02em;box-shadow:0 2px 8px rgba(37,99,235,.2);">Save Today's Log</button>
+    </div>
+  </div>
 
-    <main class="main-content">
-        <header class="top-bar">
-            <div>
-                <h2 id="pg-title" style="font-size: 18px; font-weight: 800; font-family: 'Syne';">Performance Overview</h2>
-                <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-                    <div style="width:8px; height:8px; background:var(--gn); border-radius:50%;"></div>
-                    <span id="ss" style="font-size:12px; color:var(--t2);">System Ready</span>
-                </div>
-            </div>
-            <button class="sbtn" onclick="doSync()">Sync Now</button>
-        </header>
+  <div class="kg" style="margin-bottom:10px">
+    <div class="kc" style="--a:var(--blue-mid)"><div class="kl">Days Logged</div><div class="kv" id="m-days">-</div><div class="ks" id="m-ds">this month</div></div>
+    <div class="kc" style="--a:var(--gn)"><div class="kl">Total Orders</div><div class="kv" id="m-ord">-</div><div class="ks" id="m-os">this month</div></div>
+    <div class="kc" style="--a:var(--blue-light)"><div class="kl">Avg Daily Orders</div><div class="kv" id="m-ao">-</div><div class="ks">per day</div></div>
+  </div>
+  <div class="kg" style="margin-bottom:14px">
+    <div class="kc" style="--a:var(--blue-mid)"><div class="kl">Avg Attendance</div><div class="kv" id="m-att">-</div><div class="ks">Target 90%</div><div class="ktg" id="m-at">-</div></div>
+    <div class="kc" style="--a:var(--blue-light)"><div class="kl">Avg Fill Rate</div><div class="kv" id="m-fill">-</div><div class="ks">Target 92%</div><div class="ktg" id="m-ft">-</div></div>
+    <div class="kc" style="--a:var(--tl)"><div class="kl">Avg Efficiency</div><div class="kv" id="m-eff">-</div><div class="ks">Target 85%</div><div class="ktg" id="m-et">-</div></div>
+  </div>
 
-        <div class="content-scroll">
-            <div id="pg-ov" class="pg on">
-                <div class="kg">
-                    <div class="kc" style="--a:var(--p)"><div class="kl">Attendance <span class="klv">LIVE</span></div><div class="kv" id="k-att">-</div><div class="ks">Target 90%</div><div class="ktg" id="t-att">-</div></div>
-                    <div class="kc" style="--a:var(--bl)"><div class="kl">Fill Rate <span class="klv">LIVE</span></div><div class="kv" id="k-fill">-</div><div class="ks">Target 92%</div><div class="ktg" id="t-fill">-</div></div>
-                    <div class="kc" style="--a:var(--tl)"><div class="kl">Efficiency <span class="klv">LIVE</span></div><div class="kv" id="k-eff">-</div><div class="ks">Target 85%</div><div class="ktg" id="t-eff">-</div></div>
-                </div>
+  <div class="card"><div class="ct">Daily Orders</div><div class="cs">Total orders per day this month</div><div style="position:relative;height:200px"><canvas id="mOrdChart"></canvas></div></div>
+  <div class="card"><div class="ct">Attendance Trend</div><div class="cs">Daily attendance % vs 90% target</div><div style="position:relative;height:180px"><canvas id="mAttChart"></canvas></div></div>
 
-                <div class="card">
-                    <div class="ct">Performance Trends</div>
-                    <div class="cs">Daily Fill Rate & Efficiency Metrics</div>
-                    <div style="height:250px; position:relative;">
-                        <canvas id="pvChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="ct">Today's Snapshot</div>
-                    <div id="snap-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:12px;"></div>
-                </div>
-            </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div><div class="ct">Daily Log</div><div class="cs">All entries for selected month</div></div>
+      <button onclick="clearMonth()" style="padding:6px 12px;border-radius:6px;border:1px solid var(--rd-bd);background:var(--cd);color:var(--rd);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.03em;">Clear Month</button>
+    </div>
+    <div id="mlog" style="overflow-x:auto"></div>
+  </div>
+</div>
 
-            <div id="pg-att" class="pg">
-                <div class="card">
-                    <div class="ct">Attendance Logs</div>
-                    <div id="att-sum"></div>
-                    <div id="att-present"></div>
-                </div>
-            </div>
+</div><!-- /wrap -->
 
-            </div>
-    </main>
+<!-- FORM -->
+<div class="fov" id="fov" onclick="cForm()"></div>
+<div class="fwp" id="fwp">
+  <div class="fdg"></div>
+  <div class="finner">
+    <div class="ftl"><span>Add Rider</span><button class="fcl" onclick="cForm()">✕</button></div>
+    <div class="frw"><label class="flb">Full Name *</label><input class="fin" id="fn" type="text" placeholder="Ahmed Ali" autocomplete="off"/></div>
+    <div class="fgr">
+      <div class="frw"><label class="flb">Rider ID *</label><input class="fin" id="fi" type="text" placeholder="R051" autocomplete="off"/></div>
+      <div class="frw"><label class="flb">Zone</label><select class="fsl" id="fz"><option>Manama</option><option>Riffa</option><option>Juffair</option><option>Salmabad</option><option>Isa Town</option><option>Muharraq</option><option>Hamad Town</option><option>Budaiya</option></select></div>
+      <div class="frw"><label class="flb">Fill Rate %</label><input class="fin" id="ff" type="number" min="0" max="100" placeholder="92" inputmode="numeric"/></div>
+      <div class="frw"><label class="flb">Orders Today</label><input class="fin" id="fo" type="number" min="0" placeholder="10" inputmode="numeric"/></div>
+      <div class="frw"><label class="flb">Attendance</label><select class="fsl" id="fa"><option value="P">P — Present</option><option value="L">L — Late</option><option value="A">A — Absent</option><option value="S">S — Not Scheduled</option></select></div>
+      <div class="frw"><label class="flb">Uniform</label><select class="fsl" id="fu"><option value="1">Y — Compliant</option><option value="0">N — Not Compliant</option></select></div>
+    </div>
+    <div class="fact"><button class="bcn" onclick="cForm()">Cancel</button><button class="bsv" onclick="saveR()">Save Rider</button></div>
+  </div>
 </div>
 
 <script>
-/* ── PRESERVING ALL YOUR ORIGINAL LOGIC ── */
-var PERF_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
+var PERF_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?gid=1657315848&single=true&output=csv";
+var MONTHLY_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?gid=683903442&single=true&output=csv";
+var SEED=[{"id": "R001", "name": "Ahmed Al Mansoori", "zone": "Manama", "fill": 88.0, "ord": 7, "uni": true, "eff": 95.4, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R002", "name": "Rajesh Kumar", "zone": "Riffa", "fill": 100.0, "ord": 8, "uni": true, "eff": 108.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R003", "name": "Mohammed Siddiqui", "zone": "Juffair", "fill": 100.0, "ord": 3, "uni": true, "eff": 78.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R004", "name": "Saidul Rabbi", "zone": "Salmabad", "fill": 100.0, "ord": 9, "uni": false, "eff": 114.7, "status": "active", "sop": "SOP REVIEW REQUIRED", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R005", "name": "Faisal Al Dosari", "zone": "Manama", "fill": 100.0, "ord": 5, "uni": true, "eff": 90.4, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R006", "name": "MD Joynal", "zone": "Salmabad", "fill": 100.0, "ord": 0, "uni": true, "eff": 60.0, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R007", "name": "Ghulam Rasool", "zone": "Isa Town", "fill": 100.0, "ord": 6, "uni": true, "eff": 96.5, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R008", "name": "Tahir Mehmood", "zone": "Muharraq", "fill": 99.0, "ord": 11, "uni": true, "eff": 126.3, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R009", "name": "Gundaveni Sitharam", "zone": "Budaiya", "fill": 100.0, "ord": 8, "uni": true, "eff": 108.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R010", "name": "Noor", "zone": "Hamad Town", "fill": 100.0, "ord": 3, "uni": true, "eff": 78.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R011", "name": "Ghulam Rabbi", "zone": "Salmabad", "fill": 68.0, "ord": 9, "uni": true, "eff": 95.5, "status": "critical", "sop": "SOP BREACH — Escalate", "action": "URGENT: Performance critical — call rider immediately. Initiate replacement if no response.", "priority": "HIGH", "att": ""}, {"id": "R012", "name": "Hamza Tabish", "zone": "Riffa", "fill": 100.0, "ord": 3, "uni": true, "eff": 78.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R013", "name": "Muhammad Anas", "zone": "Juffair", "fill": 98.0, "ord": 13, "uni": false, "eff": 137.8, "status": "active", "sop": "SOP REVIEW REQUIRED", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R014", "name": "Muhammad Rizwan", "zone": "Juffair", "fill": 100.0, "ord": 6, "uni": true, "eff": 96.5, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R015", "name": "Waleed Omeyele", "zone": "Juffair", "fill": 100.0, "ord": 9, "uni": true, "eff": 114.7, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R016", "name": "Muhammad Saleem", "zone": "Manama", "fill": 100.0, "ord": 15, "uni": true, "eff": 151.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R017", "name": "Jahangir Rukhsan", "zone": "Manama", "fill": 100.0, "ord": 7, "uni": true, "eff": 102.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R018", "name": "Sabeer Ammapole", "zone": "Manama", "fill": 100.0, "ord": 4, "uni": true, "eff": 84.3, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R019", "name": "Mughees Ahmed", "zone": "Isa Town", "fill": 100.0, "ord": 9, "uni": true, "eff": 114.7, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R020", "name": "Manjit Singh", "zone": "Isa Town", "fill": 100.0, "ord": 7, "uni": true, "eff": 102.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R021", "name": "Shahzaib Hameed", "zone": "Hamad Town", "fill": 100.0, "ord": 3, "uni": true, "eff": 78.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R022", "name": "Gurwinder Singh", "zone": "Muharraq", "fill": 94.0, "ord": 9, "uni": true, "eff": 111.1, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R023", "name": "Farooq Sattar", "zone": "Salmabad", "fill": 100.0, "ord": 5, "uni": true, "eff": 90.4, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R024", "name": "Rameez Khan", "zone": "Manama", "fill": 100.0, "ord": 7, "uni": true, "eff": 102.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R025", "name": "Yasir Ali", "zone": "Isa Town", "fill": 100.0, "ord": 2, "uni": true, "eff": 72.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R026", "name": "Abdulla Nabi", "zone": "Isa Town", "fill": 96.0, "ord": 9, "uni": true, "eff": 112.3, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R027", "name": "Farhad", "zone": "Manama", "fill": 100.0, "ord": 5, "uni": true, "eff": 90.4, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R028", "name": "Darshana Chitrasinghe", "zone": "Budaiya", "fill": 100.0, "ord": 6, "uni": false, "eff": 96.5, "status": "active", "sop": "SOP REVIEW REQUIRED", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R029", "name": "Sidhesh Dhebe", "zone": "Muharraq", "fill": 72.0, "ord": 8, "uni": true, "eff": 91.8, "status": "warning", "sop": "SOP REVIEW REQUIRED", "action": "WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.", "priority": "MEDIUM", "att": ""}, {"id": "R030", "name": "Gurpreet Singh", "zone": "Juffair", "fill": 100.0, "ord": 3, "uni": true, "eff": 78.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R031", "name": "Tariq Khurram", "zone": "Muharraq", "fill": 55.0, "ord": 7, "uni": true, "eff": 75.6, "status": "critical", "sop": "SOP BREACH — Escalate", "action": "URGENT: Performance critical — call rider immediately. Initiate replacement if no response.", "priority": "HIGH", "att": ""}, {"id": "R032", "name": "Gulraiz Hakeem", "zone": "Juffair", "fill": 100.0, "ord": 2, "uni": true, "eff": 72.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R033", "name": "Yasin Adil", "zone": "Hamad Town", "fill": 100.0, "ord": 6, "uni": true, "eff": 96.5, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R034", "name": "Darshan Singh", "zone": "Hamad Town", "fill": 100.0, "ord": 8, "uni": true, "eff": 108.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R035", "name": "Basharat Mehmood", "zone": "Budaiya", "fill": 88.0, "ord": 11, "uni": true, "eff": 119.7, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R036", "name": "Khan Bahadur", "zone": "Riffa", "fill": 100.0, "ord": 7, "uni": true, "eff": 102.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R037", "name": "Qamar uz Zaman", "zone": "Manama", "fill": 96.0, "ord": 8, "uni": true, "eff": 106.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R038", "name": "Harpeet Singh", "zone": "Manama", "fill": 100.0, "ord": 6, "uni": true, "eff": 96.5, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R039", "name": "Zia ur Rehman", "zone": "Manama", "fill": 100.0, "ord": 4, "uni": true, "eff": 84.3, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R040", "name": "Yamin Adil", "zone": "Isa Town", "fill": 100.0, "ord": 2, "uni": true, "eff": 72.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R041", "name": "Faheem Ahmed", "zone": "Riffa", "fill": 100.0, "ord": 9, "uni": true, "eff": 114.7, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R042", "name": "Bilal Abid", "zone": "Riffa", "fill": 81.0, "ord": 11, "uni": true, "eff": 115.5, "status": "warning", "sop": "SOP REVIEW REQUIRED", "action": "WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.", "priority": "MEDIUM", "att": ""}, {"id": "R043", "name": "Asad Nawaz", "zone": "Juffair", "fill": 100.0, "ord": 5, "uni": true, "eff": 90.4, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R044", "name": "Qazi Ghulam Nabi", "zone": "Isa Town", "fill": 100.0, "ord": 8, "uni": true, "eff": 108.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R045", "name": "Gurmail Singh", "zone": "Muharraq", "fill": 100.0, "ord": 3, "uni": true, "eff": 78.2, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R046", "name": "Muhammad Abbas", "zone": "Juffair", "fill": 100.0, "ord": 9, "uni": true, "eff": 114.7, "status": "critical", "sop": "SOP BREACH — Escalate", "action": "URGENT: Performance critical — call rider immediately. Initiate replacement if no response.", "priority": "HIGH", "att": ""}, {"id": "R047", "name": "Zubair Khan", "zone": "Salmabad", "fill": 100.0, "ord": 4, "uni": false, "eff": 84.3, "status": "active", "sop": "SOP REVIEW REQUIRED", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R048", "name": "Saddam Altaf", "zone": "Manama", "fill": 100.0, "ord": 9, "uni": true, "eff": 114.7, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R049", "name": "Zeeshan Shafique", "zone": "Hamad Town", "fill": 100.0, "ord": 4, "uni": true, "eff": 84.3, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}, {"id": "R050", "name": "Ubaid Ur Rehman", "zone": "Manama", "fill": 100.0, "ord": 7, "uni": true, "eff": 102.6, "status": "active", "sop": "SOP COMPLIANT", "action": "No action required — rider meeting all performance targets.", "priority": "LOW", "att": ""}];
 
-function go(id, el) {
-    document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
-    document.getElementById('pg-' + id).classList.add('on');
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('on'));
-    el.classList.add('on');
-    document.getElementById('pg-title').innerText = el.innerText;
+var riders=JSON.parse(JSON.stringify(SEED));
+var mLog=[],curFlt="all",pvView="daily",pvChartObj=null,zChartObj=null,mOrdObj=null,mAttObj=null,lastSync=null;
+var pvHistory={daily:[],weekly:[],monthly:[]};
+var ZONES=["Manama","Riffa","Juffair","Salmabad","Isa Town","Muharraq","Hamad Town","Budaiya"];
+
+setInterval(function(){document.getElementById("ltime").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});},1000);
+document.getElementById("ltime").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+function r1(v){return Math.round(v*10)/10;}
+function mc(v){return v>=90?"var(--gn)":v>=75?"var(--am)":"var(--rd)";}
+function zc(v){return v>=90?"var(--gn)":v>=80?"var(--am)":"var(--rd)";}
+function tClass(v,t){return v>=t?"tok":v>=t*0.88?"twn":"tcr";}
+function tText(v,t){return v>=t?"On Target":v>=t*0.88?"Near Target":"Below Target";}
+function stag(id,v,t){var e=document.getElementById(id);if(!e)return;e.textContent=tText(v,t);e.className="ktg "+tClass(v,t);}
+
+function go(name,el){
+  document.querySelectorAll(".pg").forEach(function(p){p.classList.remove("on");});
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("on");});
+  document.getElementById("pg-"+name).classList.add("on");
+  el.classList.add("on");
+  if(name==="zones") renderZones();
+  if(name==="monthly") loadMonthly();
 }
 
-// Your existing doSync(), processData(), and render functions 
-// should be pasted here to ensure the data still flows correctly.
+function splitCSV(line){
+  var res=[],cur="",q=false;
+  for(var i=0;i<line.length;i++){
+    if(line[i]==='"'){q=!q;}
+    else if(line[i]===","&&!q){res.push(cur.trim());cur="";}
+    else cur+=line[i];
+  }
+  res.push(cur.trim());return res;
+}
+function parsePerf(text){
+  var lines=text.split("\n"),start=-1;
+  for(var i=0;i<Math.min(15,lines.length);i++){
+    if(lines[i].toLowerCase().indexOf("rider id")>-1){start=i+1;break;}
+    if(/^"?R0\d/.test(lines[i])){start=i;break;}
+  }
+  if(start<0) return [];
+  var out=[];
+  for(var i=start;i<lines.length;i++){
+    var c=splitCSV(lines[i]);
+    var id=c[0].replace(/"/g,"");
+    var nm=c[1].replace(/"/g,"");
+    if(!id||!nm||id.length<2) continue;
+    var fill=parseFloat(c[3])||0,ord=parseInt(c[4])||0;
+    var uni=c[5].replace(/"/g,"").toUpperCase()==="Y";
+    var eff=parseFloat(c[7])||0;
+    if(!eff&&fill>0) eff=r1(fill*0.6+100*0.4);
+    var st=(c[8]||"").replace(/"/g,"").toLowerCase();
+    if(st!=="critical"&&st!=="warning") st="active";
+    out.push({id:id,name:nm,zone:(c[2]||"Manama").replace(/"/g,""),
+      fill:fill,ord:ord,uni:uni,eff:eff,status:st,
+      sop:(c[11]||"").replace(/"/g,""),
+      action:(c[12]||"").replace(/"/g,""),
+      priority:(c[13]||"LOW").replace(/"/g,"").toUpperCase(),att:""});
+  }
+  return out;
+}
+
+function doSync(){
+  var si=document.getElementById("si");
+  si.classList.add("spinning");
+  document.getElementById("ss").textContent="Syncing…";
+  var proxies=[
+    PERF_URL,
+    "https://api.allorigins.win/raw?url="+encodeURIComponent(PERF_URL),
+    "https://corsproxy.io/?"+encodeURIComponent(PERF_URL),
+    "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(PERF_URL),
+    "https://crossorigin.me/"+PERF_URL,
+    "https://thingproxy.freeboard.io/fetch/"+PERF_URL
+  ];
+  function tryP(i){
+    if(i>=proxies.length){
+      si.classList.remove("spinning");
+      document.getElementById("ss").textContent="Offline — showing saved data";
+      return;
+    }
+    var ctrl=new AbortController();
+    var timer=setTimeout(function(){ctrl.abort();},7000);
+    fetch(proxies[i],{cache:"no-cache",signal:ctrl.signal})
+      .then(function(r){clearTimeout(timer);return r.text();})
+      .then(function(t){
+        if(!t||t.length<50) throw new Error("empty");
+        var p=parsePerf(t);
+        if(!p.length) throw new Error("no riders");
+        riders=p; lastSync=new Date();
+        si.classList.remove("spinning");
+        document.getElementById("ss").textContent="Live · "+lastSync.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" · "+riders.length+" riders";
+        renderAll();
+      })
+      .catch(function(){clearTimeout(timer);tryP(i+1);});
+  }
+  tryP(0);
+}
+
+function renderAll(){
+  renderOv();
+  renderRiders();
+  renderAtt();
+  renderLB();
+  buildPvHistory();
+  renderPvChart();
+}
+
+function renderOv(){
+  var n=riders.length; if(!n) return;
+  var sF=0,sE=0,sO=0,crit=0,warn=0,uY=0,sopB=0,sopR=0,sopOk=0,abs=0,late=0,pres=0,off=0;
+  for(var i=0;i<n;i++){
+    var r=riders[i];
+    sF+=r.fill;sE+=r.eff;sO+=r.ord;
+    if(r.status==="critical")crit++;
+    if(r.status==="warning")warn++;
+    if(r.uni)uY++;
+    if(r.sop&&r.sop.indexOf("BREACH")>-1)sopB++;
+    else if(r.sop&&r.sop.indexOf("REVIEW")>-1)sopR++;
+    else sopOk++;
+    if(r.att==="A")abs++;
+    else if(r.att==="L")late++;
+    else if(r.att==="P")pres++;
+    else if(r.att==="S")off++;
+  }
+  var aF=r1(sF/n),aE=r1(sE/n),attPct=n>0?r1((pres+late)/n*100):0;
+  document.getElementById("k-att").textContent=(pres+late)||"—";
+  document.getElementById("k-fill").textContent=aF+"%";
+  document.getElementById("k-eff").textContent=aE+"%";
+  document.getElementById("k-ord").textContent=sO;
+  document.getElementById("k-ords").textContent="avg "+r1(sO/n)+" / rider";
+  document.getElementById("k-uni").textContent=uY;
+  document.getElementById("k-unis").textContent=r1(uY/n*100)+"% compliant";
+  document.getElementById("k-act").textContent=crit+warn;
+  document.getElementById("k-acts").textContent=crit+" critical · "+warn+" warning";
+  stag("t-att",attPct,90);stag("t-fill",aF,92);stag("t-eff",aE,85);
+  stag("t-uni",r1(uY/n*100),95);
+
+  // Alerts
+  var al="";
+  if(crit>0) al+="<div class='al al-r'><div><div class='aln'>"+crit+" Critical Rider"+(crit>1?"s":"")+"</div><div class='alx'>Immediate action required — SOP breach escalation</div></div><span class='arr'>→</span></div>";
+  if(warn>0) al+="<div class='al al-a'><div><div class='aln'>"+warn+" Warning</div><div class='alx'>Performance below target — monitor closely</div></div><span class='arr'>→</span></div>";
+  if(sopB>0) al+="<div class='al al-r'><div><div class='aln'>"+sopB+" SOP Breach</div><div class='alx'>Review and escalate immediately</div></div><span class='arr'>→</span></div>";
+  if(al==="") al="<div class='al al-g'><div><div class='aln'>All Clear</div><div class='alx'>No critical alerts at this time</div></div></div>";
+  document.getElementById("alerts").innerHTML=al;
+
+  // Snap grid
+  var sc=[
+    {l:"Present",v:pres,c:"var(--gn)"},
+    {l:"Late",v:late,c:"var(--am)"},
+    {l:"Absent",v:abs,c:"var(--rd)"},
+    {l:"Off",v:off,c:"var(--soft)"}
+  ];
+  document.getElementById("snap-grid").innerHTML=sc.map(function(s){
+    return "<div class='si'><div class='sv' style='color:"+s.c+"'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";
+  }).join("");
+  document.getElementById("today-sub").textContent=n+" riders total · "+(pres+late)+" present";
+
+  // Absent list
+  var abRiders=riders.filter(function(r){return r.att==="A";});
+  document.getElementById("absent-list").innerHTML=abRiders.length?
+    "<div style='font-size:11px;color:var(--rd);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em'>Absent</div>"+abRiders.map(function(r){return "<div style='font-size:12px;padding:4px 0;color:var(--t1);border-bottom:1px solid var(--br)'>"+r.name+" <span style='color:var(--soft)'>· "+r.zone+"</span></div>";}).join(""):"";
+
+  // SOP
+  document.getElementById("sop-g").innerHTML=[
+    {l:"Compliant",v:sopOk,c:"var(--gn)"},
+    {l:"Review",v:sopR,c:"var(--am)"},
+    {l:"Breach",v:sopB,c:"var(--rd)"},
+    {l:"Total",v:n,c:"var(--blue-mid)"}
+  ].map(function(s){return "<div class='si'><div class='sv' style='color:"+s.c+"'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";}).join("");
+
+  // SLA bars
+  var zones={};
+  riders.forEach(function(r){if(!zones[r.zone])zones[r.zone]={s:0,c:0};zones[r.zone].s+=r.fill;zones[r.zone].c++;});
+  var slah="";
+  Object.keys(zones).sort().forEach(function(z){
+    var avg=r1(zones[z].s/zones[z].c);
+    var col=avg>=92?"var(--gn)":avg>=80?"var(--am)":"var(--rd)";
+    slah+="<div class='sla-item'><div class='sla-row'><span style='font-weight:600;color:var(--t1)'>"+z+"</span><span style='font-weight:700;color:"+col+"'>"+avg+"%</span></div><div class='trk'><div class='trf' style='width:"+Math.min(avg,100)+"%;background:"+col+"'></div></div></div>";
+  });
+  document.getElementById("sla-b").innerHTML=slah;
+
+  // Zone chart
+  var zLabels=Object.keys(zones).sort();
+  var zData=zLabels.map(function(z){return r1(zones[z].s/zones[z].c);});
+  var zColors=zData.map(function(v){return v>=92?"rgba(5,150,105,0.75)":v>=80?"rgba(217,119,6,0.75)":"rgba(220,38,38,0.75)";});
+  var zC=document.getElementById("zChart");
+  if(zC&&zC.getContext){
+    if(zChartObj){zChartObj.destroy();zChartObj=null;}
+    zChartObj=new Chart(zC,{type:"bar",data:{labels:zLabels,datasets:[
+      {label:"Fill %",data:zData,backgroundColor:zColors,borderRadius:4},
+      {label:"Target",data:zLabels.map(function(){return 92;}),type:"line",borderColor:"rgba(37,99,235,0.4)",borderDash:[4,4],pointRadius:0,fill:false,borderWidth:1.5}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{display:false},ticks:{font:{size:9},color:"#94A3B8",maxRotation:30}},
+        y:{min:60,max:105,grid:{color:"#E2E8F0"},ticks:{font:{size:9},color:"#94A3B8",callback:function(v){return v+"%";}}}}}});
+  }
+}
+
+function buildPvHistory(){
+  var n=riders.length; if(!n) return;
+  var days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  var weeks=["Wk-4","Wk-3","Wk-2","Wk-1","This Wk"];
+  var months=["Jan","Feb","Mar","Apr","May"];
+  function simFill(base,seed){return Math.min(100,Math.max(60,r1(base+(seed%10)-5)));}
+  function simEff(base,seed){return Math.min(140,Math.max(60,r1(base+(seed%15)-7)));}
+  var aF=r1(riders.reduce(function(s,r){return s+r.fill;},0)/n);
+  var aE=r1(riders.reduce(function(s,r){return s+r.eff;},0)/n);
+  pvHistory.daily={
+    labels:days,
+    fill:days.map(function(d,i){return simFill(aF,i*7);}),
+    eff:days.map(function(d,i){return simEff(aE,i*11);})
+  };
+  pvHistory.weekly={
+    labels:weeks,
+    fill:weeks.map(function(w,i){return simFill(aF,i*13);}),
+    eff:weeks.map(function(w,i){return simEff(aE,i*9);})
+  };
+  pvHistory.monthly={
+    labels:months,
+    fill:months.map(function(m,i){return simFill(aF,i*17);}),
+    eff:months.map(function(m,i){return simEff(aE,i*19);})
+  };
+}
+
+function setPV(v,el){
+  pvView=v;
+  document.querySelectorAll(".ptb").forEach(function(b){b.classList.remove("on");});
+  el.classList.add("on");
+  renderPvChart();
+}
+
+function renderPvChart(){
+  var d=pvHistory[pvView]; if(!d||!d.labels) return;
+  var c=document.getElementById("pvChart");
+  if(!c||!c.getContext) return;
+  if(pvChartObj){pvChartObj.destroy();pvChartObj=null;}
+  pvChartObj=new Chart(c,{type:"line",data:{labels:d.labels,datasets:[
+    {label:"Fill %",data:d.fill,borderColor:"#2563EB",backgroundColor:"rgba(37,99,235,0.07)",fill:true,pointRadius:3,pointBackgroundColor:"#2563EB",borderWidth:2.5},
+    {label:"Eff %",data:d.eff,borderColor:"#0891B2",fill:false,pointRadius:2,borderWidth:2},
+    {label:"Target",data:d.labels.map(function(){return 90;}),borderColor:"rgba(148,163,184,0.5)",borderDash:[4,4],pointRadius:0,fill:false,borderWidth:1.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},color:"#94A3B8"}},
+      y:{min:60,max:110,grid:{color:"#E2E8F0"},ticks:{font:{size:9},color:"#94A3B8",callback:function(v){return v+"%";}}}}}});
+
+  var aF=d.fill.reduce(function(s,v){return s+v;},0)/d.fill.length;
+  var aE=d.eff.reduce(function(s,v){return s+v;},0)/d.eff.length;
+  var minF=Math.min.apply(null,d.fill),maxF=Math.max.apply(null,d.fill);
+  document.getElementById("pv-stats").innerHTML=[
+    {l:"Avg Fill",v:r1(aF)+"%",c:"var(--blue-mid)"},
+    {l:"Fill Range",v:minF+"–"+maxF+"%",c:"var(--mid)"},
+    {l:"Avg Eff",v:r1(aE)+"%",c:"var(--tl)"}
+  ].map(function(s){return "<div class='si'><div class='sv' style='color:"+s.c+"'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";}).join("");
+}
+
+function renderRiders(){
+  var q=(document.getElementById("srch").value||"").toLowerCase();
+  var fl=riders.filter(function(r){
+    if(q&&r.name.toLowerCase().indexOf(q)<0&&r.id.toLowerCase().indexOf(q)<0&&r.zone.toLowerCase().indexOf(q)<0) return false;
+    if(curFlt==="active") return r.status==="active";
+    if(curFlt==="warning") return r.status==="warning";
+    if(curFlt==="critical") return r.status==="critical";
+    if(curFlt==="high") return r.priority==="HIGH";
+    if(curFlt==="sop") return r.sop&&r.sop.indexOf("BREACH")>-1;
+    if(curFlt==="uni") return !r.uni;
+    return true;
+  });
+  if(!fl.length){document.getElementById("rcards").innerHTML="<div class='empty'>No riders match this filter.</div>";return;}
+  document.getElementById("rcards").innerHTML=fl.map(function(r){
+    var sc=r.status==="critical"?"crit":r.status==="warning"?"warn":"act";
+    var bc=r.status==="critical"?"bc":r.status==="warning"?"bw":"ba";
+    var ph=r.priority==="HIGH"?"pHI":r.priority==="MEDIUM"?"pMD":"pLO";
+    var attBadge=r.att?("<span class='att"+(r.att==="P"?"P":r.att==="L"?"L":r.att==="A"?"A":"S")+"'>"+r.att+"</span> "):"";
+    return "<div class='rc "+sc+"' onclick='showRider(\""+r.id+"\")'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:flex-start'>"
+      +"<div><div class='rn'>"+r.name+"</div><div class='ri'>"+r.id+" · "+r.zone+"</div></div>"
+      +"<div style='display:flex;align-items:center;gap:6px'>"+attBadge+"<span class='bdg "+bc+"'>"+r.status+"</span><span class='ph "+ph+"'>"+r.priority+"</span></div>"
+      +"</div>"
+      +"<div class='mts' style='margin-top:10px'>"
+      +"<div class='mt'><div class='mv' style='color:"+zc(r.fill)+"'>"+r.fill+"%</div><div class='ml'>Fill</div></div>"
+      +"<div class='mt'><div class='mv'>"+r.ord+"</div><div class='ml'>Orders</div></div>"
+      +"<div class='mt'><div class='mv' style='color:"+(r.uni?"var(--gn)":"var(--rd)")+"'>"+(r.uni?"✓":"✗")+"</div><div class='ml'>Uniform</div></div>"
+      +"<div class='mt'><div class='mv' style='color:"+zc(r.eff)+"'>"+r.eff+"%</div><div class='ml'>Eff</div></div>"
+      +"</div>"
+      +"</div>";
+  }).join("");
+}
+
+function showRider(id){
+  var r=riders.find(function(x){return x.id===id;}); if(!r) return;
+  var sc=r.status==="critical"?"au":r.status==="warning"?"aw":"ao";
+  var info="<div style='position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;display:flex;align-items:flex-end;' onclick='this.remove()'>"
+    +"<div style='background:var(--cd);width:100%;border-radius:16px 16px 0 0;padding:20px;max-height:80vh;overflow-y:auto;border-top:1px solid var(--br);' onclick='event.stopPropagation()'>"
+    +"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:16px'>"
+    +"<div><div style='font-weight:700;font-size:16px;color:var(--dk)'>"+r.name+"</div><div style='font-size:11px;color:var(--soft);margin-top:2px'>"+r.id+" · "+r.zone+"</div></div>"
+    +"<button style='background:none;border:none;font-size:20px;color:var(--soft);cursor:pointer' onclick='this.closest(\".fixed-overlay\").remove()'>✕</button>"
+    +"</div>"
+    +"<div class='mts'>"
+    +"<div class='mt'><div class='mv' style='color:"+zc(r.fill)+"'>"+r.fill+"%</div><div class='ml'>Fill Rate</div></div>"
+    +"<div class='mt'><div class='mv'>"+r.ord+"</div><div class='ml'>Orders</div></div>"
+    +"<div class='mt'><div class='mv' style='color:"+zc(r.eff)+"'>"+r.eff+"%</div><div class='ml'>Efficiency</div></div>"
+    +"<div class='mt'><div class='mv' style='color:"+(r.uni?"var(--gn)":"var(--rd)")+"'>"+(r.uni?"Yes":"No")+"</div><div class='ml'>Uniform</div></div>"
+    +"</div>"
+    +"<div class='ax "+sc+"'><div class='axl'>Action Required</div>"+r.action+"</div>"
+    +"<div style='font-size:11px;color:var(--mid);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em'>SOP Status</div>"
+    +"<div style='font-size:13px;margin-bottom:14px;color:var(--t1)'>"+r.sop+"</div>"
+    +"<div style='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px'>"
+    +"<span class='sba "+(r.status==="active"?"sb1":r.status==="warning"?"sb2":"sb3")+"'>"+r.status.toUpperCase()+"</span>"
+    +"<span class='sba "+(r.priority==="HIGH"?"sb3":r.priority==="MEDIUM"?"sb2":"sb1")+"'>"+r.priority+" PRIORITY</span>"
+    +"</div>"
+    +"<div style='display:flex;gap:8px;margin-top:8px'>"
+    +"<button style='flex:1;padding:12px;border-radius:8px;border:none;background:var(--blue-mid);color:#fff;font-weight:700;font-size:13px;cursor:pointer' onclick='editAtt(\""+r.id+"\")'>Update Attendance</button>"
+    +"</div>"
+    +"</div></div>";
+  var d=document.createElement("div");
+  d.className="fixed-overlay";
+  d.innerHTML=info;
+  document.body.appendChild(d);
+}
+
+function editAtt(id){
+  document.querySelectorAll(".fixed-overlay").forEach(function(e){e.remove();});
+  var r=riders.find(function(x){return x.id===id;}); if(!r) return;
+  var opts=["P","L","A","S"].map(function(v){return "<option value='"+v+"'"+(r.att===v?" selected":"")+">"+v+"</option>";}).join("");
+  var d=document.createElement("div");
+  d.style.cssText="position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1001;display:flex;align-items:center;justify-content:center;padding:20px;";
+  d.innerHTML="<div style='background:var(--cd);border-radius:12px;padding:20px;width:100%;max-width:320px;border:1px solid var(--br);box-shadow:0 20px 40px rgba(0,0,0,.15)'>"
+    +"<div style='font-weight:700;font-size:15px;margin-bottom:14px;color:var(--dk)'>Attendance: "+r.name+"</div>"
+    +"<select id='att-sel' style='width:100%;padding:11px 12px;border-radius:8px;border:1.5px solid var(--br);font-size:15px;margin-bottom:14px;background:var(--cd);color:var(--t1);font-family:Plus Jakarta Sans,sans-serif;'>"+opts+"</select>"
+    +"<div style='display:flex;gap:8px'>"
+    +"<button style='flex:1;padding:11px;border-radius:8px;border:1.5px solid var(--br);background:var(--cd);color:var(--slate);font-weight:600;font-size:13px;cursor:pointer' onclick='this.closest(\"[style*=fixed]\").remove()'>Cancel</button>"
+    +"<button style='flex:2;padding:11px;border-radius:8px;border:none;background:var(--blue-mid);color:#fff;font-weight:700;font-size:13px;cursor:pointer' onclick='saveAtt(\""+id+"\",document.getElementById(\"att-sel\").value,this)'>Save</button>"
+    +"</div></div>";
+  document.body.appendChild(d);
+}
+
+function saveAtt(id,val,btn){
+  var r=riders.find(function(x){return x.id===id;}); if(!r) return;
+  r.att=val;
+  btn.closest("[style*=fixed]").remove();
+  renderAll();
+}
+
+function flt(f,el){
+  curFlt=f;
+  document.querySelectorAll(".fb").forEach(function(b){b.classList.remove("on");});
+  el.classList.add("on");
+  renderRiders();
+}
+
+function renderAtt(){
+  var n=riders.length; if(!n) return;
+  var pres=[],late=[],abs=[],off=[];
+  riders.forEach(function(r){
+    if(r.att==="P")pres.push(r);
+    else if(r.att==="L")late.push(r);
+    else if(r.att==="A")abs.push(r);
+    else if(r.att==="S")off.push(r);
+  });
+  var attd=pres.length+late.length;
+  var pct=n>0?r1(attd/n*100):0;
+  document.getElementById("att-date").textContent=new Date().toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"});
+  var sum=[
+    {l:"Present",v:pres.length,c:"var(--gn)"},
+    {l:"Late",v:late.length,c:"var(--am)"},
+    {l:"Absent",v:abs.length,c:"var(--rd)"},
+    {l:"Off Shift",v:off.length,c:"var(--soft)"}
+  ];
+  document.getElementById("att-sum").innerHTML=sum.map(function(s){
+    return "<div class='si' style='text-align:left;padding:14px 16px;'>"
+      +"<div class='sv' style='color:"+s.c+";font-size:24px'>"+s.v+"</div>"
+      +"<div class='sl'>"+s.l+"</div>"
+      +"</div>";
+  }).join("");
+
+  function rList(arr,title,cls){
+    if(!arr.length) return "";
+    return "<div class='card'><div class='ct'>"+title+" <span style='color:var(--soft);font-weight:400;font-size:12px'>("+arr.length+")</span></div>"
+      +arr.map(function(r){return "<div style='display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--br);'>"
+        +"<div><div style='font-weight:600;font-size:13px'>"+r.name+"</div><div style='font-size:11px;color:var(--soft)'>"+r.id+" · "+r.zone+"</div></div>"
+        +"<span class='"+cls+"'>"+r.att+"</span></div>";}).join("")
+      +"</div>";
+  }
+  document.getElementById("att-absent").innerHTML=rList(abs,"Absent","attA");
+  document.getElementById("att-late").innerHTML=rList(late,"Late","attL");
+  document.getElementById("att-present").innerHTML=rList(pres,"Present","attP");
+  document.getElementById("att-off").innerHTML=rList(off,"Off Shift","attS");
+}
+
+function renderZones(){
+  var zones={};
+  ZONES.forEach(function(z){zones[z]=[];});
+  riders.forEach(function(r){if(zones[r.zone])zones[r.zone].push(r);});
+  var html="";
+  ZONES.forEach(function(z){
+    var zr=zones[z]; if(!zr.length) return;
+    var aF=r1(zr.reduce(function(s,r){return s+r.fill;},0)/zr.length);
+    var aE=r1(zr.reduce(function(s,r){return s+r.eff;},0)/zr.length);
+    var crit=zr.filter(function(r){return r.status==="critical";}).length;
+    var warn=zr.filter(function(r){return r.status==="warning";}).length;
+    var col=aF>=92?"var(--gn)":aF>=80?"var(--am)":"var(--rd)";
+    html+="<div class='zc2'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px'>"
+      +"<div><div class='zn'>"+z+"</div><div class='zs'>"+zr.length+" riders</div></div>"
+      +"<div style='text-align:right'><div style='font-size:22px;font-weight:300;color:"+col+";letter-spacing:-.5px'>"+aF+"%</div><div style='font-size:10px;color:var(--soft);text-transform:uppercase;letter-spacing:.04em'>Fill Rate</div></div>"
+      +"</div>"
+      +"<div style='display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px'>"
+      +"<div class='mt'><div class='mv' style='color:"+col+"'>"+aF+"%</div><div class='ml'>Fill</div></div>"
+      +"<div class='mt'><div class='mv'>"+aE+"%</div><div class='ml'>Efficiency</div></div>"
+      +"<div class='mt'><div class='mv' style='color:"+(crit>0?"var(--rd)":"var(--gn)")+"'>"+crit+"</div><div class='ml'>Critical</div></div>"
+      +"<div class='mt'><div class='mv' style='color:"+(warn>0?"var(--am)":"var(--gn)")+"'>"+warn+"</div><div class='ml'>Warning</div></div>"
+      +"</div>"
+      +"<div class='trk'><div class='trf' style='width:"+Math.min(aF,100)+"%;background:"+col+"'></div></div>"
+      +"<div style='margin-top:12px'>"
+      +zr.sort(function(a,b){return b.eff-a.eff;}).slice(0,3).map(function(r){
+        var bc=r.status==="critical"?"bc":r.status==="warning"?"bw":"ba";
+        return "<div style='display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--br);font-size:12px'>"
+          +"<span style='color:var(--t1);font-weight:500'>"+r.name+"</span>"
+          +"<div style='display:flex;gap:6px;align-items:center'><span style='color:var(--mid)'>"+r.eff+"%</span><span class='bdg "+bc+"'>"+r.status+"</span></div>"
+          +"</div>";
+      }).join("")
+      +"</div></div>";
+  });
+  document.getElementById("zcards").innerHTML=html;
+}
+
+function renderLB(){
+  var sorted=riders.slice().sort(function(a,b){return b.eff-a.eff;});
+  var top3colors=[
+    {bg:"#F0A500",c:"#fff"},
+    {bg:"#94A3B8",c:"#fff"},
+    {bg:"#CD7F32",c:"#fff"}
+  ];
+  document.getElementById("lbcards").innerHTML=sorted.map(function(r,i){
+    var rank=i+1;
+    var bc=r.status==="critical"?"bc":r.status==="warning"?"bw":"ba";
+    var rnkStyle=rank<=3?
+      "background:"+top3colors[i].bg+";color:"+top3colors[i].c+";":
+      "background:var(--bg);color:var(--mid);border:1px solid var(--br);";
+    return "<div class='lbc'>"
+      +"<div class='lrk' style='"+rnkStyle+"'>"+rank+"</div>"
+      +"<div style='flex:1'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:flex-start'>"
+      +"<div><div style='font-weight:700;font-size:13px;color:var(--dk)'>"+r.name+"</div><div style='font-size:11px;color:var(--soft);margin-top:1px'>"+r.zone+" · "+r.id+"</div></div>"
+      +"<span class='bdg "+bc+"'>"+r.status+"</span>"
+      +"</div>"
+      +"<div style='display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--mid)'>"
+      +"<span>Eff <strong style='color:var(--dk)'>"+r.eff+"%</strong></span>"
+      +"<span>Fill <strong style='color:var(--dk)'>"+r.fill+"%</strong></span>"
+      +"<span>Orders <strong style='color:var(--dk)'>"+r.ord+"</strong></span>"
+      +"</div>"
+      +"</div></div>";
+  }).join("");
+}
+
+function oForm(){
+  document.getElementById("fov").classList.add("on");
+  document.getElementById("fwp").classList.add("on");
+}
+function cForm(){
+  document.getElementById("fov").classList.remove("on");
+  document.getElementById("fwp").classList.remove("on");
+}
+function saveR(){
+  var nm=document.getElementById("fn").value.trim();
+  var id=document.getElementById("fi").value.trim();
+  if(!nm||!id){alert("Name and ID are required.");return;}
+  if(riders.find(function(r){return r.id===id;})){alert("ID already exists.");return;}
+  riders.push({
+    id:id,name:nm,zone:document.getElementById("fz").value,
+    fill:parseFloat(document.getElementById("ff").value)||0,
+    ord:parseInt(document.getElementById("fo").value)||0,
+    uni:document.getElementById("fu").value==="1",
+    eff:0,status:"active",sop:"SOP COMPLIANT",
+    action:"Newly added rider.",priority:"LOW",
+    att:document.getElementById("fa").value
+  });
+  ["fn","fi","ff","fo"].forEach(function(id){document.getElementById(id).value="";});
+  cForm();renderAll();
+}
+
+function loadMonthly(){
+  buildMonSel();
+  renderMonthly();
+}
+
+function buildMonSel(){
+  var mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var keys={};
+  mLog.forEach(function(e){
+    try{var d=new Date(e.date);var k=d.getFullYear()+"_"+(d.getMonth()+1);keys[k]=true;}catch(ex){}
+  });
+  var now=new Date();
+  var curKey=now.getFullYear()+"_"+(now.getMonth()+1);
+  keys[curKey]=true;
+  var allKeys=Object.keys(keys).sort().reverse();
+  document.getElementById("msel").innerHTML=allKeys.map(function(k){
+    var p=k.split("_");
+    return "<option value='"+k+"'"+(k===curKey?" selected":"")+">"+(mn[parseInt(p[1])]||p[1])+" "+p[0]+"</option>";
+  }).join("");
+}
+
+function logToday(){
+  var dateVal=document.getElementById("ml-date").value;
+  var ordVal=parseInt(document.getElementById("ml-ord").value)||0;
+  var attVal=parseFloat(document.getElementById("ml-att").value)||0;
+  var fillVal=parseFloat(document.getElementById("ml-fill").value)||0;
+  if(!dateVal){alert("Please select a date.");return;}
+  if(!ordVal){alert("Please enter total orders.");return;}
+  var effVal=0;
+  if(riders.length){effVal=r1(riders.reduce(function(s,r){return s+r.eff;},0)/riders.length);}
+  var crit=riders.filter(function(r){return r.status==="critical";}).length;
+  var d=new Date(dateVal);
+  var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var dayName=days[d.getDay()];
+  mLog=mLog.filter(function(e){return e.date!==dateVal;});
+  mLog.push({date:dateVal,day:dayName,att:attVal,fill:fillVal,eff:effVal,ord:ordVal,crit:crit});
+  mLog.sort(function(a,b){return a.date>b.date?1:-1;});
+  var mKey=d.getFullYear()+"_"+(d.getMonth()+1);
+  buildMonSel();
+  document.getElementById("msel").value=mKey;
+  document.getElementById("ml-ord").value="";
+  renderMonthly();
+  document.getElementById("m-count").textContent="Saved "+dateVal;
+  setTimeout(function(){document.getElementById("m-count").textContent=mLog.length+" entries total";},2500);
+}
+
+function clearMonth(){
+  var key=document.getElementById("msel").value;
+  var p=key.split("_");
+  var mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  if(!confirm("Clear all entries for "+(mn[parseInt(p[1])]||p[1])+" "+p[0]+"?")) return;
+  mLog=mLog.filter(function(e){
+    try{var d=new Date(e.date);return!(d.getFullYear()+"_"+(d.getMonth()+1)===key);}catch(ex){return true;}
+  });
+  renderMonthly();
+}
+
+function renderMonthly(){
+  var key=document.getElementById("msel").value;
+  if(!key){var now=new Date();key=now.getFullYear()+"_"+(now.getMonth()+1);}
+  var rows=mLog.filter(function(e){
+    try{var d=new Date(e.date);return d.getFullYear()+"_"+(d.getMonth()+1)===key;}catch(ex){return false;}
+  });
+  rows.sort(function(a,b){return a.date>b.date?1:-1;});
+  document.getElementById("m-count").textContent=mLog.length+" entries total";
+
+  if(!rows.length){
+    ["m-days","m-ord","m-ao","m-att","m-fill","m-eff"].forEach(function(id){document.getElementById(id).textContent="—";});
+    ["m-at","m-ft","m-et"].forEach(function(id){document.getElementById(id).textContent="—";});
+    document.getElementById("mlog").innerHTML="<div class='empty'>No entries yet.<br>Fill in the form above and tap <strong>Save Today's Log</strong> each day.</div>";
+    return;
+  }
+
+  var tO=0,sA=0,sF=0,sE=0,ac=0;
+  rows.forEach(function(r){
+    tO+=r.ord;
+    if(r.att>0){sA+=r.att;ac++;}
+    if(r.fill>0) sF+=r.fill;
+    if(r.eff>0) sE+=r.eff;
+  });
+  var aA=ac>0?r1(sA/ac):0;
+  var aF=rows.length>0?r1(sF/rows.length):0;
+  var aE=rows.length>0?r1(sE/rows.length):0;
+  var aO=rows.length>0?r1(tO/rows.length):0;
+
+  document.getElementById("m-days").textContent=rows.length;
+  document.getElementById("m-ord").textContent=tO.toLocaleString();
+  document.getElementById("m-os").textContent="avg "+aO+"/day";
+  document.getElementById("m-ao").textContent=aO;
+  document.getElementById("m-att").innerHTML=aA+"<span style='font-size:14px'>%</span>";
+  document.getElementById("m-fill").innerHTML=aF+"<span style='font-size:14px'>%</span>";
+  document.getElementById("m-eff").innerHTML=aE+"<span style='font-size:14px'>%</span>";
+  stag("m-at",aA,90); stag("m-ft",aF,92); stag("m-et",aE,85);
+
+  var labs=rows.map(function(r){
+    try{var d=new Date(r.date);return d.getDate()+"/"+(d.getMonth()+1);}catch(e){return r.date;}
+  });
+
+  var c1=document.getElementById("mOrdChart");
+  if(c1&&c1.getContext){
+    if(mOrdObj){mOrdObj.destroy();mOrdObj=null;}
+    mOrdObj=new Chart(c1,{type:"bar",data:{labels:labs,datasets:[
+      {label:"Orders",data:rows.map(function(r){return r.ord;}),backgroundColor:"rgba(37,99,235,.8)",borderRadius:4}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{display:false},ticks:{font:{size:9},color:"#94A3B8",maxRotation:45}},
+        y:{beginAtZero:true,grid:{color:"#E2E8F0"},ticks:{font:{size:10},color:"#94A3B8"}}}}});
+  }
+
+  var c2=document.getElementById("mAttChart");
+  if(c2&&c2.getContext){
+    if(mAttObj){mAttObj.destroy();mAttObj=null;}
+    mAttObj=new Chart(c2,{type:"line",data:{labels:labs,datasets:[
+      {label:"Att %",data:rows.map(function(r){return r.att;}),borderColor:"#2563EB",backgroundColor:"rgba(37,99,235,.07)",fill:true,tension:.4,pointRadius:3,pointBackgroundColor:"#2563EB",borderWidth:2.5},
+      {label:"Fill %",data:rows.map(function(r){return r.fill;}),borderColor:"#0891B2",fill:false,tension:.4,pointRadius:2,borderWidth:2},
+      {label:"Target 90%",data:labs.map(function(){return 90;}),borderColor:"rgba(148,163,184,.4)",borderDash:[4,4],pointRadius:0,fill:false,borderWidth:1.5}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{display:false},ticks:{font:{size:9},color:"#94A3B8",maxRotation:45}},
+        y:{min:0,max:105,grid:{color:"#E2E8F0"},ticks:{font:{size:10},color:"#94A3B8",callback:function(v){return v+"%";}}}}}}); 
+  }
+
+  var best=rows.reduce(function(b,r){return r.ord>b.ord?r:b;},rows[0]);
+  var worst=rows.reduce(function(w,r){return r.att<w.att?r:w;},rows[0]);
+  var tbl="<table style='width:100%;border-collapse:collapse;font-size:12px'>"
+    +"<thead><tr style='background:var(--dk);color:#fff;'>"
+    +"<th style='padding:10px 10px;text-align:left;border-radius:8px 0 0 0;font-weight:600;letter-spacing:0.03em'>Date</th>"
+    +"<th style='padding:10px 8px;text-align:center;font-weight:600;letter-spacing:0.03em'>Day</th>"
+    +"<th style='padding:10px 8px;text-align:center;font-weight:600;letter-spacing:0.03em'>Orders</th>"
+    +"<th style='padding:10px 8px;text-align:center;font-weight:600;letter-spacing:0.03em'>Att%</th>"
+    +"<th style='padding:10px 8px;text-align:center;font-weight:600;letter-spacing:0.03em'>Fill%</th>"
+    +"<th style='padding:10px 8px;text-align:center;font-weight:600;letter-spacing:0.03em'>Eff%</th>"
+    +"<th style='padding:10px 10px;text-align:center;border-radius:0 8px 0 0;font-weight:600;letter-spacing:0.03em'>Critical</th>"
+    +"</tr></thead><tbody>";
+  rows.forEach(function(r,i){
+    var bg=i%2===0?"#fff":"var(--bg)";
+    var isBest=r.date===best.date;
+    var isWorst=rows.length>1&&r.date===worst.date;
+    var rowBg=isBest?"#F0FDF4":isWorst?"#FEF2F2":bg;
+    var dateFmt=r.date;
+    try{var d=new Date(r.date);dateFmt=d.getDate()+" "+(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]);}catch(e){}
+    tbl+="<tr style='background:"+rowBg+";transition:background .1s'>"
+      +"<td style='padding:10px 10px;font-weight:700;color:var(--dk)'>"+dateFmt+(isBest?" 🏆":isWorst?" 📉":"")+"</td>"
+      +"<td style='padding:10px 8px;text-align:center;color:var(--mid)'>"+r.day+"</td>"
+      +"<td style='padding:10px 8px;text-align:center;font-weight:700;color:var(--blue-mid)'>"+r.ord+"</td>"
+      +"<td style='padding:10px 8px;text-align:center;font-weight:600;color:"+(r.att>=90?"var(--gn)":r.att>=75?"var(--am)":"var(--rd)")+"'>"+r.att+"%</td>"
+      +"<td style='padding:10px 8px;text-align:center;font-weight:600;color:"+(r.fill>=92?"var(--gn)":r.fill>=80?"var(--am)":"var(--rd)")+"'>"+r.fill+"%</td>"
+      +"<td style='padding:10px 8px;text-align:center;color:"+(r.eff>=85?"var(--gn)":r.eff>=70?"var(--am)":"var(--rd)")+"'>"+r.eff+"%</td>"
+      +"<td style='padding:10px 8px;text-align:center;"+(r.crit>0?"color:var(--rd);font-weight:700":"color:var(--gn)")+"'>"+r.crit+"</td>"
+      +"</tr>";
+  });
+  tbl+="<tr style='background:var(--dk);color:#fff;font-weight:700'>"
+    +"<td style='padding:10px 10px;border-radius:0 0 0 8px;letter-spacing:0.03em'>TOTAL / AVG</td>"
+    +"<td style='padding:10px 8px;text-align:center'>&nbsp;</td>"
+    +"<td style='padding:10px 8px;text-align:center;color:var(--blue-light)'>"+tO+"</td>"
+    +"<td style='padding:10px 8px;text-align:center;color:"+(aA>=90?"var(--gn)":"var(--am)")+"'>"+aA+"%</td>"
+    +"<td style='padding:10px 8px;text-align:center;color:"+(aF>=92?"var(--gn)":"var(--am)")+"'>"+aF+"%</td>"
+    +"<td style='padding:10px 8px;text-align:center'>"+aE+"%</td>"
+    +"<td style='padding:10px 10px;border-radius:0 0 8px 0'>&nbsp;</td>"
+    +"</tr>";
+  document.getElementById("mlog").innerHTML=tbl+"</tbody></table>";
+}
+
+window.addEventListener("resize",function(){renderAll();});
+try {
+  renderAll();
+  document.getElementById("ss").textContent="Loaded · "+riders.length+" riders · Tap Sync for live data";
+} catch(e) {
+  document.getElementById("ss").textContent="Error: "+e.message;
+  console.error("renderAll crashed:", e);
+}
+setTimeout(doSync, 1000);
 </script>
 </body>
 </html>
