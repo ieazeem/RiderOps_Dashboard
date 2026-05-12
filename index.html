@@ -949,7 +949,7 @@ function mapRow(row){
    LOAD DATA
 ========================================================= */
 
-async function loadData(){
+async function loadData() {
 
   document.getElementById('lastUpdated').textContent =
     'Refreshing...';
@@ -962,15 +962,26 @@ async function loadData(){
     </div>
   `;
 
-  try{
+  try {
 
-    const res = await fetch(SHEET_URL);
+    // Prevent browser/GitHub cache
+    const res = await fetch(
+      SHEET_URL + '&t=' + Date.now(),
+      {
+        method: 'GET',
+        cache: 'no-store'
+      }
+    );
 
-    if(!res.ok){
+    if (!res.ok) {
       throw new Error('HTTP ' + res.status);
     }
 
     const text = await res.text();
+
+    if (!text || text.trim() === '') {
+      throw new Error('Google Sheet returned empty data');
+    }
 
     const rows = parseCSV(text);
 
@@ -982,13 +993,16 @@ async function loadData(){
 
     document.getElementById('lastUpdated').textContent =
       `Updated ${now.toLocaleTimeString('en-GB', {
-        hour:'2-digit',
-        minute:'2-digit'
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
       })}`;
 
     renderTab(currentTab);
 
-  }catch(err){
+  } catch (err) {
+
+    console.error(err);
 
     document.getElementById('lastUpdated').textContent =
       'Load failed';
@@ -997,110 +1011,16 @@ async function loadData(){
       <div class="state-box">
         <h3>Could not load data</h3>
         <p>${err.message}</p>
+
+        <br>
+
+        <button class="refresh-btn" onclick="loadData()">
+          Retry
+        </button>
       </div>
     `;
   }
 }
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function avg(arr,key){
-  if(!arr.length) return 0;
-
-  return Math.round(
-    arr.reduce((s,r)=>s+(r[key]||0),0) / arr.length
-  );
-}
-
-function statusBadge(status){
-
-  if(status === 'critical'){
-    return `
-      <span class="badge badge-red">
-        <span class="badge-dot"></span>
-        Critical
-      </span>
-    `;
-  }
-
-  if(status === 'warning'){
-    return `
-      <span class="badge badge-yellow">
-        <span class="badge-dot"></span>
-        Warning
-      </span>
-    `;
-  }
-
-  return `
-    <span class="badge badge-green">
-      <span class="badge-dot"></span>
-      Active
-    </span>
-  `;
-}
-
-function sopBadge(s){
-
-  if(s.includes('BREACH')){
-    return `<span class="badge badge-red">Breach</span>`;
-  }
-
-  if(s.includes('REVIEW')){
-    return `<span class="badge badge-yellow">Review</span>`;
-  }
-
-  return `<span class="badge badge-green">Compliant</span>`;
-}
-
-/* =========================================================
-   TABS
-========================================================= */
-
-function switchTab(tab, btn){
-
-  currentTab = tab;
-
-  document
-    .querySelectorAll('.tab-btn')
-    .forEach(b => b.classList.remove('active'));
-
-  btn.classList.add('active');
-
-  renderTab(tab);
-}
-
-function renderTab(tab){
-
-  const el = document.getElementById('mainContent');
-
-  if(tab === 'overview'){
-    el.innerHTML = renderOverview();
-  }
-
-  else if(tab === 'riders'){
-    el.innerHTML = renderRiders();
-  }
-
-  else if(tab === 'attendance'){
-    el.innerHTML = renderAttendance();
-  }
-
-  else if(tab === 'compliance'){
-    el.innerHTML = renderCompliance();
-  }
-
-  else if(tab === 'leaderboard'){
-    el.innerHTML = renderLeaderboard();
-  }
-
-  else if(tab === 'zones'){
-    el.innerHTML = renderZones();
-  }
-}
-
 /* =========================================================
    OVERVIEW
 ========================================================= */
