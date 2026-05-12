@@ -373,48 +373,56 @@ function parseCSVLine(line){
    MAP ROW
 ========================================================= */
 function mapRow(row){
-  const g = keys => {
-    for(const k of keys){
-      if(row[k]!==undefined && row[k]!=='') return row[k];
-    }
-    return '';
-  };
+  const id   = row['rider_id'] || '';
+  const name = row['name']     || 'Unknown';
+  const zone = row['zone']     || '—';
 
-  const id   = g(['rider_id','id','employee_id']) || '';
-  const name = g(['name','rider_name']) || 'Unknown';
-  const zone = g(['zone','area','region']) || '—';
+  // Count attendance across all 31 days
+  let present=0, absent=0, late=0, notSched=0, scheduled=0;
+  for(let d=1;d<=31;d++){
+    const key = 'd'+String(d).padStart(2,'0');
+    const val = (row[key]||'').trim().toUpperCase();
+    if(!val) continue;
+    if(val==='S'){ notSched++; continue; }
+    scheduled++;
+    if(val==='P') present++;
+    else if(val==='L'){ present++; late++; }
+    else if(val==='A') absent++;
+  }
 
-  const fill   = parseFloat(g(['fill_rate','fillrate','fill'])) || 0;
-  const eff    = parseFloat(g(['efficiency','eff'])) || 0;
-  const orders = parseInt(g(['orders_today','orders'])) || 0;
+  const rate = scheduled>0 ? Math.round((present/scheduled)*100) : 0;
 
-  const attendanceRaw = g(['attendance','att']) || '';
-  const uniformRaw    = g(['uniform','uniform_compliant']) || '';
-  const phone         = g(['phone','mobile']) || '';
+  // Today's status (uses day-of-month, so works while sheet is current month)
+  const todayDay = new Date().getDate();
+  const todayKey = 'd'+String(todayDay).padStart(2,'0');
+  const todayVal = (row[todayKey]||'S').trim().toUpperCase();
 
   let attendance = 'Present';
-  const att = attendanceRaw.toUpperCase();
-  if(att==='A'||att==='ABSENT')         attendance='Absent';
-  else if(att==='OFF'||att==='O')       attendance='Off Shift';
-  else if(att==='LEAVE'||att==='L')     attendance='Leave';
+  if(todayVal==='A')      attendance='Absent';
+  else if(todayVal==='L') attendance='Late';
+  else if(todayVal==='S') attendance='Off Shift';
 
   let status = 'active';
-  if(fill < 75)       status='critical';
-  else if(fill < 85)  status='warning';
-
-  const uniform = ['true','yes','1','y','compliant'].includes(uniformRaw.toLowerCase());
+  if(rate < 90)      status='critical';
+  else if(rate < 95) status='warning';
 
   let sop = 'SOP COMPLIANT';
-  if(fill < 75)                  sop='SOP BREACH — Escalate';
-  else if(fill < 85 || !uniform) sop='SOP REVIEW REQUIRED';
+  if(absent>=3)                  sop='SOP BREACH — Escalate';
+  else if(absent>=1 || late>=2)  sop='SOP REVIEW REQUIRED';
 
   let action = 'No action required';
-  if(status==='critical') action='URGENT: Performance critical — immediate escalation required.';
-  else if(status==='warning') action='WARNING: Monitor rider performance closely.';
+  if(status==='critical') action='URGENT: Poor attendance — immediate escalation required.';
+  else if(status==='warning') action='WARNING: Monitor attendance closely.';
 
-  return { id, name, zone, fill, eff, orders, attendance, uniform, sop, status, action, phone };
+  return {
+    id, name, zone,
+    fill: rate,        // attendance rate → used as fill rate
+    eff:  rate,
+    orders: present,   // days present → used as orders
+    attendance, uniform: true, sop, status, action, phone:'',
+    present, absent, late, notSched, rate
+  };
 }
-
 /* =========================================================
    LOAD DATA
 ========================================================= */
@@ -490,10 +498,10 @@ function renderOverview(){
     <div class="kpi-card green"><div class="kpi-label">Active</div><div class="kpi-value">${active}</div><div class="kpi-sub">Meeting targets</div></div>
     <div class="kpi-card yellow"><div class="kpi-label">Warning</div><div class="kpi-value">${warning}</div><div class="kpi-sub">Needs monitoring</div></div>
     <div class="kpi-card red"><div class="kpi-label">Critical</div><div class="kpi-value">${critical}</div><div class="kpi-sub">Immediate action</div></div>
-    <div class="kpi-card cyan"><div class="kpi-label">Avg Fill Rate</div><div class="kpi-value">${avgFill}%</div><div class="kpi-sub">Operational average</div></div>
-    <div class="kpi-card blue"><div class="kpi-label">Orders Today</div><div class="kpi-value">${totalOrders}</div><div class="kpi-sub">Total deliveries</div></div>
+    <div class="kpi-card cyan"><div class="kpi-label">Avg Attendance</div><div class="kpi-value">${avgFill}%</div><div class="kpi-sub">Monthly average</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Total Present Days</div><div class="kpi-value">${totalOrders}</div><div class="kpi-sub">Across all riders</div></div>
   </div>
-
+  
   <div class="grid-2 section">
     <div class="chart-card">
       <div class="section-header">
