@@ -1,1604 +1,1153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>RiderOps · Workforce Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RiderOps — Ground Operations Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Core palette — deep navy executive */
-  --ink:       #060A14;
-  --ink2:      #0D1526;
-  --ink3:      #111D35;
-  --panel:     #141F38;
-  --panel2:    #1A2847;
-  --edge:      rgba(255,255,255,0.06);
-  --edge2:     rgba(255,255,255,0.10);
-
-  /* Accents */
-  --azure:     #3B7BFF;
-  --azure-glow:rgba(59,123,255,0.18);
-  --azure-dim: rgba(59,123,255,0.08);
-  --cyan:      #00C6FF;
-  --emerald:   #00D68F;
-  --amber:     #FFB020;
-  --rose:      #FF4D6D;
-  --violet:    #8B5CF6;
-
-  /* Text */
-  --tx0: #F0F4FF;
-  --tx1: #C8D4F0;
-  --tx2: #6B7FA8;
-  --tx3: #3D4F72;
-
-  /* Status */
-  --ok-bg:  rgba(0,214,143,0.08);
-  --ok-bd:  rgba(0,214,143,0.22);
-  --ok-tx:  #00D68F;
-  --wn-bg:  rgba(255,176,32,0.08);
-  --wn-bd:  rgba(255,176,32,0.22);
-  --wn-tx:  #FFB020;
-  --cr-bg:  rgba(255,77,109,0.08);
-  --cr-bd:  rgba(255,77,109,0.22);
-  --cr-tx:  #FF4D6D;
-  --bl-bg:  rgba(59,123,255,0.08);
-  --bl-bd:  rgba(59,123,255,0.22);
-  --bl-tx:  #3B7BFF;
-
+  --bg: #080c16;
+  --bg2: #0d1424;
+  --card: #111827;
+  --card2: #161f32;
+  --border: #1e2d47;
+  --border2: #253550;
+  --text: #f0f4ff;
+  --text2: #8899bb;
+  --text3: #4a5f82;
+  --primary: #3b82f6;
+  --primary-glow: rgba(59,130,246,0.15);
+  --green: #10b981;
+  --green-bg: rgba(16,185,129,0.12);
+  --yellow: #f59e0b;
+  --yellow-bg: rgba(245,158,11,0.12);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.12);
+  --cyan: #22d3ee;
   --radius: 10px;
-  --radius-lg: 14px;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Instrument Sans', sans-serif;
-  background: var(--ink);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
   min-height: 100vh;
-  color: var(--tx0);
-  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Subtle grid bg */
+/* Background grain */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(59,123,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59,123,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
 }
 
-button, input, select { font-family: 'Instrument Sans', sans-serif; cursor: pointer; }
+.app-wrap { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-/* ── HEADER ── */
-.hdr {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(6,10,20,0.92);
+/* ── Header ── */
+header {
+  background: rgba(8,12,22,0.9);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--edge2);
-  padding: 0 20px;
-  height: 56px;
-  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
 }
-
-.logo-mark {
+.logo {
   display: flex; align-items: center; gap: 10px;
+  font-size: 17px; font-weight: 800; letter-spacing: -0.3px;
 }
-.logo-icon {
-  width: 32px; height: 32px;
-  background: linear-gradient(135deg, var(--azure), var(--cyan));
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 13px; color: #fff;
-  box-shadow: 0 0 16px rgba(59,123,255,0.35);
-}
-.logo-text {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 15px;
-  color: var(--tx0); letter-spacing: 0.02em;
-}
-.logo-sub {
-  font-size: 10px; color: var(--tx2);
-  font-weight: 400; letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 12px var(--primary); }
+.logo span { color: var(--primary); }
 
-.hdr-right { display: flex; align-items: center; gap: 16px; }
-.live-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--ok-bg);
-  border: 1px solid var(--ok-bd);
-  border-radius: 20px; padding: 4px 10px;
+.header-right { display: flex; align-items: center; gap: 12px; }
+.last-updated { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.refresh-btn {
+  background: var(--card2); border: 1px solid var(--border); color: var(--text2);
+  padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  font-family: var(--font); display: flex; align-items: center; gap: 6px;
+  transition: all .2s;
 }
-.live-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--emerald);
-  box-shadow: 0 0 6px var(--emerald);
-  animation: livePulse 2s ease-in-out infinite;
-}
-@keyframes livePulse {
-  0%,100% { opacity: 1; box-shadow: 0 0 6px var(--emerald); }
-  50% { opacity: 0.5; box-shadow: 0 0 12px var(--emerald); }
-}
-.live-txt { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ok-tx); letter-spacing: 0.06em; }
+.refresh-btn:hover { background: var(--border); color: var(--text); }
+.refresh-btn svg { width: 13px; height: 13px; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-.clock {
-  font-family: 'DM Mono', monospace;
-  font-size: 12px; color: var(--tx2); letter-spacing: 0.08em;
-}
-
-.sync-btn {
-  height: 32px; padding: 0 14px;
-  background: var(--bl-bg);
-  border: 1px solid var(--bl-bd);
-  border-radius: 8px;
-  color: var(--azure); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 6px;
-  transition: all 0.2s;
-}
-.sync-btn:hover { background: var(--azure); color: #fff; border-color: var(--azure); box-shadow: 0 0 16px rgba(59,123,255,0.3); }
-.sync-icon { font-size: 13px; transition: transform 0.3s; }
-.spinning { animation: spin 0.8s linear infinite; display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── STATUS BAR ── */
-.sbar {
-  background: var(--ink2);
-  border-bottom: 1px solid var(--edge);
-  padding: 8px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: relative; z-index: 1;
-}
-.sbar-info { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--tx3); letter-spacing: 0.05em; }
-.sbar-info span { color: var(--tx2); }
-
-/* ── TABS ── */
-.tabs {
-  background: var(--ink2);
-  border-bottom: 1px solid var(--edge);
-  display: flex; overflow-x: auto; padding: 0 16px;
+/* ── Nav Tabs ── */
+nav {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
   scrollbar-width: none;
-  position: sticky; top: 56px; z-index: 99;
-  backdrop-filter: blur(8px);
 }
-.tabs::-webkit-scrollbar { display: none; }
+nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none; border: none; color: var(--text3); padding: 14px 16px;
+  font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
+  white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all .2s; display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-btn svg { width: 14px; height: 14px; }
 
-.tab {
-  padding: 14px 16px;
-  border: none; background: none;
-  font-size: 11px; font-weight: 600;
-  color: var(--tx3);
-  border-bottom: 2px solid transparent;
-  white-space: nowrap; margin-bottom: -1px;
-  letter-spacing: 0.07em; text-transform: uppercase;
-  transition: color 0.15s, border-color 0.15s;
-}
-.tab:hover { color: var(--tx1); }
-.tab.on { color: var(--azure); border-bottom-color: var(--azure); }
+/* ── Main Content ── */
+main { flex: 1; padding: 24px; max-width: 1600px; width: 100%; margin: 0 auto; }
 
-/* ── LAYOUT ── */
-.wrap { padding: 20px 16px 80px; position: relative; z-index: 1; }
-.pg { display: none; } .pg.on { display: block; }
+/* ── Loading / Error ── */
+.state-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; padding: 80px 20px; color: var(--text2); text-align: center;
+}
+.state-box .spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.state-box h3 { font-size: 15px; color: var(--text); }
+.state-box p { font-size: 13px; max-width: 400px; }
 
-/* ── SECTION LABEL ── */
-.sec-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; font-weight: 500;
-  color: var(--tx3); letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  display: flex; align-items: center; gap: 8px;
+/* ── KPI Cards ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 20px; position: relative; overflow: hidden; transition: border-color .2s;
 }
-.sec-label::after {
-  content: '';
-  flex: 1; height: 1px;
-  background: var(--edge);
+.kpi-card:hover { border-color: var(--border2); }
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
 }
+.kpi-card.blue::before { background: var(--primary); }
+.kpi-card.green::before { background: var(--green); }
+.kpi-card.yellow::before { background: var(--yellow); }
+.kpi-card.red::before { background: var(--red); }
+.kpi-card.cyan::before { background: var(--cyan); }
 
-/* ── CARDS ── */
-.card {
-  background: var(--panel);
-  border: 1px solid var(--edge);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  margin-bottom: 12px;
-}
-.card-hd { margin-bottom: 14px; }
-.card-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 600; font-size: 13px;
-  color: var(--tx0); letter-spacing: 0.01em;
-  margin-bottom: 2px;
-}
-.card-sub { font-size: 11px; color: var(--tx3); letter-spacing: 0.02em; }
+.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 10px; }
+.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; letter-spacing: -1px; margin-bottom: 6px; }
+.kpi-sub { font-size: 12px; color: var(--text2); }
+.kpi-card.blue .kpi-value { color: var(--primary); }
+.kpi-card.green .kpi-value { color: var(--green); }
+.kpi-card.yellow .kpi-value { color: var(--yellow); }
+.kpi-card.red .kpi-value { color: var(--red); }
+.kpi-card.cyan .kpi-value { color: var(--cyan); }
 
-/* ── KPI GRID ── */
-.kg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+/* ── Section Header ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+.section-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
-.kc {
-  background: var(--panel);
-  border: 1px solid var(--edge);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  position: relative; overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
+/* ── Table ── */
+.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.table-toolbar {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
 }
-.kc::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--ac, var(--azure));
+.search-input {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  padding: 7px 12px; border-radius: 6px; font-size: 13px; font-family: var(--font);
+  width: 220px; outline: none; transition: border-color .2s;
 }
-.kc:hover {
-  border-color: rgba(59,123,255,0.25);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+.search-input::placeholder { color: var(--text3); }
+.search-input:focus { border-color: var(--primary); }
+.filter-select {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text2);
+  padding: 7px 10px; border-radius: 6px; font-size: 12px; font-family: var(--font);
+  outline: none; cursor: pointer;
 }
+.row-count { font-size: 12px; color: var(--text3); margin-left: auto; }
 
-/* Subtle glow bg */
-.kc::after {
-  content: '';
-  position: absolute; top: -30px; right: -30px;
-  width: 80px; height: 80px; border-radius: 50%;
-  background: var(--ac, var(--azure));
-  opacity: 0.04;
-  pointer-events: none;
-}
-
-.kl {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--tx3);
-  letter-spacing: 0.1em; text-transform: uppercase;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-}
-.klv {
-  background: var(--bl-bg); border: 1px solid var(--bl-bd);
-  color: var(--azure); padding: 1px 5px; border-radius: 3px;
-  font-size: 7px; font-weight: 700; letter-spacing: 0.08em;
-}
-.kv {
-  font-family: 'Syne', sans-serif;
-  font-size: 28px; font-weight: 700; line-height: 1;
-  color: var(--tx0); letter-spacing: -0.5px;
-}
-.ks { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--tx3); margin-top: 6px; letter-spacing: 0.05em; }
-
-.ktg {
-  display: inline-flex; align-items: center; gap: 4px;
-  margin-top: 8px; padding: 3px 8px; border-radius: 4px;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; font-weight: 500; letter-spacing: 0.06em;
-}
-.tok { background: var(--ok-bg); border: 1px solid var(--ok-bd); color: var(--ok-tx); }
-.twn { background: var(--wn-bg); border: 1px solid var(--wn-bd); color: var(--wn-tx); }
-.tcr { background: var(--cr-bg); border: 1px solid var(--cr-bd); color: var(--cr-tx); }
-
-/* ── ALERTS ── */
-.al {
-  border-radius: var(--radius);
-  padding: 12px 14px; margin-bottom: 8px;
-  display: flex; justify-content: space-between; align-items: flex-start;
-  border: 1px solid;
-  backdrop-filter: blur(4px);
-}
-.al-r { background: var(--cr-bg); border-color: var(--cr-bd); }
-.al-a { background: var(--wn-bg); border-color: var(--wn-bd); }
-.al-g { background: var(--ok-bg); border-color: var(--ok-bd); }
-.al-b { background: var(--bl-bg); border-color: var(--bl-bd); }
-.aln { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
-.al-r .aln { color: var(--cr-tx); }
-.al-a .aln { color: var(--wn-tx); }
-.al-g .aln { color: var(--ok-tx); }
-.al-b .aln { color: var(--bl-tx); }
-.alx { font-size: 11px; color: var(--tx2); margin-top: 2px; line-height: 1.5; }
-.arr { font-size: 14px; color: var(--tx3); }
-
-/* ── STAT GRID ── */
-.sg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.si {
-  background: var(--ink2);
-  border: 1px solid var(--edge);
-  border-radius: var(--radius);
-  padding: 12px; text-align: center;
-}
-.sv {
-  font-family: 'Syne', sans-serif;
-  font-size: 20px; font-weight: 700; color: var(--tx0);
-}
-.sl {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--tx3);
-  margin-top: 3px; text-transform: uppercase; letter-spacing: 0.07em;
-}
-
-/* ── SLA BARS ── */
-.sla-item { margin-bottom: 14px; }
-.sla-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; font-weight: 500; }
-.sla-row span:first-child { color: var(--tx1); }
-.trk { height: 4px; background: var(--edge2); border-radius: 99px; overflow: hidden; }
-.trf { height: 4px; border-radius: 99px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
-
-/* ── PERF TOGGLE ── */
-.perf-tog {
-  display: flex; gap: 2px;
-  background: var(--ink2); border: 1px solid var(--edge); border-radius: 8px; padding: 3px;
-}
-.ptb {
-  padding: 5px 12px; border: none; background: transparent;
-  font-size: 10px; font-weight: 600; color: var(--tx3);
-  border-radius: 6px; letter-spacing: 0.05em; text-transform: uppercase;
-  transition: all 0.15s;
-}
-.ptb.on {
-  background: var(--panel2);
-  color: var(--azure);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
-
-/* ── CHART CONTAINER ── */
-.chart-wrap {
-  position: relative;
-  background: var(--ink2);
-  border: 1px solid var(--edge);
-  border-radius: var(--radius);
-  padding: 4px;
-  overflow: hidden;
-}
-.chart-wrap::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 100%, rgba(59,123,255,0.04), transparent 70%);
-  pointer-events: none;
-}
-
-/* ── RIDERS ── */
-.addbtn {
-  width: 100%; padding: 13px;
-  border-radius: var(--radius);
-  border: none;
-  background: linear-gradient(135deg, var(--azure), #2563EB);
-  color: #fff; font-size: 13px; font-weight: 700;
-  margin-bottom: 12px; letter-spacing: 0.04em; text-transform: uppercase;
-  box-shadow: 0 4px 20px rgba(59,123,255,0.3);
-  transition: all 0.2s;
-}
-.addbtn:hover { box-shadow: 0 6px 28px rgba(59,123,255,0.45); transform: translateY(-1px); }
-
-.srch {
-  width: 100%; padding: 11px 14px;
-  border-radius: var(--radius); border: 1px solid var(--edge2);
-  font-size: 13px; margin-bottom: 10px; outline: none;
-  background: var(--panel); color: var(--tx0);
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.srch:focus { border-color: var(--azure); box-shadow: 0 0 0 3px rgba(59,123,255,0.12); }
-.srch::placeholder { color: var(--tx3); }
-
-.frow2 {
-  display: flex; gap: 6px; margin-bottom: 12px;
-  overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
-}
-.frow2::-webkit-scrollbar { display: none; }
-.fb {
-  padding: 6px 14px; border-radius: 6px;
-  border: 1px solid var(--edge2);
-  background: var(--panel); color: var(--tx2);
-  font-size: 10px; font-weight: 600; white-space: nowrap;
-  letter-spacing: 0.05em; text-transform: uppercase;
-  transition: all 0.15s;
-}
-.fb:hover { border-color: var(--bl-bd); color: var(--azure); background: var(--bl-bg); }
-.fb.on { background: var(--azure); color: #fff; border-color: var(--azure); box-shadow: 0 0 12px rgba(59,123,255,0.25); }
-
-/* ── RIDER CARDS ── */
-.rc {
-  background: var(--panel);
-  border: 1px solid var(--edge);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px; margin-bottom: 8px;
-  border-left: 3px solid var(--edge2);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-}
-.rc:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.25); transform: translateY(-1px); }
-.rc.crit { border-left-color: var(--rose); }
-.rc.warn { border-left-color: var(--amber); }
-.rc.act  { border-left-color: var(--emerald); }
-
-.rn { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; color: var(--tx0); }
-.ri { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--tx3); margin-top: 3px; letter-spacing: 0.04em; }
-
-.bdg {
-  padding: 3px 8px; border-radius: 4px;
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  font-family: 'DM Mono', monospace;
-}
-.ba { background: var(--ok-bg); color: var(--ok-tx); border: 1px solid var(--ok-bd); }
-.bw { background: var(--wn-bg); color: var(--wn-tx); border: 1px solid var(--wn-bd); }
-.bc { background: var(--cr-bg); color: var(--cr-tx); border: 1px solid var(--cr-bd); }
-
-/* ── METRICS GRID ── */
-.mts { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 10px; }
-.mt {
-  text-align: center; background: var(--ink2);
-  border: 1px solid var(--edge); border-radius: 8px; padding: 8px 4px;
-}
-.mv { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--tx0); }
-.ml { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--tx3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
-
-/* ── ACTION BOXES ── */
-.ax { border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 11px; line-height: 1.6; border: 1px solid; }
-.au { background: var(--cr-bg); border-color: var(--cr-bd); color: var(--cr-tx); }
-.aw { background: var(--wn-bg); border-color: var(--wn-bd); color: var(--wn-tx); }
-.ao { background: var(--ok-bg); border-color: var(--ok-bd); color: var(--ok-tx); }
-.axl { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 9px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.08em; opacity: 0.7; }
-
-.ph {
-  display: inline-block; padding: 2px 7px; border-radius: 3px;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; font-weight: 500; margin-left: 6px; border: 1px solid;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
-.pHI { background: var(--cr-bg); border-color: var(--cr-bd); color: var(--cr-tx); }
-.pMD { background: var(--wn-bg); border-color: var(--wn-bd); color: var(--wn-tx); }
-.pLO { background: var(--edge); border-color: var(--edge2); color: var(--tx3); }
-
-/* ── ATTENDANCE BADGES ── */
-.attP { background: var(--ok-bg); color: var(--ok-tx); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--ok-bd); font-family: 'DM Mono', monospace; }
-.attL { background: var(--wn-bg); color: var(--wn-tx); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--wn-bd); font-family: 'DM Mono', monospace; }
-.attA { background: var(--cr-bg); color: var(--cr-tx); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--cr-bd); font-family: 'DM Mono', monospace; }
-.attS { background: var(--edge); color: var(--tx3); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--edge2); font-family: 'DM Mono', monospace; }
-
-/* ── ZONE CARDS ── */
-.zc2 { background: var(--panel); border: 1px solid var(--edge); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; }
-.zn { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--tx0); }
-.zs { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--tx3); margin-bottom: 12px; margin-top: 2px; letter-spacing: 0.04em; }
-
-/* ── LEADERBOARD ── */
-.lbc {
-  background: var(--panel); border: 1px solid var(--edge);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px; margin-bottom: 8px;
-  display: flex; align-items: center; gap: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.lbc:hover { border-color: var(--edge2); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-.lrk {
-  width: 32px; height: 32px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; flex-shrink: 0;
-}
-
-/* ── FORM OVERLAY ── */
-.fov { display: none; position: fixed; inset: 0; background: rgba(6,10,20,0.7); z-index: 998; backdrop-filter: blur(4px); }
-.fov.on { display: block; }
-.fwp {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--panel);
-  border-radius: 16px 16px 0 0; z-index: 999;
-  max-height: 88vh; overflow-y: auto;
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  padding-bottom: env(safe-area-inset-bottom, 20px);
-  border-top: 1px solid var(--edge2);
-}
-.fwp.on { transform: translateY(0); }
-.fdg { width: 36px; height: 3px; background: var(--edge2); border-radius: 99px; margin: 14px auto 18px; }
-.finner { padding: 0 18px 24px; }
-.ftl {
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
-  margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; color: var(--tx0);
-}
-.fcl { background: none; border: none; font-size: 18px; color: var(--tx3); line-height: 1; }
-.frw { margin-bottom: 12px; }
-.flb {
-  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
-  color: var(--tx3); display: block; margin-bottom: 5px;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.fin, .fsl {
-  width: 100%; padding: 11px 13px;
-  border-radius: 8px; border: 1px solid var(--edge2);
-  font-size: 14px; color: var(--tx0); background: var(--ink2);
-  outline: none; -webkit-appearance: none; display: block;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.fin:focus, .fsl:focus { border-color: var(--azure); box-shadow: 0 0 0 3px rgba(59,123,255,0.12); }
-.fgr { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.fact { display: flex; gap: 10px; margin-top: 18px; }
-.bcn {
-  flex: 1; padding: 13px; border-radius: 8px;
-  border: 1px solid var(--edge2); background: transparent; color: var(--tx2);
-  font-size: 13px; font-weight: 600;
-}
-.bsv {
-  flex: 2; padding: 13px; border-radius: 8px; border: none;
-  background: linear-gradient(135deg, var(--azure), #2563EB);
-  color: #fff; font-size: 13px; font-weight: 700;
-  box-shadow: 0 4px 16px rgba(59,123,255,0.3);
-}
-
-.empty { text-align: center; padding: 40px 20px; color: var(--tx3); font-size: 13px; line-height: 2; }
-
-.sba {
-  display: inline-block; padding: 2px 7px; border-radius: 3px;
-  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 600; margin-top: 4px;
-}
-.sb1 { background: var(--ok-bg); color: var(--ok-tx); }
-.sb2 { background: var(--wn-bg); color: var(--wn-tx); }
-.sb3 { background: var(--cr-bg); color: var(--cr-tx); }
-
-@media(min-width:600px){
-  .kg { grid-template-columns: repeat(3,1fr); }
-  .sg { grid-template-columns: repeat(4,1fr); }
-  .wrap { padding: 20px 24px 60px; }
-  .fgr { grid-template-columns: repeat(3,1fr); }
-  .kv { font-size: 32px; }
-}
-
-/* ─ Monthly inputs ─ */
-.ml-input {
-  width: 100%; padding: 9px 10px; border-radius: 7px;
-  border: 1px solid var(--edge2); font-size: 13px;
-  background: var(--ink2); color: var(--tx0); outline: none;
-  font-family: 'Instrument Sans', sans-serif;
-  transition: border-color 0.15s;
-}
-.ml-input:focus { border-color: var(--azure); }
-.ml-lbl {
-  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
-  color: var(--tx3); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.07em;
-}
-
-/* ─ Table ─ */
-.data-table {
-  width: 100%; border-collapse: collapse; font-size: 12px;
-}
-.data-table thead tr {
-  background: var(--ink2);
-}
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th {
-  padding: 10px 10px; text-align: left;
-  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
-  color: var(--tx3); letter-spacing: 0.08em; text-transform: uppercase;
-  border-bottom: 1px solid var(--edge2);
+  text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3);
+  background: var(--bg2); border-bottom: 1px solid var(--border); white-space: nowrap;
+  cursor: pointer; user-select: none;
 }
-.data-table td {
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--edge);
-  color: var(--tx1);
-}
-.data-table tbody tr:hover { background: rgba(59,123,255,0.03); }
-.data-table tfoot td {
-  background: var(--ink2); font-weight: 700; color: var(--tx0);
-  font-family: 'Syne', sans-serif;
-  border-top: 1px solid var(--edge2);
-}
+.data-table th:hover { color: var(--text2); }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-/* ─ Divider ─ */
-.divider { height: 1px; background: var(--edge); margin: 12px 0; }
+/* ── Badges ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  white-space: nowrap;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-blue { background: var(--primary-glow); color: var(--primary); }
+.badge-gray { background: rgba(100,120,160,0.15); color: var(--text2); }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* ── Progress Bar ── */
+.progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.progress-label { display: flex; align-items: center; gap: 8px; }
+.progress-label span { font-size: 12px; font-weight: 600; min-width: 36px; text-align: right; }
+
+/* ── Charts (CSS-based bars) ── */
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.bar-chart { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-row-label { font-size: 12px; color: var(--text2); min-width: 90px; text-align: right; }
+.bar-track { flex: 1; height: 22px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
+.bar-fill {
+  height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 8px; font-size: 11px; font-weight: 700; transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+}
+.bar-fill.blue { background: linear-gradient(90deg, #1d4ed8, var(--primary)); color: white; }
+.bar-fill.green { background: linear-gradient(90deg, #059669, var(--green)); color: white; }
+.bar-fill.yellow { background: linear-gradient(90deg, #d97706, var(--yellow)); color: white; }
+.bar-fill.red { background: linear-gradient(90deg, #b91c1c, var(--red)); color: white; }
+
+/* ── Grid layouts ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+@media (max-width: 900px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+
+/* ── Section spacing ── */
+.section { margin-bottom: 24px; }
+
+/* ── Attendance status pill ── */
+.att-p { color: var(--green); font-weight: 700; }
+.att-a { color: var(--red); font-weight: 700; }
+.att-o { color: var(--text3); font-weight: 600; }
+
+/* ── Leaderboard rank ── */
+.rank-1 { color: #ffd700; font-weight: 800; }
+.rank-2 { color: #c0c0c0; font-weight: 800; }
+.rank-3 { color: #cd7f32; font-weight: 800; }
+
+/* ── Action cell ── */
+.action-text { font-size: 12px; color: var(--text2); max-width: 260px; line-height: 1.4; }
+.action-text.urgent { color: var(--red); font-weight: 600; }
+.action-text.warning { color: var(--yellow); font-weight: 600; }
+
+/* ── Panel card ── */
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+
+/* ── Zone summary ── */
+.zone-card {
+  background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; transition: border-color .2s;
+}
+.zone-card:hover { border-color: var(--border2); }
+.zone-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.zone-name { font-size: 14px; font-weight: 700; }
+.zone-count { font-size: 12px; color: var(--text3); }
+.zone-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.zone-stat { font-size: 11px; color: var(--text3); }
+.zone-stat strong { display: block; font-size: 15px; font-weight: 700; color: var(--text); margin-top: 2px; }
+
+/* ── Monthly tab ── */
+.month-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.month-btn {
+  background: var(--card); border: 1px solid var(--border); color: var(--text2);
+  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-family: var(--font);
+  cursor: pointer; transition: all .2s;
+}
+.month-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+/* ── Tooltip / no data ── */
+.empty-msg { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+
+/* ── Compliance boxes ── */
+.compliance-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.compliance-row:last-child { border-bottom: none; }
+.compliance-name { flex: 1; font-size: 13px; font-weight: 500; }
+.compliance-detail { font-size: 12px; color: var(--text2); }
+
+/* ── Scrollable table container ── */
+.table-scroll { overflow-x: auto; }
 </style>
-
-<!-- ── Inline Chart Engine ── -->
-<script>
-var Chart=(function(){
-function clr(ctx,w,h){ctx.clearRect(0,0,w,h);}
-function rnd(n){return Math.round(n);}
-
-function drawChart(canvas,cfg){
-  var ctx=canvas.getContext('2d');
-  var DPR=window.devicePixelRatio||1;
-  var CW=canvas.offsetWidth||canvas.parentElement.offsetWidth||300;
-  var CH=canvas.offsetHeight||220;
-  canvas.width=CW*DPR; canvas.height=CH*DPR;
-  canvas.style.width=CW+'px'; canvas.style.height=CH+'px';
-  ctx.scale(DPR,DPR);
-  var W=CW,H=CH;
-  clr(ctx,W,H);
-
-  var type=cfg.type||'bar';
-  var datasets=cfg.data.datasets||[];
-  var labels=cfg.data.labels||[];
-  var opts=cfg.options||{};
-  var scales=opts.scales||{};
-  var yScale=scales.y||{};
-  var y2Scale=scales.y2||null;
-
-  var PAD={top:18,right:y2Scale?48:16,bottom:34,left:46};
-  var W2=W-PAD.left-PAD.right;
-  var H2=H-PAD.top-PAD.bottom;
-  if(W2<10||H2<10) return;
-
-  var allY=[];
-  datasets.forEach(function(ds){
-    if(ds.yAxisID==='y2') return;
-    (ds.data||[]).forEach(function(v){if(v!=null)allY.push(v);});
-  });
-  var yMin=yScale.min!=null?yScale.min:Math.min.apply(null,allY.concat([0]));
-  var yMax=yScale.max!=null?yScale.max:Math.max.apply(null,allY.concat([100]));
-  if(yMax===yMin){yMax=yMin+1;}
-
-  var allY2=[];
-  datasets.forEach(function(ds){if(ds.yAxisID==='y2')(ds.data||[]).forEach(function(v){if(v!=null)allY2.push(v);});});
-  var y2Min=0,y2Max=Math.max.apply(null,allY2.concat([1]));
-
-  function fy(v,mn,mx){return PAD.top+H2-(v-mn)/(mx-mn)*H2;}
-  function fx(i,n){return PAD.left+(i+0.5)*(W2/n);}
-
-  /* Grid lines */
-  var steps=5;
-  for(var s=0;s<=steps;s++){
-    var yv=yMin+(yMax-yMin)*s/steps;
-    var py=fy(yv,yMin,yMax);
-    ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
-    ctx.setLineDash([]);
-    ctx.beginPath();ctx.moveTo(PAD.left,py);ctx.lineTo(W-PAD.right,py);ctx.stroke();
-    ctx.fillStyle='rgba(107,127,168,0.7)';
-    ctx.font='9px DM Mono,monospace';ctx.textAlign='right';
-    var lbl=yScale.callback?yScale.callback(rnd(yv)):rnd(yv);
-    ctx.fillText(lbl,PAD.left-6,py+3);
-  }
-
-  /* X Labels */
-  ctx.fillStyle='rgba(107,127,168,0.7)';
-  ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
-  var maxLbls=Math.floor(W2/44);
-  var step2=Math.max(1,Math.ceil(labels.length/maxLbls));
-  labels.forEach(function(l,i){
-    if(i%step2!==0) return;
-    ctx.fillText(l,fx(i,labels.length),H-8);
-  });
-
-  var barDS=datasets.filter(function(ds){return(ds.type||type)==='bar';});
-
-  datasets.forEach(function(ds){
-    var data=ds.data||[];
-    var isY2=ds.yAxisID==='y2';
-    var mn=isY2?y2Min:yMin, mx=isY2?y2Max:yMax;
-    var t=ds.type||type;
-    var color=ds.borderColor||ds.backgroundColor||'#3B7BFF';
-
-    if(t==='bar'){
-      var bIdx=barDS.indexOf(ds);
-      var bnd=barDS.length;
-      var bW=W2/labels.length*0.65/Math.max(bnd,1);
-      data.forEach(function(v,i){
-        if(v==null) return;
-        var x=PAD.left+i*(W2/labels.length)+(W2/labels.length*(1-0.65)/2)+bIdx*bW;
-        var y=fy(Math.max(v,mn),mn,mx);
-        var barH=fy(mn,mn,mx)-y;
-        var bg=Array.isArray(ds.backgroundColor)?ds.backgroundColor[i]:ds.backgroundColor;
-        /* Gradient bar */
-        var grad=ctx.createLinearGradient(0,y,0,y+barH);
-        var baseColor=bg||'rgba(59,123,255,0.85)';
-        grad.addColorStop(0,baseColor);
-        grad.addColorStop(1,baseColor.replace(/[\d.]+\)$/,'0.4)'));
-        ctx.globalAlpha=0.9;
-        ctx.fillStyle=grad;
-        ctx.beginPath();
-        var r2=ds.borderRadius||3;
-        if(ctx.roundRect) ctx.roundRect(x,y,bW,barH,r2);
-        else ctx.rect(x,y,bW,barH);
-        ctx.fill();
-        ctx.globalAlpha=1;
-      });
-    } else {
-      /* Glow line */
-      var lineColor=typeof color==='string'?color:'#3B7BFF';
-      ctx.save();
-      ctx.shadowColor=lineColor;
-      ctx.shadowBlur=ds.glowBlur||0;
-      ctx.beginPath();
-      ctx.strokeStyle=lineColor;
-      ctx.lineWidth=ds.borderWidth||2;
-      if(ds.borderDash) ctx.setLineDash(ds.borderDash);
-      else ctx.setLineDash([]);
-      ctx.lineJoin='round';
-      var first=true;
-      data.forEach(function(v,i){
-        if(v==null) return;
-        var x=fx(i,data.length),y=fy(v,mn,mx);
-        if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
-      });
-      ctx.stroke();
-      ctx.restore();
-      ctx.setLineDash([]);
-
-      if(ds.fill&&data.length){
-        ctx.beginPath();
-        var grad2=ctx.createLinearGradient(0,PAD.top,0,PAD.top+H2);
-        var fc=ds.fillColorTop||'rgba(59,123,255,0.15)';
-        var fc2=ds.fillColorBot||'rgba(59,123,255,0)';
-        grad2.addColorStop(0,fc);
-        grad2.addColorStop(1,fc2);
-        ctx.fillStyle=grad2;
-        data.forEach(function(v,i){
-          if(v==null)return;
-          var x=fx(i,data.length),y=fy(v,mn,mx);
-          if(i===0) ctx.moveTo(x,y);else ctx.lineTo(x,y);
-        });
-        var last=data.length-1;
-        ctx.lineTo(fx(last,data.length),fy(mn,mn,mx));
-        ctx.lineTo(fx(0,data.length),fy(mn,mn,mx));
-        ctx.closePath();ctx.fill();
-      }
-
-      var pr=ds.pointRadius!=null?ds.pointRadius:3;
-      if(pr>0){
-        data.forEach(function(v,i){
-          if(v==null)return;
-          ctx.save();
-          ctx.shadowColor=lineColor;ctx.shadowBlur=8;
-          ctx.beginPath();
-          ctx.arc(fx(i,data.length),fy(v,mn,mx),pr,0,Math.PI*2);
-          ctx.fillStyle=ds.pointBackgroundColor||lineColor;
-          ctx.fill();
-          ctx.restore();
-        });
-      }
-    }
-  });
-}
-
-function ChartInst(canvas,cfg){this._canvas=canvas;this._cfg=cfg;if(canvas&&canvas.getContext)drawChart(canvas,cfg);}
-ChartInst.prototype.destroy=function(){if(this._canvas){var ctx=this._canvas.getContext('2d');ctx.clearRect(0,0,this._canvas.width,this._canvas.height);}};
-ChartInst.prototype.update=function(){if(this._canvas)drawChart(this._canvas,this._cfg);};
-return function(canvas,cfg){return new ChartInst(canvas,cfg);};
-})();
-</script>
 </head>
 <body>
+<div class="app-wrap">
 
-<!-- HEADER -->
-<div class="hdr">
-  <div class="logo-mark">
-    <div class="logo-icon">RO</div>
-    <div>
-      <div class="logo-text">RiderOps</div>
-      <div class="logo-sub">Bahrain Ground Operations</div>
-    </div>
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Rider<span>Ops</span>
   </div>
-  <div class="hdr-right">
-    <div class="live-pill">
-      <div class="live-dot"></div>
-      <span class="live-txt">LIVE</span>
-    </div>
-    <div class="clock" id="ltime"></div>
-    <button class="sync-btn" onclick="doSync()">
-      <span class="sync-icon" id="si">↻</span>
-      <span>Sync</span>
+  <div class="header-right">
+    <div class="live-dot"></div>
+    <span class="last-updated" id="lastUpdated">Connecting to sheet…</span>
+    <button class="refresh-btn" onclick="loadData()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      Refresh
     </button>
   </div>
+</header>
+
+<!-- Tabs -->
+<nav id="tabNav">
+  <button class="tab-btn active" onclick="switchTab('overview', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Overview
+  </button>
+  <button class="tab-btn" onclick="switchTab('riders', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    Riders
+  </button>
+  <button class="tab-btn" onclick="switchTab('attendance', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    Attendance
+  </button>
+  <button class="tab-btn" onclick="switchTab('compliance', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Compliance
+  </button>
+  <button class="tab-btn" onclick="switchTab('leaderboard', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
+    Leaderboard
+  </button>
+  <button class="tab-btn" onclick="switchTab('zones', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+    Zones
+  </button>
+  <button class="tab-btn" onclick="switchTab('monthly', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+    Monthly
+  </button>
+</nav>
+
+<!-- Main -->
+<main id="mainContent">
+  <div class="state-box">
+    <div class="spinner"></div>
+    <h3>Loading data from Google Sheets…</h3>
+    <p>Fetching live rider performance data</p>
+  </div>
+</main>
+
 </div>
 
-<!-- STATUS BAR -->
-<div class="sbar">
-  <span class="sbar-info" id="ss">Initializing…</span>
-</div>
-
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab on"  onclick="go('ov',this)">Overview</button>
-  <button class="tab"     onclick="go('att',this)">Attendance</button>
-  <button class="tab"     onclick="go('riders',this)">Riders</button>
-  <button class="tab"     onclick="go('zones',this)">Zones</button>
-  <button class="tab"     onclick="go('lb',this)">Leaderboard</button>
-  <button class="tab"     onclick="go('monthly',this)">Monthly</button>
-</div>
-
-<div class="wrap">
-
-<!-- ═══ OVERVIEW ═══ -->
-<div class="pg on" id="pg-ov">
-  <div id="alerts" style="margin-bottom:12px"></div>
-
-  <div class="sec-label">Key Performance Indicators</div>
-  <div class="kg">
-    <div class="kc" style="--ac:var(--azure)">
-      <div class="kl">Attendance <span class="klv">LIVE</span></div>
-      <div class="kv" id="k-att">—</div>
-      <div class="ks">Target: 90%</div>
-      <div class="ktg" id="t-att">—</div>
-    </div>
-    <div class="kc" style="--ac:var(--cyan)">
-      <div class="kl">Fill Rate <span class="klv">LIVE</span></div>
-      <div class="kv" id="k-fill">—</div>
-      <div class="ks">Target: 92%</div>
-      <div class="ktg" id="t-fill">—</div>
-    </div>
-    <div class="kc" style="--ac:var(--violet)">
-      <div class="kl">Efficiency <span class="klv">LIVE</span></div>
-      <div class="kv" id="k-eff">—</div>
-      <div class="ks">Target: 85%</div>
-      <div class="ktg" id="t-eff">—</div>
-    </div>
-  </div>
-
-  <div class="kg" style="margin-bottom:18px">
-    <div class="kc" style="--ac:var(--emerald)">
-      <div class="kl">Orders Today</div>
-      <div class="kv" id="k-ord">—</div>
-      <div class="ks" id="k-ords">—</div>
-    </div>
-    <div class="kc" style="--ac:var(--azure)">
-      <div class="kl">Uniform Compliance</div>
-      <div class="kv" id="k-uni">—</div>
-      <div class="ks" id="k-unis">—</div>
-      <div class="ktg" id="t-uni">—</div>
-    </div>
-    <div class="kc" style="--ac:var(--rose)">
-      <div class="kl">Need Action</div>
-      <div class="kv" id="k-act">—</div>
-      <div class="ks" id="k-acts">—</div>
-    </div>
-  </div>
-
-  <!-- Today Snapshot -->
-  <div class="sec-label">Today's Attendance Snapshot</div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div class="card-title">Attendance Breakdown</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3)" id="today-sub">—</div>
-    </div>
-    <div id="snap-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px"></div>
-    <div id="absent-list"></div>
-  </div>
-
-  <!-- Performance Chart -->
-  <div class="sec-label">Performance Trends</div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-      <div>
-        <div class="card-title">Fill Rate & Efficiency</div>
-        <div class="card-sub" id="pv-sub">Historical performance across all riders</div>
-      </div>
-      <div class="perf-tog">
-        <button class="ptb on" onclick="setPV('daily',this)">Daily</button>
-        <button class="ptb" onclick="setPV('weekly',this)">Weekly</button>
-        <button class="ptb" onclick="setPV('monthly',this)">Monthly</button>
-      </div>
-    </div>
-
-    <!-- Legend -->
-    <div style="display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap">
-      <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:20px;height:2px;background:var(--azure);border-radius:2px;box-shadow:0 0 6px var(--azure);display:inline-block"></span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--tx2);letter-spacing:0.06em">FILL RATE</span>
-      </span>
-      <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:20px;height:2px;background:var(--cyan);border-radius:2px;box-shadow:0 0 6px var(--cyan);display:inline-block"></span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--tx2);letter-spacing:0.06em">EFFICIENCY</span>
-      </span>
-      <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:20px;height:1px;background:var(--tx3);border-radius:2px;display:inline-block;border-top:1px dashed var(--tx3)"></span>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--tx3);letter-spacing:0.06em">TARGET 90%</span>
-      </span>
-    </div>
-
-    <div class="chart-wrap" style="height:220px">
-      <canvas id="pvChart" style="width:100%;height:100%"></canvas>
-    </div>
-
-    <div id="pv-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px"></div>
-  </div>
-
-  <!-- SOP & SLA -->
-  <div class="sec-label">Compliance & SLA</div>
-  <div class="card">
-    <div class="card-title" style="margin-bottom:12px">SOP Compliance</div>
-    <div class="sg" id="sop-g"></div>
-    <div id="sop-d"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title" style="margin-bottom:14px">SLA by Zone</div>
-    <div id="sla-b"></div>
-  </div>
-
-  <!-- Zone chart -->
-  <div class="card">
-    <div class="card-title" style="margin-bottom:4px">Fill Rate by Zone</div>
-    <div class="card-sub" style="margin-bottom:12px">vs 92% target threshold</div>
-    <div class="chart-wrap" style="height:200px">
-      <canvas id="zChart" style="width:100%;height:100%"></canvas>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ ATTENDANCE ═══ -->
-<div class="pg" id="pg-att">
-  <div style="background:var(--panel);border:1px solid var(--edge);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--tx0)">Today's Attendance</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3);margin-top:3px;letter-spacing:0.05em">BAHRAIN GROUND OPS</div>
-    </div>
-    <div style="font-family:'DM Mono',monospace;color:var(--azure);font-size:12px;font-weight:500" id="att-date"></div>
-  </div>
-  <div id="att-sum" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
-  <div id="att-absent"></div>
-  <div id="att-late"></div>
-  <div id="att-present"></div>
-  <div id="att-off"></div>
-  <div style="background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--bl-tx);line-height:1.8;margin-top:4px;letter-spacing:0.03em">
-    ◆ Staff marks P / L / A / S in Daily Attendance sheet each morning → syncs here automatically.
-  </div>
-</div>
-
-<!-- ═══ RIDERS ═══ -->
-<div class="pg" id="pg-riders">
-  <button class="addbtn" onclick="oForm()">+ Add Rider</button>
-  <input class="srch" id="srch" type="text" placeholder="Search name, ID or zone…" oninput="renderRiders()" autocomplete="off"/>
-  <div class="frow2">
-    <button class="fb on"  onclick="flt('all',this)">All</button>
-    <button class="fb"     onclick="flt('active',this)">Active</button>
-    <button class="fb"     onclick="flt('warning',this)">Warning</button>
-    <button class="fb"     onclick="flt('critical',this)">Critical</button>
-    <button class="fb"     onclick="flt('high',this)">HIGH Priority</button>
-    <button class="fb"     onclick="flt('sop',this)">SOP Breach</button>
-    <button class="fb"     onclick="flt('uni',this)">Non-Uniform</button>
-  </div>
-  <div id="rcards"></div>
-</div>
-
-<!-- ═══ ZONES ═══ -->
-<div class="pg" id="pg-zones"><div id="zcards"></div></div>
-
-<!-- ═══ LEADERBOARD ═══ -->
-<div class="pg" id="pg-lb">
-  <div class="card" style="margin-bottom:12px">
-    <div class="card-title">Performance Leaderboard</div>
-    <div class="card-sub">Ranked by Efficiency Score · Fill 60% + Orders 40%</div>
-  </div>
-  <div id="lbcards"></div>
-</div>
-
-<!-- ═══ MONTHLY ═══ -->
-<div class="pg" id="pg-monthly">
-  <div class="card" style="margin-bottom:12px">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:0.08em">Month</div>
-      <select id="msel" onchange="renderMonthly()" style="padding:8px 12px;border-radius:7px;border:1px solid var(--edge2);font-size:12px;background:var(--ink2);color:var(--tx0);-webkit-appearance:none;outline:none;flex:1;max-width:180px;font-family:'Instrument Sans',sans-serif;"></select>
-      <span id="m-count" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3);margin-left:auto;letter-spacing:0.04em"></span>
-    </div>
-
-    <div style="background:var(--ink2);border:1px solid var(--edge);border-radius:var(--radius);padding:14px">
-      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--tx0);margin-bottom:12px;letter-spacing:0.02em">Log Today's Summary</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div>
-          <div class="ml-lbl">Date</div>
-          <input id="ml-date" type="date" class="ml-input"/>
-        </div>
-        <div>
-          <div class="ml-lbl">Total Orders</div>
-          <input id="ml-ord" type="number" min="0" placeholder="e.g. 420" inputmode="numeric" class="ml-input"/>
-        </div>
-        <div>
-          <div class="ml-lbl">Att % (auto)</div>
-          <input id="ml-att" type="number" min="0" max="100" placeholder="auto" inputmode="numeric" class="ml-input"/>
-        </div>
-        <div>
-          <div class="ml-lbl">Fill Rate % (auto)</div>
-          <input id="ml-fill" type="number" min="0" max="100" placeholder="auto" inputmode="numeric" class="ml-input"/>
-        </div>
-      </div>
-      <button onclick="logToday()" style="width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--azure),#2563EB);color:#fff;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 4px 16px rgba(59,123,255,0.3);">Save Today's Log</button>
-    </div>
-  </div>
-
-  <div class="kg" style="margin-bottom:10px">
-    <div class="kc" style="--ac:var(--azure)"><div class="kl">Days Logged</div><div class="kv" id="m-days">—</div><div class="ks" id="m-ds">this month</div></div>
-    <div class="kc" style="--ac:var(--emerald)"><div class="kl">Total Orders</div><div class="kv" id="m-ord">—</div><div class="ks" id="m-os">this month</div></div>
-    <div class="kc" style="--ac:var(--cyan)"><div class="kl">Avg Daily Orders</div><div class="kv" id="m-ao">—</div><div class="ks">per day</div></div>
-  </div>
-  <div class="kg" style="margin-bottom:18px">
-    <div class="kc" style="--ac:var(--azure)"><div class="kl">Avg Attendance</div><div class="kv" id="m-att">—</div><div class="ks">Target 90%</div><div class="ktg" id="m-at">—</div></div>
-    <div class="kc" style="--ac:var(--cyan)"><div class="kl">Avg Fill Rate</div><div class="kv" id="m-fill">—</div><div class="ks">Target 92%</div><div class="ktg" id="m-ft">—</div></div>
-    <div class="kc" style="--ac:var(--violet)"><div class="kl">Avg Efficiency</div><div class="kv" id="m-eff">—</div><div class="ks">Target 85%</div><div class="ktg" id="m-et">—</div></div>
-  </div>
-
-  <div class="card"><div class="card-title" style="margin-bottom:4px">Daily Orders</div><div class="card-sub" style="margin-bottom:12px">Total orders per day this month</div><div class="chart-wrap" style="height:200px"><canvas id="mOrdChart" style="width:100%;height:100%"></canvas></div></div>
-  <div class="card"><div class="card-title" style="margin-bottom:4px">Attendance Trend</div><div class="card-sub" style="margin-bottom:12px">Daily attendance % vs 90% target</div><div class="chart-wrap" style="height:180px"><canvas id="mAttChart" style="width:100%;height:100%"></canvas></div></div>
-
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div>
-        <div class="card-title">Daily Log</div>
-        <div class="card-sub">All entries for selected month</div>
-      </div>
-      <button onclick="clearMonth()" style="padding:6px 12px;border-radius:6px;border:1px solid var(--cr-bd);background:transparent;color:var(--cr-tx);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;font-family:'DM Mono',monospace;">Clear Month</button>
-    </div>
-    <div id="mlog" style="overflow-x:auto"></div>
-  </div>
-</div>
-
-</div><!-- /wrap -->
-
-<!-- FORM -->
-<div class="fov" id="fov" onclick="cForm()"></div>
-<div class="fwp" id="fwp">
-  <div class="fdg"></div>
-  <div class="finner">
-    <div class="ftl"><span>Add Rider</span><button class="fcl" onclick="cForm()">✕</button></div>
-    <div class="frw"><label class="flb">Full Name *</label><input class="fin" id="fn" type="text" placeholder="Ahmed Ali" autocomplete="off"/></div>
-    <div class="fgr">
-      <div class="frw"><label class="flb">Rider ID *</label><input class="fin" id="fi" type="text" placeholder="R051" autocomplete="off"/></div>
-      <div class="frw"><label class="flb">Zone</label>
-        <select class="fsl" id="fz">
-          <option>Manama</option><option>Riffa</option><option>Juffair</option>
-          <option>Salmabad</option><option>Isa Town</option><option>Muharraq</option>
-          <option>Hamad Town</option><option>Budaiya</option>
-        </select>
-      </div>
-      <div class="frw"><label class="flb">Fill Rate %</label><input class="fin" id="ff" type="number" min="0" max="100" placeholder="92" inputmode="numeric"/></div>
-      <div class="frw"><label class="flb">Orders Today</label><input class="fin" id="fo" type="number" min="0" placeholder="10" inputmode="numeric"/></div>
-      <div class="frw"><label class="flb">Attendance</label>
-        <select class="fsl" id="fa">
-          <option value="P">P — Present</option><option value="L">L — Late</option>
-          <option value="A">A — Absent</option><option value="S">S — Not Scheduled</option>
-        </select>
-      </div>
-      <div class="frw"><label class="flb">Uniform</label>
-        <select class="fsl" id="fu">
-          <option value="1">Y — Compliant</option><option value="0">N — Not Compliant</option>
-        </select>
-      </div>
-    </div>
-    <div class="fact">
-      <button class="bcn" onclick="cForm()">Cancel</button>
-      <button class="bsv" onclick="saveR()">Save Rider</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════ SCRIPTS ══ -->
 <script>
-var PERF_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?gid=1657315848&single=true&output=csv";
-var SEED=[{"id":"R001","name":"Ahmed Al Mansoori","zone":"Manama","fill":88.0,"ord":7,"uni":true,"eff":95.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R002","name":"Rajesh Kumar","zone":"Riffa","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R003","name":"Mohammed Siddiqui","zone":"Juffair","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R004","name":"Saidul Rabbi","zone":"Salmabad","fill":100.0,"ord":9,"uni":false,"eff":114.7,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R005","name":"Faisal Al Dosari","zone":"Manama","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R006","name":"MD Joynal","zone":"Salmabad","fill":100.0,"ord":0,"uni":true,"eff":60.0,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R007","name":"Ghulam Rasool","zone":"Isa Town","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R008","name":"Tahir Mehmood","zone":"Muharraq","fill":99.0,"ord":11,"uni":true,"eff":126.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R009","name":"Gundaveni Sitharam","zone":"Budaiya","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R010","name":"Noor","zone":"Hamad Town","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R011","name":"Ghulam Rabbi","zone":"Salmabad","fill":68.0,"ord":9,"uni":true,"eff":95.5,"status":"critical","sop":"SOP BREACH — Escalate","action":"URGENT: Performance critical — call rider immediately. Initiate replacement if no response.","priority":"HIGH","att":""},{"id":"R012","name":"Hamza Tabish","zone":"Riffa","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R013","name":"Muhammad Anas","zone":"Juffair","fill":98.0,"ord":13,"uni":false,"eff":137.8,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R014","name":"Muhammad Rizwan","zone":"Juffair","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R015","name":"Waleed Omeyele","zone":"Juffair","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R016","name":"Muhammad Saleem","zone":"Manama","fill":100.0,"ord":15,"uni":true,"eff":151.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R017","name":"Jahangir Rukhsan","zone":"Manama","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R018","name":"Sabeer Ammapole","zone":"Manama","fill":100.0,"ord":4,"uni":true,"eff":84.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R019","name":"Mughees Ahmed","zone":"Isa Town","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R020","name":"Manjit Singh","zone":"Isa Town","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R021","name":"Shahzaib Hameed","zone":"Hamad Town","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R022","name":"Gurwinder Singh","zone":"Muharraq","fill":94.0,"ord":9,"uni":true,"eff":111.1,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R023","name":"Farooq Sattar","zone":"Salmabad","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R024","name":"Rameez Khan","zone":"Manama","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R025","name":"Yasir Ali","zone":"Isa Town","fill":100.0,"ord":2,"uni":true,"eff":72.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R026","name":"Abdulla Nabi","zone":"Isa Town","fill":96.0,"ord":9,"uni":true,"eff":112.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R027","name":"Farhad","zone":"Manama","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R028","name":"Darshana Chitrasinghe","zone":"Budaiya","fill":100.0,"ord":6,"uni":false,"eff":96.5,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R029","name":"Sidhesh Dhebe","zone":"Muharraq","fill":72.0,"ord":8,"uni":true,"eff":91.8,"status":"warning","sop":"SOP REVIEW REQUIRED","action":"WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.","priority":"MEDIUM","att":""},{"id":"R030","name":"Gurpreet Singh","zone":"Juffair","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R031","name":"Tariq Khurram","zone":"Muharraq","fill":55.0,"ord":7,"uni":true,"eff":75.6,"status":"critical","sop":"SOP BREACH — Escalate","action":"URGENT: Performance critical — call rider immediately. Initiate replacement if no response.","priority":"HIGH","att":""},{"id":"R032","name":"Gulraiz Hakeem","zone":"Juffair","fill":100.0,"ord":2,"uni":true,"eff":72.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R033","name":"Yasin Adil","zone":"Hamad Town","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R034","name":"Darshan Singh","zone":"Hamad Town","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R035","name":"Basharat Mehmood","zone":"Budaiya","fill":88.0,"ord":11,"uni":true,"eff":119.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R036","name":"Khan Bahadur","zone":"Riffa","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R037","name":"Qamar uz Zaman","zone":"Manama","fill":96.0,"ord":8,"uni":true,"eff":106.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R038","name":"Harpeet Singh","zone":"Manama","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R039","name":"Zia ur Rehman","zone":"Manama","fill":100.0,"ord":4,"uni":true,"eff":84.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R040","name":"Yamin Adil","zone":"Isa Town","fill":100.0,"ord":2,"uni":true,"eff":72.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R041","name":"Faheem Ahmed","zone":"Riffa","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R042","name":"Bilal Abid","zone":"Riffa","fill":81.0,"ord":11,"uni":true,"eff":115.5,"status":"warning","sop":"SOP REVIEW REQUIRED","action":"WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.","priority":"MEDIUM","att":""},{"id":"R043","name":"Asad Nawaz","zone":"Juffair","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R044","name":"Qazi Ghulam Nabi","zone":"Isa Town","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R045","name":"Gurmail Singh","zone":"Muharraq","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R046","name":"Muhammad Abbas","zone":"Juffair","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"critical","sop":"SOP BREACH — Escalate","action":"URGENT: Performance critical — call rider immediately. Initiate replacement if no response.","priority":"HIGH","att":""},{"id":"R047","name":"Zubair Khan","zone":"Salmabad","fill":100.0,"ord":4,"uni":false,"eff":84.3,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R048","name":"Saddam Altaf","zone":"Manama","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R049","name":"Zeeshan Shafique","zone":"Hamad Town","fill":100.0,"ord":4,"uni":true,"eff":84.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R050","name":"Ubaid Ur Rehman","zone":"Manama","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""}];
+// ── CONFIG ──────────────────────────────────────────────────────
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
 
-var riders=JSON.parse(JSON.stringify(SEED));
-var mLog=[],curFlt="all",pvView="daily",pvChartObj=null,zChartObj=null,mOrdObj=null,mAttObj=null;
-var pvHistory={daily:[],weekly:[],monthly:[]};
-var ZONES=["Manama","Riffa","Juffair","Salmabad","Isa Town","Muharraq","Hamad Town","Budaiya"];
+// ── STATE ──────────────────────────────────────────────────────
+let riders = [];
+let currentTab = 'overview';
 
-setInterval(function(){document.getElementById("ltime").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});},1000);
-document.getElementById("ltime").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-
-function r1(v){return Math.round(v*10)/10;}
-function zc(v){return v>=90?"var(--emerald)":v>=80?"var(--amber)":"var(--rose)";}
-function tClass(v,t){return v>=t?"tok":v>=t*0.88?"twn":"tcr";}
-function tText(v,t){return v>=t?"On Target":v>=t*0.88?"Near Target":"Below Target";}
-function stag(id,v,t){var e=document.getElementById(id);if(!e)return;e.textContent=tText(v,t);e.className="ktg "+tClass(v,t);}
-
-function go(name,el){
-  document.querySelectorAll(".pg").forEach(function(p){p.classList.remove("on");});
-  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("on");});
-  document.getElementById("pg-"+name).classList.add("on");
-  el.classList.add("on");
-  if(name==="zones") renderZones();
-  if(name==="monthly") loadMonthly();
+// ── CSV PARSER ─────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase().replace(/\s+/g,'_'));
+  return lines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim().replace(/^"|"$/g, ''); });
+    return obj;
+  }).filter(r => Object.values(r).some(v => v !== ''));
 }
 
-function splitCSV(line){
-  var res=[],cur="",q=false;
-  for(var i=0;i<line.length;i++){
-    if(line[i]==='"'){q=!q;}
-    else if(line[i]===","&&!q){res.push(cur.trim());cur="";}
-    else cur+=line[i];
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += c; }
   }
-  res.push(cur.trim());return res;
-}
-function parsePerf(text){
-  var lines=text.split("\n"),start=-1;
-  for(var i=0;i<Math.min(15,lines.length);i++){
-    if(lines[i].toLowerCase().indexOf("rider id")>-1){start=i+1;break;}
-    if(/^"?R0\d/.test(lines[i])){start=i;break;}
-  }
-  if(start<0)return [];
-  var out=[];
-  for(var i=start;i<lines.length;i++){
-    var c=splitCSV(lines[i]);
-    var id=c[0].replace(/"/g,""),nm=c[1].replace(/"/g,"");
-    if(!id||!nm||id.length<2)continue;
-    var fill=parseFloat(c[3])||0,ord=parseInt(c[4])||0;
-    var uni=c[5].replace(/"/g,"").toUpperCase()==="Y";
-    var eff=parseFloat(c[7])||0;
-    if(!eff&&fill>0)eff=r1(fill*0.6+100*0.4);
-    var st=(c[8]||"").replace(/"/g,"").toLowerCase();
-    if(st!=="critical"&&st!=="warning")st="active";
-    out.push({id:id,name:nm,zone:(c[2]||"Manama").replace(/"/g,""),fill:fill,ord:ord,uni:uni,eff:eff,status:st,
-      sop:(c[11]||"").replace(/"/g,""),action:(c[12]||"").replace(/"/g,""),priority:(c[13]||"LOW").replace(/"/g,"").toUpperCase(),att:""});
-  }
-  return out;
+  result.push(cur);
+  return result;
 }
 
-function doSync(){
-  var si=document.getElementById("si");
-  si.classList.add("spinning");
-  document.getElementById("ss").textContent="Syncing…";
-  var proxies=[
-    PERF_URL,
-    "https://api.allorigins.win/raw?url="+encodeURIComponent(PERF_URL),
-    "https://corsproxy.io/?"+encodeURIComponent(PERF_URL),
-    "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(PERF_URL)
-  ];
-  function tryP(i){
-    if(i>=proxies.length){si.classList.remove("spinning");document.getElementById("ss").textContent="Offline · showing saved data";return;}
-    var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},7000);
-    fetch(proxies[i],{cache:"no-cache",signal:ctrl.signal})
-      .then(function(r){clearTimeout(timer);return r.text();})
-      .then(function(t){
-        if(!t||t.length<50)throw new Error("empty");
-        var p=parsePerf(t);if(!p.length)throw new Error("no riders");
-        riders=p;var now=new Date();
-        si.classList.remove("spinning");
-        document.getElementById("ss").textContent="Live · "+now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" · "+riders.length+" riders";
-        renderAll();
-      })
-      .catch(function(){clearTimeout(timer);tryP(i+1);});
+// ── MAP ROW → RIDER ───────────────────────────────────────────
+function mapRow(row) {
+  const g = (keys) => {
+    for (const k of keys) {
+      if (row[k] !== undefined && row[k] !== '') return row[k];
+    }
+    return '';
+  };
+
+  const id         = g(['rider_id','id','rider id','emp_id','employee_id']) || '';
+  const name       = g(['name','rider_name','rider name','full_name']) || 'Unknown';
+  const zone       = g(['zone','area','region','location']) || '—';
+  const fillRaw    = g(['fill_rate','fill rate','fillrate','fill%','fill rate (%)']) || '0';
+  const effRaw     = g(['efficiency','efficiency (%)','eff','performance']) || '0';
+  const ordersRaw  = g(['orders_today','orders today','orders','daily_orders','today_orders']) || '0';
+  const attRaw     = g(['attendance','att','present_absent','status_attendance']) || '';
+  const uniformRaw = g(['uniform_compliant','uniform','uniform compliant','uniform_compliance']) || '';
+  const statusRaw  = g(['status','rider_status']) || '';
+  const sopRaw     = g(['sop_status','sop status','sop','sop_compliance']) || '';
+  const actionRaw  = g(['action','action_required','recommendation','notes']) || '';
+  const priorityRaw= g(['priority','urgency']) || 'LOW';
+  const shiftRaw   = g(['shift','shift_type','timing']) || '';
+  const vehicleRaw = g(['vehicle','vehicle_type','bike_type']) || '';
+  const phoneRaw   = g(['phone','mobile','contact','phone_number']) || '';
+
+  const fill = parseFloat(fillRaw) || 0;
+  const eff  = parseFloat(effRaw) || 0;
+  const orders = parseInt(ordersRaw) || 0;
+
+  // Derive status from fill_rate if not explicit
+  let status = statusRaw.toLowerCase();
+  if (!status || status === '') {
+    if (fill < 75) status = 'critical';
+    else if (fill < 85) status = 'warning';
+    else status = 'active';
   }
-  tryP(0);
+
+  // Derive SOP from uniform + fill
+  let sop = sopRaw || '';
+  if (!sop) {
+    const unifComp = uniformRaw.toLowerCase();
+    const unifBool = unifComp === 'true' || unifComp === 'yes' || unifComp === '1' || unifComp === 'y';
+    if (fill < 75) sop = 'SOP BREACH — Escalate';
+    else if (!unifBool || fill < 85) sop = 'SOP REVIEW REQUIRED';
+    else sop = 'SOP COMPLIANT';
+  }
+
+  // Derive action
+  let action = actionRaw || '';
+  if (!action) {
+    if (status === 'critical') action = 'URGENT: Performance critical — call rider immediately. Initiate replacement if no response.';
+    else if (status === 'warning') action = 'WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.';
+    else action = 'No action required — rider meeting all performance targets.';
+  }
+
+  // Attendance string → clean display
+  const attUp = attRaw.toUpperCase();
+  let attendance = 'Present';
+  if (attUp === 'A' || attUp === 'ABSENT') attendance = 'Absent';
+  else if (attUp === 'O' || attUp === 'OFF' || attUp === 'OFF SHIFT') attendance = 'Off Shift';
+  else if (attUp === 'L' || attUp === 'LEAVE') attendance = 'Leave';
+
+  const unifBool = ['true','yes','1','y','compliant'].includes(uniformRaw.toLowerCase());
+  const priority = priorityRaw.toUpperCase() === 'HIGH' ? 'HIGH' : priorityRaw.toUpperCase() === 'MEDIUM' ? 'MEDIUM' : 'LOW';
+
+  return { id, name, zone, fill, eff, orders, attendance, uniform: unifBool,
+           status, sop, action, priority, shift: shiftRaw, vehicle: vehicleRaw, phone: phoneRaw };
 }
 
-function renderAll(){
-  renderOv(); renderRiders(); renderAtt(); renderLB();
-  buildPvHistory(); renderPvChart();
+// ── LOAD DATA ─────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById('lastUpdated').textContent = 'Refreshing…';
+  document.getElementById('mainContent').innerHTML = `
+    <div class="state-box">
+      <div class="spinner"></div>
+      <h3>Fetching from Google Sheets…</h3>
+      <p>Pulling live rider data</p>
+    </div>`;
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    riders = rows.map(mapRow).filter(r => r.name !== 'Unknown' || r.id !== '');
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent =
+      `Updated ${now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
+    renderTab(currentTab);
+  } catch (e) {
+    document.getElementById('lastUpdated').textContent = 'Failed to load';
+    document.getElementById('mainContent').innerHTML = `
+      <div class="state-box">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3>Could not load data</h3>
+        <p>${e.message}. Make sure the Google Sheet is published and the URL is correct.</p>
+      </div>`;
+  }
 }
 
-function renderOv(){
-  var n=riders.length;if(!n)return;
-  var sF=0,sE=0,sO=0,crit=0,warn=0,uY=0,sopB=0,sopR=0,sopOk=0,abs=0,late=0,pres=0,off=0;
-  for(var i=0;i<n;i++){
-    var r=riders[i];sF+=r.fill;sE+=r.eff;sO+=r.ord;
-    if(r.status==="critical")crit++;if(r.status==="warning")warn++;if(r.uni)uY++;
-    if(r.sop&&r.sop.indexOf("BREACH")>-1)sopB++;else if(r.sop&&r.sop.indexOf("REVIEW")>-1)sopR++;else sopOk++;
-    if(r.att==="A")abs++;else if(r.att==="L")late++;else if(r.att==="P")pres++;else if(r.att==="S")off++;
-  }
-  var aF=r1(sF/n),aE=r1(sE/n),attPct=r1((pres+late)/n*100);
-  document.getElementById("k-att").textContent=(pres+late)||"—";
-  document.getElementById("k-fill").textContent=aF+"%";
-  document.getElementById("k-eff").textContent=aE+"%";
-  document.getElementById("k-ord").textContent=sO;
-  document.getElementById("k-ords").textContent="avg "+r1(sO/n)+" / rider";
-  document.getElementById("k-uni").textContent=uY;
-  document.getElementById("k-unis").textContent=r1(uY/n*100)+"% compliant";
-  document.getElementById("k-act").textContent=crit+warn;
-  document.getElementById("k-acts").textContent=crit+" critical · "+warn+" warning";
-  stag("t-att",attPct,90);stag("t-fill",aF,92);stag("t-eff",aE,85);stag("t-uni",r1(uY/n*100),95);
+// ── TAB SWITCHING ─────────────────────────────────────────────
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTab(tab);
+}
 
-  // Alerts
-  var al="";
-  if(crit>0) al+="<div class='al al-r'><div><div class='aln'>"+crit+" Critical Rider"+(crit>1?"s":"")+" · Immediate Action</div><div class='alx'>SOP breach — escalation required</div></div><span class='arr'>→</span></div>";
-  if(warn>0) al+="<div class='al al-a'><div><div class='aln'>"+warn+" Warning</div><div class='alx'>Performance below target — monitor closely</div></div><span class='arr'>→</span></div>";
-  if(sopB>0) al+="<div class='al al-r'><div><div class='aln'>"+sopB+" SOP Breach</div><div class='alx'>Review and escalate immediately</div></div><span class='arr'>→</span></div>";
-  if(!al) al="<div class='al al-g'><div><div class='aln'>All Clear</div><div class='alx'>No critical alerts at this time</div></div></div>";
-  document.getElementById("alerts").innerHTML=al;
+function renderTab(tab) {
+  const el = document.getElementById('mainContent');
+  if (tab === 'overview')    el.innerHTML = renderOverview();
+  else if (tab === 'riders') el.innerHTML = renderRiders();
+  else if (tab === 'attendance') el.innerHTML = renderAttendance();
+  else if (tab === 'compliance') el.innerHTML = renderCompliance();
+  else if (tab === 'leaderboard') el.innerHTML = renderLeaderboard();
+  else if (tab === 'zones')  el.innerHTML = renderZones();
+  else if (tab === 'monthly') el.innerHTML = renderMonthly();
+  bindFilters(tab);
+}
 
-  // Snap
-  var sc=[{l:"Present",v:pres,c:"var(--emerald)"},{l:"Late",v:late,c:"var(--amber)"},{l:"Absent",v:abs,c:"var(--rose)"},{l:"Off Shift",v:off,c:"var(--tx3)"}];
-  document.getElementById("snap-grid").innerHTML=sc.map(function(s){
-    return "<div class='si'><div class='sv' style='color:"+s.c+"'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";
-  }).join("");
-  document.getElementById("today-sub").textContent=n+" riders total";
+// ── HELPERS ───────────────────────────────────────────────────
+function statusBadge(s) {
+  if (s === 'critical') return `<span class="badge badge-red"><span class="badge-dot"></span>Critical</span>`;
+  if (s === 'warning')  return `<span class="badge badge-yellow"><span class="badge-dot"></span>Warning</span>`;
+  return `<span class="badge badge-green"><span class="badge-dot"></span>Active</span>`;
+}
+function sopBadge(s) {
+  if (!s) return '';
+  if (s.includes('BREACH'))  return `<span class="badge badge-red">Breach</span>`;
+  if (s.includes('REVIEW'))  return `<span class="badge badge-yellow">Review</span>`;
+  return `<span class="badge badge-green">Compliant</span>`;
+}
+function fillColor(v) {
+  if (v < 75) return 'red';
+  if (v < 85) return 'yellow';
+  return 'green';
+}
+function effColor(v) {
+  if (v > 110) return 'blue';
+  if (v >= 90) return 'green';
+  if (v >= 75) return 'yellow';
+  return 'red';
+}
+function avg(arr, key) {
+  if (!arr.length) return 0;
+  return Math.round(arr.reduce((s,r) => s + (r[key]||0), 0) / arr.length * 10) / 10;
+}
 
-  var abRiders=riders.filter(function(r){return r.att==="A";});
-  document.getElementById("absent-list").innerHTML=abRiders.length?
-    "<div style='font-family:DM Mono,monospace;font-size:9px;color:var(--cr-tx);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em'>Absent</div>"+
-    abRiders.map(function(r){return "<div style='font-size:12px;padding:5px 0;color:var(--tx1);border-bottom:1px solid var(--edge);display:flex;justify-content:space-between'><span>"+r.name+"</span><span style='color:var(--tx3);font-family:DM Mono,monospace;font-size:10px'>"+r.zone+"</span></div>";}).join("") : "";
+// ── OVERVIEW TAB ──────────────────────────────────────────────
+function renderOverview() {
+  const total     = riders.length;
+  const active    = riders.filter(r => r.status === 'active').length;
+  const warning   = riders.filter(r => r.status === 'warning').length;
+  const critical  = riders.filter(r => r.status === 'critical').length;
+  const present   = riders.filter(r => r.attendance === 'Present').length;
+  const avgFill   = avg(riders, 'fill');
+  const avgEff    = avg(riders, 'eff');
+  const totalOrds = riders.reduce((s,r) => s + r.orders, 0);
 
-  // SOP
-  document.getElementById("sop-g").innerHTML=[{l:"Compliant",v:sopOk,c:"var(--emerald)"},{l:"Review",v:sopR,c:"var(--amber)"},{l:"Breach",v:sopB,c:"var(--rose)"},{l:"Total",v:n,c:"var(--azure)"}]
-    .map(function(s){return "<div class='si'><div class='sv' style='color:"+s.c+"'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";}).join("");
-
-  // SLA
-  var zones={};
-  riders.forEach(function(r){if(!zones[r.zone])zones[r.zone]={s:0,c:0};zones[r.zone].s+=r.fill;zones[r.zone].c++;});
-  var slah="";
-  Object.keys(zones).sort().forEach(function(z){
-    var avg=r1(zones[z].s/zones[z].c);
-    var col=avg>=92?"var(--emerald)":avg>=80?"var(--amber)":"var(--rose)";
-    slah+="<div class='sla-item'><div class='sla-row'><span>"+z+"</span><span style='font-family:DM Mono,monospace;font-size:11px;font-weight:600;color:"+col+"'>"+avg+"%</span></div><div class='trk'><div class='trf' style='width:"+Math.min(avg,100)+"%;background:"+col+"'></div></div></div>";
+  // Zone breakdown
+  const zoneMap = {};
+  riders.forEach(r => {
+    if (!zoneMap[r.zone]) zoneMap[r.zone] = { count:0, fillSum:0, orders:0 };
+    zoneMap[r.zone].count++;
+    zoneMap[r.zone].fillSum += r.fill;
+    zoneMap[r.zone].orders += r.orders;
   });
-  document.getElementById("sla-b").innerHTML=slah;
+  const zones = Object.entries(zoneMap).sort((a,b) => b[1].orders - a[1].orders);
 
-  // Zone chart
-  var zLabels=Object.keys(zones).sort();
-  var zData=zLabels.map(function(z){return r1(zones[z].s/zones[z].c);});
-  var zColors=zData.map(function(v){return v>=92?"rgba(0,214,143,0.75)":v>=80?"rgba(255,176,32,0.75)":"rgba(255,77,109,0.75)";});
-  var zC=document.getElementById("zChart");
-  if(zC&&zC.getContext){
-    if(zChartObj){zChartObj.destroy();zChartObj=null;}
-    zChartObj=new Chart(zC,{type:"bar",data:{labels:zLabels,datasets:[
-      {label:"Fill %",data:zData,backgroundColor:zColors,borderRadius:4},
-      {label:"Target",data:zLabels.map(function(){return 92;}),type:"line",borderColor:"rgba(59,123,255,0.5)",borderDash:[4,4],pointRadius:0,fill:false,borderWidth:1.5}
-    ]},options:{responsive:true,maintainAspectRatio:false,scales:{
-      x:{grid:{display:false},ticks:{font:{size:9},color:"#6B7FA8",maxRotation:30}},
-      y:{min:60,max:105,grid:{color:"rgba(255,255,255,0.05)"},ticks:{font:{size:9},color:"#6B7FA8",callback:function(v){return v+"%";}}}
-    }}});
-  }
+  // Critical riders preview
+  const critRiders = riders.filter(r => r.status !== 'active').sort((a,b) => a.fill - b.fill).slice(0, 5);
+
+  return `
+  <div class="section kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">Total Riders</div>
+      <div class="kpi-value">${total}</div>
+      <div class="kpi-sub">${present} present today</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Active</div>
+      <div class="kpi-value">${active}</div>
+      <div class="kpi-sub">${Math.round(active/total*100)||0}% of fleet</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Warning</div>
+      <div class="kpi-value">${warning}</div>
+      <div class="kpi-sub">Needs monitoring</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Critical</div>
+      <div class="kpi-value">${critical}</div>
+      <div class="kpi-sub">Immediate action</div>
+    </div>
+    <div class="kpi-card cyan">
+      <div class="kpi-label">Avg Fill Rate</div>
+      <div class="kpi-value">${avgFill}%</div>
+      <div class="kpi-sub">Target: ≥85%</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Avg Efficiency</div>
+      <div class="kpi-value">${avgEff}%</div>
+      <div class="kpi-sub">vs. baseline</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value">${totalOrds}</div>
+      <div class="kpi-sub">Today</div>
+    </div>
+  </div>
+
+  <div class="grid-2 section">
+    <div class="chart-card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Fill Rate by Zone</div>
+          <div class="section-sub">Avg fill rate per zone</div>
+        </div>
+      </div>
+      <div class="bar-chart">
+        ${zones.map(([zone, d]) => {
+          const fr = Math.round(d.fillSum/d.count);
+          const col = fillColor(fr);
+          return `
+          <div class="bar-row">
+            <div class="bar-row-label">${zone}</div>
+            <div class="bar-track">
+              <div class="bar-fill ${col}" style="width:${fr}%">${fr}%</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Orders by Zone</div>
+          <div class="section-sub">Total orders today per zone</div>
+        </div>
+      </div>
+      <div class="bar-chart">
+        ${zones.map(([zone, d]) => {
+          const maxO = Math.max(...zones.map(z=>z[1].orders), 1);
+          const pct = Math.round(d.orders/maxO*100);
+          return `
+          <div class="bar-row">
+            <div class="bar-row-label">${zone}</div>
+            <div class="bar-track">
+              <div class="bar-fill blue" style="width:${pct}%">${d.orders}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  ${critRiders.length ? `
+  <div class="section">
+    <div class="section-header"><div class="section-title">Action Required</div></div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr>
+          <th>Rider</th><th>Zone</th><th>Fill Rate</th><th>Status</th><th>Action</th>
+        </tr></thead>
+        <tbody>
+          ${critRiders.map(r => `
+          <tr>
+            <td><strong>${r.name}</strong>${r.id ? `<br><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</span>` : ''}</td>
+            <td>${r.zone}</td>
+            <td>
+              <div class="progress-label">
+                <div class="progress-bar" style="width:80px">
+                  <div class="progress-fill" style="background:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'};width:${r.fill}%"></div>
+                </div>
+                <span style="color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span>
+              </div>
+            </td>
+            <td>${statusBadge(r.status)}</td>
+            <td><div class="action-text ${r.status==='critical'?'urgent':r.status==='warning'?'warning':''}">${r.action}</div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>` : ''}
+  `;
 }
 
-function buildPvHistory(){
-  var n=riders.length;if(!n)return;
-  var aF=r1(riders.reduce(function(s,r){return s+r.fill;},0)/n);
-  var aE=r1(riders.reduce(function(s,r){return s+r.eff;},0)/n);
-  function sim(base,seed,rng){return Math.min(100,Math.max(60,r1(base+(((seed*17+31)%rng)-(rng/2)))));}
-  pvHistory.daily={labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-    fill:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(function(d,i){return sim(aF,i*7,12);}),
-    eff:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(function(d,i){return sim(aE,i*11,18);})};
-  pvHistory.weekly={labels:["Wk-4","Wk-3","Wk-2","Wk-1","This Wk"],
-    fill:["Wk-4","Wk-3","Wk-2","Wk-1","This Wk"].map(function(d,i){return sim(aF,i*13,14);}),
-    eff:["Wk-4","Wk-3","Wk-2","Wk-1","This Wk"].map(function(d,i){return sim(aE,i*9,18);})};
-  pvHistory.monthly={labels:["Jan","Feb","Mar","Apr","May"],
-    fill:["Jan","Feb","Mar","Apr","May"].map(function(d,i){return sim(aF,i*17,16);}),
-    eff:["Jan","Feb","Mar","Apr","May"].map(function(d,i){return sim(aE,i*19,20);})};
+// ── RIDERS TAB ────────────────────────────────────────────────
+function renderRiders(data, filterZone='all', filterStatus='all', q='') {
+  let rows = data || riders;
+  if (filterZone !== 'all') rows = rows.filter(r => r.zone === filterZone);
+  if (filterStatus !== 'all') rows = rows.filter(r => r.status === filterStatus);
+  if (q) rows = rows.filter(r => (r.name+r.id+r.zone).toLowerCase().includes(q.toLowerCase()));
+
+  const zones = [...new Set(riders.map(r => r.zone))].sort();
+
+  return `
+  <div class="section table-wrap" id="ridersTable">
+    <div class="table-toolbar">
+      <input class="search-input" id="riderSearch" placeholder="Search rider, ID, zone…" value="${q}" oninput="updateRiders()">
+      <select class="filter-select" id="zoneFilter" onchange="updateRiders()">
+        <option value="all">All Zones</option>
+        ${zones.map(z => `<option value="${z}" ${filterZone===z?'selected':''}>${z}</option>`).join('')}
+      </select>
+      <select class="filter-select" id="statusFilter" onchange="updateRiders()">
+        <option value="all">All Status</option>
+        <option value="active" ${filterStatus==='active'?'selected':''}>Active</option>
+        <option value="warning" ${filterStatus==='warning'?'selected':''}>Warning</option>
+        <option value="critical" ${filterStatus==='critical'?'selected':''}>Critical</option>
+      </select>
+      <span class="row-count">${rows.length} riders</span>
+    </div>
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr>
+        <th onclick="sortTable('name')">Rider ▾</th>
+        <th onclick="sortTable('zone')">Zone</th>
+        <th onclick="sortTable('fill')">Fill Rate</th>
+        <th onclick="sortTable('eff')">Efficiency</th>
+        <th onclick="sortTable('orders')">Orders</th>
+        <th>Attendance</th>
+        <th>Uniform</th>
+        <th>Status</th>
+        <th>SOP</th>
+        <th>Action</th>
+      </tr></thead>
+      <tbody>
+        ${rows.length ? rows.map(r => `
+        <tr>
+          <td>
+            <div style="font-weight:600">${r.name}</div>
+            ${r.id ? `<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</div>` : ''}
+            ${r.phone ? `<div style="font-size:11px;color:var(--text3)">${r.phone}</div>` : ''}
+          </td>
+          <td>${r.zone}</td>
+          <td>
+            <div class="progress-label">
+              <div class="progress-bar" style="width:70px">
+                <div class="progress-fill" style="background:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'};width:${r.fill}%"></div>
+              </div>
+              <span style="font-size:12px;font-weight:700;color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span>
+            </div>
+          </td>
+          <td><span style="font-weight:700;color:${r.eff>110?'var(--cyan)':r.eff>=90?'var(--green)':r.eff>=75?'var(--yellow)':'var(--red)'}">${r.eff}%</span></td>
+          <td><span style="font-weight:600">${r.orders}</span></td>
+          <td><span class="${r.attendance==='Present'?'att-p':r.attendance==='Absent'?'att-a':'att-o'}">${r.attendance}</span></td>
+          <td>${r.uniform ? '<span class="badge badge-green">✓ Yes</span>' : '<span class="badge badge-red">✗ No</span>'}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td>${sopBadge(r.sop)}</td>
+          <td><div class="action-text ${r.status==='critical'?'urgent':r.status==='warning'?'warning':''}">${r.action.length > 60 ? r.action.slice(0,58)+'…' : r.action}</div></td>
+        </tr>`).join('') : `<tr><td colspan="10"><div class="empty-msg">No riders match your filters</div></td></tr>`}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
 }
 
-function setPV(v,el){
-  pvView=v;
-  document.querySelectorAll(".ptb").forEach(function(b){b.classList.remove("on");});
-  el.classList.add("on");
-  renderPvChart();
+let sortKey = 'name', sortDir = 1;
+function sortTable(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  updateRiders();
 }
-
-function renderPvChart(){
-  var d=pvHistory[pvView];if(!d||!d.labels)return;
-  var c=document.getElementById("pvChart");if(!c||!c.getContext)return;
-  if(pvChartObj){pvChartObj.destroy();pvChartObj=null;}
-  pvChartObj=new Chart(c,{type:"line",data:{labels:d.labels,datasets:[
-    {label:"Fill %",data:d.fill,borderColor:"#3B7BFF",fill:true,fillColorTop:"rgba(59,123,255,0.18)",fillColorBot:"rgba(59,123,255,0)",pointRadius:3,pointBackgroundColor:"#3B7BFF",borderWidth:2.5,glowBlur:10},
-    {label:"Eff %",data:d.eff,borderColor:"#00C6FF",fill:false,pointRadius:2,borderWidth:2,glowBlur:8},
-    {label:"Target",data:d.labels.map(function(){return 90;}),borderColor:"rgba(107,127,168,0.35)",borderDash:[5,5],pointRadius:0,fill:false,borderWidth:1.5}
-  ]},options:{responsive:true,maintainAspectRatio:false,scales:{
-    x:{grid:{display:false},ticks:{font:{size:9},color:"#6B7FA8"}},
-    y:{min:60,max:110,grid:{color:"rgba(255,255,255,0.05)"},ticks:{font:{size:9},color:"#6B7FA8",callback:function(v){return v+"%";}}}
-  }}});
-
-  var aF=d.fill.reduce(function(s,v){return s+v;},0)/d.fill.length;
-  var aE=d.eff.reduce(function(s,v){return s+v;},0)/d.eff.length;
-  var minF=Math.min.apply(null,d.fill),maxF=Math.max.apply(null,d.fill);
-  document.getElementById("pv-stats").innerHTML=[
-    {l:"Avg Fill",v:r1(aF)+"%",c:"var(--azure)"},
-    {l:"Fill Range",v:minF+"–"+maxF+"%",c:"var(--tx2)"},
-    {l:"Avg Efficiency",v:r1(aE)+"%",c:"var(--cyan)"}
-  ].map(function(s){return "<div class='si'><div class='sv' style='color:"+s.c+"'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";}).join("");
-}
-
-function renderRiders(){
-  var q=(document.getElementById("srch").value||"").toLowerCase();
-  var fl=riders.filter(function(r){
-    if(q&&r.name.toLowerCase().indexOf(q)<0&&r.id.toLowerCase().indexOf(q)<0&&r.zone.toLowerCase().indexOf(q)<0)return false;
-    if(curFlt==="active")return r.status==="active";
-    if(curFlt==="warning")return r.status==="warning";
-    if(curFlt==="critical")return r.status==="critical";
-    if(curFlt==="high")return r.priority==="HIGH";
-    if(curFlt==="sop")return r.sop&&r.sop.indexOf("BREACH")>-1;
-    if(curFlt==="uni")return !r.uni;
-    return true;
+function updateRiders() {
+  const q = document.getElementById('riderSearch')?.value || '';
+  const zone = document.getElementById('zoneFilter')?.value || 'all';
+  const status = document.getElementById('statusFilter')?.value || 'all';
+  let rows = [...riders];
+  if (zone !== 'all') rows = rows.filter(r => r.zone === zone);
+  if (status !== 'all') rows = rows.filter(r => r.status === status);
+  if (q) rows = rows.filter(r => (r.name+r.id+r.zone).toLowerCase().includes(q.toLowerCase()));
+  rows.sort((a,b) => {
+    const va = a[sortKey], vb = b[sortKey];
+    if (typeof va === 'number') return (va - vb) * sortDir;
+    return String(va).localeCompare(String(vb)) * sortDir;
   });
-  if(!fl.length){document.getElementById("rcards").innerHTML="<div class='empty'>No riders match this filter.</div>";return;}
-  document.getElementById("rcards").innerHTML=fl.map(function(r){
-    var sc=r.status==="critical"?"crit":r.status==="warning"?"warn":"act";
-    var bc=r.status==="critical"?"bc":r.status==="warning"?"bw":"ba";
-    var ph=r.priority==="HIGH"?"pHI":r.priority==="MEDIUM"?"pMD":"pLO";
-    var attBadge=r.att?("<span class='att"+(r.att==="P"?"P":r.att==="L"?"L":r.att==="A"?"A":"S")+"'>"+r.att+"</span> "):"";
-    return "<div class='rc "+sc+"' onclick='showRider(\""+r.id+"\")'>"
-      +"<div style='display:flex;justify-content:space-between;align-items:flex-start'>"
-      +"<div><div class='rn'>"+r.name+"</div><div class='ri'>"+r.id+" · "+r.zone+"</div></div>"
-      +"<div style='display:flex;align-items:center;gap:6px'>"+attBadge+"<span class='bdg "+bc+"'>"+r.status+"</span><span class='ph "+ph+"'>"+r.priority+"</span></div>"
-      +"</div>"
-      +"<div class='mts' style='margin-top:10px'>"
-      +"<div class='mt'><div class='mv' style='color:"+zc(r.fill)+"'>"+r.fill+"%</div><div class='ml'>Fill</div></div>"
-      +"<div class='mt'><div class='mv'>"+r.ord+"</div><div class='ml'>Orders</div></div>"
-      +"<div class='mt'><div class='mv' style='color:"+(r.uni?"var(--emerald)":"var(--rose)")+"'>"+(r.uni?"✓":"✗")+"</div><div class='ml'>Uniform</div></div>"
-      +"<div class='mt'><div class='mv' style='color:"+zc(r.eff)+"'>"+r.eff+"%</div><div class='ml'>Eff</div></div>"
-      +"</div>"
-      +"</div>";
-  }).join("");
+  document.getElementById('mainContent').innerHTML = renderRiders(rows, zone, status, q);
 }
 
-function showRider(id){
-  var r=riders.find(function(x){return x.id===id;});if(!r)return;
-  var sc=r.status==="critical"?"au":r.status==="warning"?"aw":"ao";
-  var d=document.createElement("div");
-  d.style.cssText="position:fixed;inset:0;background:rgba(6,10,20,0.7);z-index:1000;display:flex;align-items:flex-end;backdrop-filter:blur(4px)";
-  d.onclick=function(){d.remove();};
-  d.innerHTML="<div style='background:var(--panel);width:100%;border-radius:16px 16px 0 0;padding:20px;max-height:80vh;overflow-y:auto;border-top:1px solid var(--edge2);' onclick='event.stopPropagation()'>"
-    +"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:16px'>"
-    +"<div><div style='font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:var(--tx0)'>"+r.name+"</div><div style='font-family:DM Mono,monospace;font-size:10px;color:var(--tx3);margin-top:3px;letter-spacing:0.04em'>"+r.id+" · "+r.zone+"</div></div>"
-    +"<button style='background:none;border:none;font-size:20px;color:var(--tx3);cursor:pointer' onclick='this.closest(\"div\").parentElement.remove()'>✕</button>"
-    +"</div>"
-    +"<div class='mts'>"
-    +"<div class='mt'><div class='mv' style='color:"+zc(r.fill)+"'>"+r.fill+"%</div><div class='ml'>Fill Rate</div></div>"
-    +"<div class='mt'><div class='mv'>"+r.ord+"</div><div class='ml'>Orders</div></div>"
-    +"<div class='mt'><div class='mv' style='color:"+zc(r.eff)+"'>"+r.eff+"%</div><div class='ml'>Efficiency</div></div>"
-    +"<div class='mt'><div class='mv' style='color:"+(r.uni?"var(--emerald)":"var(--rose)")+"'>"+(r.uni?"Yes":"No")+"</div><div class='ml'>Uniform</div></div>"
-    +"</div>"
-    +"<div class='ax "+sc+"'><div class='axl'>Action Required</div>"+r.action+"</div>"
-    +"<div style='font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.08em'>SOP Status</div>"
-    +"<div style='font-size:13px;margin-bottom:14px;color:var(--tx1)'>"+r.sop+"</div>"
-    +"<div style='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px'>"
-    +"<span class='sba "+(r.status==="active"?"sb1":r.status==="warning"?"sb2":"sb3")+"'>"+r.status.toUpperCase()+"</span>"
-    +"<span class='sba "+(r.priority==="HIGH"?"sb3":r.priority==="MEDIUM"?"sb2":"sb1")+"'>"+r.priority+" PRIORITY</span>"
-    +"</div>"
-    +"<button style='width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--azure),#2563EB);color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(59,123,255,0.3)' onclick='editAtt(\""+r.id+"\")'>Update Attendance</button>"
-    +"</div>";
-  document.body.appendChild(d);
-}
+// ── ATTENDANCE TAB ────────────────────────────────────────────
+function renderAttendance() {
+  const present  = riders.filter(r => r.attendance === 'Present').length;
+  const absent   = riders.filter(r => r.attendance === 'Absent').length;
+  const offShift = riders.filter(r => r.attendance === 'Off Shift').length;
+  const leave    = riders.filter(r => r.attendance === 'Leave').length;
+  const total    = riders.length;
 
-function editAtt(id){
-  document.querySelectorAll("[style*='fixed']").forEach(function(e){if(e.style.zIndex>=1000)e.remove();});
-  var r=riders.find(function(x){return x.id===id;});if(!r)return;
-  var opts=["P","L","A","S"].map(function(v){return "<option value='"+v+"'"+(r.att===v?" selected":"")+">"+v+"</option>";}).join("");
-  var d=document.createElement("div");
-  d.style.cssText="position:fixed;inset:0;background:rgba(6,10,20,0.7);z-index:1001;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)";
-  d.innerHTML="<div style='background:var(--panel);border:1px solid var(--edge2);border-radius:12px;padding:20px;width:100%;max-width:320px;box-shadow:0 20px 40px rgba(0,0,0,0.5)'>"
-    +"<div style='font-family:Syne,sans-serif;font-weight:700;font-size:15px;margin-bottom:14px;color:var(--tx0)'>Attendance: "+r.name+"</div>"
-    +"<select id='att-sel' style='width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--edge2);font-size:14px;margin-bottom:14px;background:var(--ink2);color:var(--tx0);font-family:Instrument Sans,sans-serif;'>"+opts+"</select>"
-    +"<div style='display:flex;gap:8px'>"
-    +"<button style='flex:1;padding:11px;border-radius:8px;border:1px solid var(--edge2);background:transparent;color:var(--tx2);font-weight:600;font-size:13px;cursor:pointer' onclick='this.closest(\"div\").parentElement.remove()'>Cancel</button>"
-    +"<button style='flex:2;padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--azure),#2563EB);color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(59,123,255,0.3)' onclick='saveAtt(\""+id+"\",document.getElementById(\"att-sel\").value,this)'>Save</button>"
-    +"</div></div>";
-  document.body.appendChild(d);
-}
-
-function saveAtt(id,val,btn){
-  var r=riders.find(function(x){return x.id===id;});if(!r)return;
-  r.att=val;
-  var overlay=btn.closest("[style*='z-index: 1001'], [style*='z-index:1001']");
-  if(overlay)overlay.remove();
-  renderAll();
-}
-
-function flt(f,el){
-  curFlt=f;
-  document.querySelectorAll(".fb").forEach(function(b){b.classList.remove("on");});
-  el.classList.add("on");
-  renderRiders();
-}
-
-function renderAtt(){
-  var n=riders.length;if(!n)return;
-  var pres=[],late=[],abs=[],off=[];
-  riders.forEach(function(r){
-    if(r.att==="P")pres.push(r);else if(r.att==="L")late.push(r);
-    else if(r.att==="A")abs.push(r);else if(r.att==="S")off.push(r);
-  });
-  document.getElementById("att-date").textContent=new Date().toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"});
-  var sum=[{l:"Present",v:pres.length,c:"var(--emerald)"},{l:"Late",v:late.length,c:"var(--amber)"},{l:"Absent",v:abs.length,c:"var(--rose)"},{l:"Off Shift",v:off.length,c:"var(--tx3)"}];
-  document.getElementById("att-sum").innerHTML=sum.map(function(s){
-    return "<div class='si' style='text-align:left;padding:14px 16px'><div class='sv' style='color:"+s.c+";font-size:26px'>"+s.v+"</div><div class='sl'>"+s.l+"</div></div>";
-  }).join("");
-
-  function rList(arr,title,cls){
-    if(!arr.length)return"";
-    return "<div class='card'><div style='display:flex;align-items:baseline;gap:8px;margin-bottom:12px'>"
-      +"<div class='card-title'>"+title+"</div><span style='font-family:DM Mono,monospace;font-size:10px;color:var(--tx3)'>"+arr.length+"</span></div>"
-      +arr.map(function(r){return "<div style='display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--edge)'>"
-        +"<div><div style='font-weight:600;font-size:13px;color:var(--tx0)'>"+r.name+"</div><div style='font-family:DM Mono,monospace;font-size:10px;color:var(--tx3);margin-top:2px'>"+r.id+" · "+r.zone+"</div></div>"
-        +"<span class='"+cls+"'>"+r.att+"</span></div>";}).join("")
-      +"</div>";
-  }
-  document.getElementById("att-absent").innerHTML=rList(abs,"Absent","attA");
-  document.getElementById("att-late").innerHTML=rList(late,"Late","attL");
-  document.getElementById("att-present").innerHTML=rList(pres,"Present","attP");
-  document.getElementById("att-off").innerHTML=rList(off,"Off Shift","attS");
-}
-
-function renderZones(){
-  var zones={};ZONES.forEach(function(z){zones[z]=[];});
-  riders.forEach(function(r){if(zones[r.zone])zones[r.zone].push(r);});
-  var html="";
-  ZONES.forEach(function(z){
-    var zr=zones[z];if(!zr.length)return;
-    var aF=r1(zr.reduce(function(s,r){return s+r.fill;},0)/zr.length);
-    var aE=r1(zr.reduce(function(s,r){return s+r.eff;},0)/zr.length);
-    var crit=zr.filter(function(r){return r.status==="critical";}).length;
-    var warn2=zr.filter(function(r){return r.status==="warning";}).length;
-    var col=aF>=92?"var(--emerald)":aF>=80?"var(--amber)":"var(--rose)";
-    html+="<div class='zc2'>"
-      +"<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px'>"
-      +"<div><div class='zn'>"+z+"</div><div class='zs'>"+zr.length+" riders assigned</div></div>"
-      +"<div style='text-align:right'><div style='font-family:Syne,sans-serif;font-size:24px;font-weight:700;color:"+col+";letter-spacing:-.5px'>"+aF+"%</div><div style='font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em'>Fill Rate</div></div>"
-      +"</div>"
-      +"<div style='display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:12px'>"
-      +"<div class='mt'><div class='mv' style='color:"+col+"'>"+aF+"%</div><div class='ml'>Fill</div></div>"
-      +"<div class='mt'><div class='mv'>"+aE+"%</div><div class='ml'>Eff</div></div>"
-      +"<div class='mt'><div class='mv' style='color:"+(crit>0?"var(--rose)":"var(--emerald)")+"'>"+crit+"</div><div class='ml'>Critical</div></div>"
-      +"<div class='mt'><div class='mv' style='color:"+(warn2>0?"var(--amber)":"var(--emerald)")+"'>"+warn2+"</div><div class='ml'>Warning</div></div>"
-      +"</div>"
-      +"<div class='trk' style='margin-bottom:12px'><div class='trf' style='width:"+Math.min(aF,100)+"%;background:"+col+"'></div></div>"
-      +zr.sort(function(a,b){return b.eff-a.eff;}).slice(0,3).map(function(r){
-        var bc=r.status==="critical"?"bc":r.status==="warning"?"bw":"ba";
-        return "<div style='display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--edge);font-size:12px'>"
-          +"<span style='color:var(--tx1);font-weight:500'>"+r.name+"</span>"
-          +"<div style='display:flex;gap:6px;align-items:center'><span style='font-family:DM Mono,monospace;font-size:10px;color:var(--tx2)'>"+r.eff+"%</span><span class='bdg "+bc+"'>"+r.status+"</span></div>"
-          +"</div>";
-      }).join("")
-      +"</div>";
-  });
-  document.getElementById("zcards").innerHTML=html;
-}
-
-function renderLB(){
-  var sorted=riders.slice().sort(function(a,b){return b.eff-a.eff;});
-  var medals=[
-    "linear-gradient(135deg,#F59E0B,#D97706)",
-    "linear-gradient(135deg,#9CA3AF,#6B7280)",
-    "linear-gradient(135deg,#CD7F32,#A0522D)"
-  ];
-  document.getElementById("lbcards").innerHTML=sorted.map(function(r,i){
-    var rank=i+1;
-    var bc=r.status==="critical"?"bc":r.status==="warning"?"bw":"ba";
-    var rnkStyle=rank<=3?"background:"+medals[i]+";color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.3)":"background:var(--ink2);color:var(--tx3);border:1px solid var(--edge)";
-    return "<div class='lbc'>"
-      +"<div class='lrk' style='"+rnkStyle+"'>"+rank+"</div>"
-      +"<div style='flex:1'>"
-      +"<div style='display:flex;justify-content:space-between;align-items:flex-start'>"
-      +"<div><div style='font-family:Syne,sans-serif;font-weight:600;font-size:13px;color:var(--tx0)'>"+r.name+"</div>"
-      +"<div style='font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);margin-top:3px;letter-spacing:0.04em'>"+r.zone+" · "+r.id+"</div></div>"
-      +"<span class='bdg "+bc+"'>"+r.status+"</span>"
-      +"</div>"
-      +"<div style='display:flex;gap:14px;margin-top:8px;font-family:DM Mono,monospace;font-size:10px;color:var(--tx3)'>"
-      +"<span>Eff <strong style='color:var(--tx0)'>"+r.eff+"%</strong></span>"
-      +"<span>Fill <strong style='color:var(--tx0)'>"+r.fill+"%</strong></span>"
-      +"<span>Orders <strong style='color:var(--tx0)'>"+r.ord+"</strong></span>"
-      +"</div>"
-      +"</div></div>";
-  }).join("");
-}
-
-function oForm(){document.getElementById("fov").classList.add("on");document.getElementById("fwp").classList.add("on");}
-function cForm(){document.getElementById("fov").classList.remove("on");document.getElementById("fwp").classList.remove("on");}
-function saveR(){
-  var nm=document.getElementById("fn").value.trim(),id=document.getElementById("fi").value.trim();
-  if(!nm||!id){alert("Name and ID are required.");return;}
-  if(riders.find(function(r){return r.id===id;})){alert("ID already exists.");return;}
-  riders.push({id:id,name:nm,zone:document.getElementById("fz").value,
-    fill:parseFloat(document.getElementById("ff").value)||0,
-    ord:parseInt(document.getElementById("fo").value)||0,
-    uni:document.getElementById("fu").value==="1",
-    eff:0,status:"active",sop:"SOP COMPLIANT",action:"Newly added rider.",priority:"LOW",
-    att:document.getElementById("fa").value});
-  ["fn","fi","ff","fo"].forEach(function(id){document.getElementById(id).value="";});
-  cForm();renderAll();
-}
-
-function loadMonthly(){buildMonSel();renderMonthly();}
-function buildMonSel(){
-  var mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var keys={};
-  mLog.forEach(function(e){try{var d=new Date(e.date);var k=d.getFullYear()+"_"+(d.getMonth()+1);keys[k]=true;}catch(ex){}});
-  var now=new Date(),curKey=now.getFullYear()+"_"+(now.getMonth()+1);
-  keys[curKey]=true;
-  var allKeys=Object.keys(keys).sort().reverse();
-  document.getElementById("msel").innerHTML=allKeys.map(function(k){
-    var p=k.split("_");return "<option value='"+k+"'"+(k===curKey?" selected":"")+">"+(mn[parseInt(p[1])]||p[1])+" "+p[0]+"</option>";
-  }).join("");
-}
-
-function logToday(){
-  var dateVal=document.getElementById("ml-date").value,ordVal=parseInt(document.getElementById("ml-ord").value)||0;
-  var attVal=parseFloat(document.getElementById("ml-att").value)||0,fillVal=parseFloat(document.getElementById("ml-fill").value)||0;
-  if(!dateVal){alert("Please select a date.");return;}
-  if(!ordVal){alert("Please enter total orders.");return;}
-  var effVal=riders.length?r1(riders.reduce(function(s,r){return s+r.eff;},0)/riders.length):0;
-  var crit=riders.filter(function(r){return r.status==="critical";}).length;
-  var d=new Date(dateVal),days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],dayName=days[d.getDay()];
-  mLog=mLog.filter(function(e){return e.date!==dateVal;});
-  mLog.push({date:dateVal,day:dayName,att:attVal,fill:fillVal,eff:effVal,ord:ordVal,crit:crit});
-  mLog.sort(function(a,b){return a.date>b.date?1:-1;});
-  var mKey=d.getFullYear()+"_"+(d.getMonth()+1);
-  buildMonSel();document.getElementById("msel").value=mKey;
-  document.getElementById("ml-ord").value="";renderMonthly();
-  document.getElementById("m-count").textContent="Saved · "+dateVal;
-  setTimeout(function(){document.getElementById("m-count").textContent=mLog.length+" entries total";},2500);
-}
-
-function clearMonth(){
-  var key=document.getElementById("msel").value,p=key.split("_");
-  var mn=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  if(!confirm("Clear all entries for "+(mn[parseInt(p[1])]||p[1])+" "+p[0]+"?"))return;
-  mLog=mLog.filter(function(e){try{var d=new Date(e.date);return!(d.getFullYear()+"_"+(d.getMonth()+1)===key);}catch(ex){return true;}});
-  renderMonthly();
-}
-
-function renderMonthly(){
-  var key=document.getElementById("msel").value;
-  if(!key){var now=new Date();key=now.getFullYear()+"_"+(now.getMonth()+1);}
-  var rows=mLog.filter(function(e){try{var d=new Date(e.date);return d.getFullYear()+"_"+(d.getMonth()+1)===key;}catch(ex){return false;}});
-  rows.sort(function(a,b){return a.date>b.date?1:-1;});
-  document.getElementById("m-count").textContent=mLog.length+" entries total";
-  if(!rows.length){
-    ["m-days","m-ord","m-ao","m-att","m-fill","m-eff"].forEach(function(id){document.getElementById(id).textContent="—";});
-    ["m-at","m-ft","m-et"].forEach(function(id){document.getElementById(id).textContent="—";});
-    document.getElementById("mlog").innerHTML="<div class='empty'>No entries yet.<br>Fill in the form above to log today's data.</div>";
-    return;
-  }
-  var tO=0,sA=0,sF=0,sE=0,ac=0;
-  rows.forEach(function(r){tO+=r.ord;if(r.att>0){sA+=r.att;ac++;}if(r.fill>0)sF+=r.fill;if(r.eff>0)sE+=r.eff;});
-  var aA=ac>0?r1(sA/ac):0,aF=rows.length>0?r1(sF/rows.length):0,aE=rows.length>0?r1(sE/rows.length):0,aO=rows.length>0?r1(tO/rows.length):0;
-  document.getElementById("m-days").textContent=rows.length;
-  document.getElementById("m-ord").textContent=tO.toLocaleString();
-  document.getElementById("m-os").textContent="avg "+aO+"/day";
-  document.getElementById("m-ao").textContent=aO;
-  document.getElementById("m-att").innerHTML=aA+"<span style='font-size:14px'>%</span>";
-  document.getElementById("m-fill").innerHTML=aF+"<span style='font-size:14px'>%</span>";
-  document.getElementById("m-eff").innerHTML=aE+"<span style='font-size:14px'>%</span>";
-  stag("m-at",aA,90);stag("m-ft",aF,92);stag("m-et",aE,85);
-
-  var labs=rows.map(function(r){try{var d=new Date(r.date);return d.getDate()+"/"+(d.getMonth()+1);}catch(e){return r.date;}});
-
-  var c1=document.getElementById("mOrdChart");
-  if(c1&&c1.getContext){
-    if(mOrdObj){mOrdObj.destroy();mOrdObj=null;}
-    mOrdObj=new Chart(c1,{type:"bar",data:{labels:labs,datasets:[
-      {label:"Orders",data:rows.map(function(r){return r.ord;}),backgroundColor:"rgba(59,123,255,0.8)",borderRadius:4}
-    ]},options:{responsive:true,maintainAspectRatio:false,scales:{
-      x:{grid:{display:false},ticks:{font:{size:9},color:"#6B7FA8",maxRotation:45}},
-      y:{beginAtZero:true,grid:{color:"rgba(255,255,255,0.05)"},ticks:{font:{size:9},color:"#6B7FA8"}}
-    }}});
-  }
-
-  var c2=document.getElementById("mAttChart");
-  if(c2&&c2.getContext){
-    if(mAttObj){mAttObj.destroy();mAttObj=null;}
-    mAttObj=new Chart(c2,{type:"line",data:{labels:labs,datasets:[
-      {label:"Att %",data:rows.map(function(r){return r.att;}),borderColor:"#3B7BFF",fill:true,fillColorTop:"rgba(59,123,255,0.15)",fillColorBot:"rgba(59,123,255,0)",pointRadius:3,pointBackgroundColor:"#3B7BFF",borderWidth:2.5,glowBlur:8},
-      {label:"Fill %",data:rows.map(function(r){return r.fill;}),borderColor:"#00C6FF",fill:false,pointRadius:2,borderWidth:2,glowBlur:6},
-      {label:"Target",data:labs.map(function(){return 90;}),borderColor:"rgba(107,127,168,0.35)",borderDash:[5,5],pointRadius:0,fill:false,borderWidth:1.5}
-    ]},options:{responsive:true,maintainAspectRatio:false,scales:{
-      x:{grid:{display:false},ticks:{font:{size:9},color:"#6B7FA8",maxRotation:45}},
-      y:{min:0,max:105,grid:{color:"rgba(255,255,255,0.05)"},ticks:{font:{size:9},color:"#6B7FA8",callback:function(v){return v+"%";}}}
-    }}});
-  }
-
-  var best=rows.reduce(function(b,r){return r.ord>b.ord?r:b;},rows[0]);
-  var worst=rows.length>1?rows.reduce(function(w,r){return r.att<w.att?r:w;},rows[0]):null;
-
-  var tbl="<table class='data-table'><thead><tr>"
-    +"<th>Date</th><th style='text-align:center'>Day</th><th style='text-align:center'>Orders</th>"
-    +"<th style='text-align:center'>Att%</th><th style='text-align:center'>Fill%</th>"
-    +"<th style='text-align:center'>Eff%</th><th style='text-align:center'>Critical</th></tr></thead><tbody>";
-
-  rows.forEach(function(r){
-    var isBest=r.date===best.date,isWorst=worst&&r.date===worst.date;
-    var dateFmt=r.date;
-    try{var d=new Date(r.date);dateFmt=d.getDate()+" "+(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]);}catch(e){}
-    tbl+="<tr style='"+(isBest?"background:rgba(0,214,143,0.06)":isWorst?"background:rgba(255,77,109,0.06)":"")+"'>"
-      +"<td style='font-family:Syne,sans-serif;font-weight:600;color:var(--tx0)'>"+dateFmt+(isBest?" 🏆":isWorst?" 📉":"")+"</td>"
-      +"<td style='text-align:center;font-family:DM Mono,monospace;font-size:10px;color:var(--tx3)'>"+r.day+"</td>"
-      +"<td style='text-align:center;font-family:DM Mono,monospace;font-weight:600;color:var(--azure)'>"+r.ord+"</td>"
-      +"<td style='text-align:center;font-family:DM Mono,monospace;color:"+(r.att>=90?"var(--emerald)":r.att>=75?"var(--amber)":"var(--rose)")+"'>"+r.att+"%</td>"
-      +"<td style='text-align:center;font-family:DM Mono,monospace;color:"+(r.fill>=92?"var(--emerald)":r.fill>=80?"var(--amber)":"var(--rose)")+"'>"+r.fill+"%</td>"
-      +"<td style='text-align:center;font-family:DM Mono,monospace;color:"+(r.eff>=85?"var(--emerald)":r.eff>=70?"var(--amber)":"var(--rose)")+"'>"+r.eff+"%</td>"
-      +"<td style='text-align:center;font-family:DM Mono,monospace;"+(r.crit>0?"color:var(--rose);font-weight:700":"color:var(--emerald)")+"'>"+r.crit+"</td>"
-      +"</tr>";
+  const zoneAtt = {};
+  riders.forEach(r => {
+    if (!zoneAtt[r.zone]) zoneAtt[r.zone] = { present:0, total:0 };
+    zoneAtt[r.zone].total++;
+    if (r.attendance === 'Present') zoneAtt[r.zone].present++;
   });
 
-  tbl+="</tbody><tfoot><tr>"
-    +"<td>TOTAL / AVG</td><td style='text-align:center'></td>"
-    +"<td style='text-align:center;color:var(--azure)'>"+tO+"</td>"
-    +"<td style='text-align:center;color:"+(aA>=90?"var(--emerald)":"var(--amber)")+"'>"+aA+"%</td>"
-    +"<td style='text-align:center;color:"+(aF>=92?"var(--emerald)":"var(--amber)")+"'>"+aF+"%</td>"
-    +"<td style='text-align:center'>"+aE+"%</td>"
-    +"<td></td></tr></tfoot></table>";
-  document.getElementById("mlog").innerHTML=tbl;
+  return `
+  <div class="kpi-grid section">
+    <div class="kpi-card green">
+      <div class="kpi-label">Present</div>
+      <div class="kpi-value">${present}</div>
+      <div class="kpi-sub">${Math.round(present/total*100)||0}% attendance rate</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Absent</div>
+      <div class="kpi-value">${absent}</div>
+      <div class="kpi-sub">No-show today</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Off Shift</div>
+      <div class="kpi-value">${offShift}</div>
+      <div class="kpi-sub">Scheduled off</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">On Leave</div>
+      <div class="kpi-value">${leave}</div>
+      <div class="kpi-sub">Approved leave</div>
+    </div>
+  </div>
+
+  <div class="grid-2 section">
+    <div class="chart-card">
+      <div class="section-header"><div class="section-title">Attendance by Zone</div></div>
+      <div class="bar-chart">
+        ${Object.entries(zoneAtt).sort((a,b) => b[1].present/b[1].total - a[1].present/a[1].total).map(([z, d]) => {
+          const pct = Math.round(d.present/d.total*100);
+          return `
+          <div class="bar-row">
+            <div class="bar-row-label">${z}</div>
+            <div class="bar-track">
+              <div class="bar-fill ${pct>=90?'green':pct>=70?'yellow':'red'}" style="width:${pct}%">${pct}%</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-header"><div class="section-title">Absent Riders</div></div>
+      ${riders.filter(r => r.attendance === 'Absent').length ? `
+      <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Rider</th><th>Zone</th><th>Status</th>${riders.some(r=>r.phone)?'<th>Contact</th>':''}</tr></thead>
+        <tbody>
+          ${riders.filter(r => r.attendance === 'Absent').map(r => `
+          <tr>
+            <td><div style="font-weight:600">${r.name}</div>${r.id?`<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</div>`:''}</td>
+            <td>${r.zone}</td>
+            <td>${statusBadge(r.status)}</td>
+            ${riders.some(r=>r.phone)?`<td style="font-family:var(--mono);font-size:12px">${r.phone||'—'}</td>`:''}
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>` : `<div class="empty-msg">✓ No absences today</div>`}
+    </div>
+  </div>
+
+  <div class="section table-wrap">
+    <div class="table-toolbar"><div class="section-title">Full Attendance Register</div><span class="row-count">${riders.length} riders</span></div>
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr><th>ID</th><th>Rider</th><th>Zone</th><th>Attendance</th>${riders.some(r=>r.shift)?'<th>Shift</th>':''}</tr></thead>
+      <tbody>
+        ${riders.map((r,i) => `
+        <tr>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${r.id || i+1}</td>
+          <td style="font-weight:600">${r.name}</td>
+          <td>${r.zone}</td>
+          <td><span class="${r.attendance==='Present'?'att-p':r.attendance==='Absent'?'att-a':'att-o'}">${r.attendance}</span></td>
+          ${riders.some(r=>r.shift)?`<td style="font-size:12px;color:var(--text2)">${r.shift||'—'}</td>`:''}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
 }
 
-window.addEventListener("resize",function(){renderAll();});
-try{
-  renderAll();
-  document.getElementById("ss").textContent="Loaded · "+riders.length+" riders · Tap Sync for live data";
-}catch(e){
-  document.getElementById("ss").textContent="Error: "+e.message;
-  console.error(e);
+// ── COMPLIANCE TAB ────────────────────────────────────────────
+function renderCompliance() {
+  const compliant     = riders.filter(r => r.sop.includes('COMPLIANT') && !r.sop.includes('NON')).length;
+  const review        = riders.filter(r => r.sop.includes('REVIEW')).length;
+  const breach        = riders.filter(r => r.sop.includes('BREACH')).length;
+  const uniformOk     = riders.filter(r => r.uniform).length;
+  const uniformFail   = riders.filter(r => !r.uniform).length;
+
+  return `
+  <div class="kpi-grid section">
+    <div class="kpi-card green">
+      <div class="kpi-label">SOP Compliant</div>
+      <div class="kpi-value">${compliant}</div>
+      <div class="kpi-sub">Meeting all standards</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Review Required</div>
+      <div class="kpi-value">${review}</div>
+      <div class="kpi-sub">Needs attention</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">SOP Breach</div>
+      <div class="kpi-value">${breach}</div>
+      <div class="kpi-sub">Escalate immediately</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Uniform OK</div>
+      <div class="kpi-value">${uniformOk}</div>
+      <div class="kpi-sub">${uniformFail} non-compliant</div>
+    </div>
+  </div>
+
+  <div class="grid-2 section">
+    <div class="panel">
+      <div class="section-header"><div class="section-title">SOP Breach — Escalate</div></div>
+      ${riders.filter(r => r.sop.includes('BREACH')).length ? riders.filter(r => r.sop.includes('BREACH')).map(r => `
+      <div class="compliance-row">
+        <div>
+          <div class="compliance-name">${r.name} <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${r.id}</span></div>
+          <div class="compliance-detail">${r.zone} · Fill: ${r.fill}% · Eff: ${r.eff}%</div>
+        </div>
+        <div style="text-align:right">
+          ${sopBadge(r.sop)}
+          <div class="compliance-detail" style="margin-top:4px">${r.sop}</div>
+        </div>
+      </div>`).join('') : '<div class="empty-msg">✓ No SOP breaches</div>'}
+    </div>
+
+    <div class="panel">
+      <div class="section-header"><div class="section-title">Uniform Non-Compliance</div></div>
+      ${riders.filter(r => !r.uniform).length ? riders.filter(r => !r.uniform).map(r => `
+      <div class="compliance-row">
+        <div>
+          <div class="compliance-name">${r.name}</div>
+          <div class="compliance-detail">${r.zone} · ${r.id}</div>
+        </div>
+        <span class="badge badge-red">No Uniform</span>
+      </div>`).join('') : '<div class="empty-msg">✓ All riders in uniform</div>'}
+    </div>
+  </div>
+
+  <div class="section table-wrap">
+    <div class="table-toolbar"><div class="section-title">Full Compliance Report</div></div>
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr><th>Rider</th><th>Zone</th><th>Fill Rate</th><th>Uniform</th><th>SOP Status</th><th>Priority</th><th>Action</th></tr></thead>
+      <tbody>
+        ${riders.map(r => `
+        <tr>
+          <td><div style="font-weight:600">${r.name}</div>${r.id?`<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</div>`:''}</td>
+          <td>${r.zone}</td>
+          <td><span style="font-weight:700;color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span></td>
+          <td>${r.uniform ? '<span class="badge badge-green">✓</span>' : '<span class="badge badge-red">✗</span>'}</td>
+          <td>${sopBadge(r.sop)}<span style="font-size:11px;color:var(--text3);margin-left:6px">${r.sop}</span></td>
+          <td><span class="badge ${r.priority==='HIGH'?'badge-red':r.priority==='MEDIUM'?'badge-yellow':'badge-gray'}">${r.priority}</span></td>
+          <td><div class="action-text ${r.status==='critical'?'urgent':r.status==='warning'?'warning':''}">${r.action.slice(0,60)}…</div></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
 }
-setTimeout(doSync,1200);
+
+// ── LEADERBOARD TAB ───────────────────────────────────────────
+function renderLeaderboard() {
+  const byFill = [...riders].sort((a,b) => b.fill - a.fill);
+  const byEff  = [...riders].sort((a,b) => b.eff - a.eff);
+  const byOrds = [...riders].sort((a,b) => b.orders - a.orders);
+
+  const rankClass = i => i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : '';
+
+  const leaderTable = (arr, key, label, suffix='%') => `
+    <div class="panel">
+      <div class="section-header"><div class="section-title">Top by ${label}</div></div>
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Rider</th><th>Zone</th><th>${label}</th></tr></thead>
+        <tbody>
+          ${arr.slice(0,10).map((r,i) => `
+          <tr>
+            <td class="${rankClass(i)}" style="font-weight:800;font-size:14px">${i+1}</td>
+            <td><div style="font-weight:600">${r.name}</div>${r.id?`<span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</span>`:''}</td>
+            <td>${r.zone}</td>
+            <td style="font-weight:700;color:${key==='fill'?'var(--green)':key==='eff'?'var(--cyan)':'var(--primary)'}">${r[key]}${suffix}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  return `
+  <div class="grid-3 section">
+    ${leaderTable(byFill, 'fill', 'Fill Rate', '%')}
+    ${leaderTable(byEff,  'eff',  'Efficiency', '%')}
+    ${leaderTable(byOrds, 'orders', 'Orders Today', '')}
+  </div>`;
+}
+
+// ── ZONES TAB ─────────────────────────────────────────────────
+function renderZones() {
+  const zoneMap = {};
+  riders.forEach(r => {
+    if (!zoneMap[r.zone]) zoneMap[r.zone] = [];
+    zoneMap[r.zone].push(r);
+  });
+
+  return `
+  <div class="kpi-grid section">
+    ${Object.entries(zoneMap).sort((a,b) => b[1].length - a[1].length).map(([zone, rs]) => {
+      const avgF = avg(rs, 'fill');
+      const avgE = avg(rs, 'eff');
+      const totalO = rs.reduce((s,r) => s + r.orders, 0);
+      const crit = rs.filter(r => r.status === 'critical').length;
+      const warn = rs.filter(r => r.status === 'warning').length;
+      return `
+      <div class="zone-card">
+        <div class="zone-card-header">
+          <div class="zone-name">${zone}</div>
+          <div class="zone-count">${rs.length} riders</div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--text3)">Avg Fill Rate</span>
+            <span style="font-size:12px;font-weight:700;color:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'}">${avgF}%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="background:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'};width:${avgF}%"></div></div>
+        </div>
+        <div class="zone-stats">
+          <div class="zone-stat">Avg Efficiency<strong style="color:var(--cyan)">${avgE}%</strong></div>
+          <div class="zone-stat">Total Orders<strong style="color:var(--primary)">${totalO}</strong></div>
+          <div class="zone-stat">Critical<strong style="color:${crit?'var(--red)':'var(--green)'}">${crit}</strong></div>
+          <div class="zone-stat">Warning<strong style="color:${warn?'var(--yellow)':'var(--green)'}">${warn}</strong></div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-title">SLA by Zone</div></div>
+    <div class="grid-2">
+      ${Object.entries(zoneMap).sort((a,b) => b[1].length - a[1].length).map(([zone, rs]) => {
+        const avgF = avg(rs, 'fill');
+        const avgE = avg(rs, 'eff');
+        return `
+        <div class="chart-card">
+          <div class="section-header">
+            <div><div class="section-title">${zone}</div><div class="section-sub">${rs.length} riders</div></div>
+            <span class="badge ${avgF>=85?'badge-green':avgF>=75?'badge-yellow':'badge-red'}">${avgF>=85?'On Target':avgF>=75?'Review':'Below Target'}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+                <span style="color:var(--text3)">Fill Rate</span>
+                <span style="font-weight:700;color:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'}">${avgF}%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="background:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'};width:${avgF}%"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+                <span style="color:var(--text3)">Efficiency</span>
+                <span style="font-weight:700;color:var(--cyan)">${avgE}%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="background:var(--cyan);width:${Math.min(avgE,100)}%"></div></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// ── MONTHLY TAB ───────────────────────────────────────────────
+function renderMonthly() {
+  // Group stats, treat each rider as a daily summary data point
+  const zoneMap = {};
+  riders.forEach(r => {
+    if (!zoneMap[r.zone]) zoneMap[r.zone] = { riders:[], fill:0, eff:0, orders:0 };
+    zoneMap[r.zone].riders.push(r);
+    zoneMap[r.zone].fill += r.fill;
+    zoneMap[r.zone].eff += r.eff;
+    zoneMap[r.zone].orders += r.orders;
+  });
+
+  return `
+  <div class="section kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">Total Riders</div>
+      <div class="kpi-value">${riders.length}</div>
+      <div class="kpi-sub">This month</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Avg Fill Rate</div>
+      <div class="kpi-value">${avg(riders,'fill')}%</div>
+      <div class="kpi-sub">Monthly average</div>
+    </div>
+    <div class="kpi-card cyan">
+      <div class="kpi-label">Avg Efficiency</div>
+      <div class="kpi-value">${avg(riders,'eff')}%</div>
+      <div class="kpi-sub">Monthly average</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value">${riders.reduce((s,r)=>s+r.orders,0)}</div>
+      <div class="kpi-sub">Today's total</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Avg Daily Orders</div>
+      <div class="kpi-value">${(riders.reduce((s,r)=>s+r.orders,0)/Math.max(riders.length,1)).toFixed(1)}</div>
+      <div class="kpi-sub">Per rider</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Avg Attendance</div>
+      <div class="kpi-value">${Math.round(riders.filter(r=>r.attendance==='Present').length/Math.max(riders.length,1)*100)}%</div>
+      <div class="kpi-sub">Present today</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-title">Monthly Summary by Zone</div></div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>Zone</th><th>Riders</th><th>Avg Fill Rate</th><th>Avg Efficiency</th><th>Total Orders</th><th>SLA Status</th></tr></thead>
+        <tbody>
+          ${Object.entries(zoneMap).sort((a,b) => b[1].orders - a[1].orders).map(([zone, d]) => {
+            const fr = Math.round(d.fill/d.riders.length);
+            const eff = Math.round(d.eff/d.riders.length*10)/10;
+            return `
+            <tr>
+              <td style="font-weight:700">${zone}</td>
+              <td>${d.riders.length}</td>
+              <td>
+                <div class="progress-label">
+                  <div class="progress-bar" style="width:80px">
+                    <div class="progress-fill" style="background:${fr<75?'var(--red)':fr<85?'var(--yellow)':'var(--green)'};width:${fr}%"></div>
+                  </div>
+                  <span style="font-weight:700;color:${fr<75?'var(--red)':fr<85?'var(--yellow)':'var(--green)'}">${fr}%</span>
+                </div>
+              </td>
+              <td><span style="font-weight:700;color:var(--cyan)">${eff}%</span></td>
+              <td>${d.orders}</td>
+              <td>${fr>=85?'<span class="badge badge-green">On Target</span>':fr>=75?'<span class="badge badge-yellow">Review</span>':'<span class="badge badge-red">Below Target</span>'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section table-wrap">
+    <div class="table-toolbar"><div class="section-title">All entries for selected month</div><span class="row-count">${riders.length} riders</span></div>
+    <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr><th>Rider</th><th>Zone</th><th>Fill Rate</th><th>Efficiency</th><th>Orders</th><th>Attendance</th><th>Status</th></tr></thead>
+      <tbody>
+        ${riders.map(r => `
+        <tr>
+          <td><div style="font-weight:600">${r.name}</div>${r.id?`<span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</span>`:''}</td>
+          <td>${r.zone}</td>
+          <td><span style="font-weight:700;color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span></td>
+          <td><span style="font-weight:700;color:var(--cyan)">${r.eff}%</span></td>
+          <td>${r.orders}</td>
+          <td><span class="${r.attendance==='Present'?'att-p':r.attendance==='Absent'?'att-a':'att-o'}">${r.attendance}</span></td>
+          <td>${statusBadge(r.status)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+// ── BIND FILTERS ──────────────────────────────────────────────
+function bindFilters(tab) { /* filters bound inline via oninput/onchange */ }
+
+// ── INIT ──────────────────────────────────────────────────────
+loadData();
 </script>
 </body>
 </html>
