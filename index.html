@@ -426,7 +426,9 @@ async function loadData(){
     </div>`;
 
   try{
-    const res = await fetch(SHEET_URL + '&t=' + Date.now(), { cache:'no-store' });
+    const res = await fetch("https://corsproxy.io/?url=" + encodeURIComponent(SHEET_URL), {
+  cache: 'no-store'
+});
 
     if(!res.ok) throw new Error('HTTP ' + res.status);
 
