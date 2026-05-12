@@ -6,210 +6,116 @@
 <title>RiderOps · Workforce Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-/* ══════════════════════════════════════
-   LIGHT BLUE EXECUTIVE THEME
-   Warm slate-gray sidebar · floating cards
-══════════════════════════════════════ */
 :root {
-  /* Background layers — warm blue-gray like the reference */
-  --bg:        #2C3A4E;
-  --bg2:       #263040;
-  --bg3:       #1F2837;
-  --sidebar:   #233041;
-  --sidebar-w: 200px;
+  /* Core palette — deep navy executive */
+  --ink:       #060A14;
+  --ink2:      #0D1526;
+  --ink3:      #111D35;
+  --panel:     #141F38;
+  --panel2:    #1A2847;
+  --edge:      rgba(255,255,255,0.06);
+  --edge2:     rgba(255,255,255,0.10);
 
-  /* Cards — lighter glass panels */
-  --card:      #344256;
-  --card2:     #3A4A60;
-  --card-br:   rgba(255,255,255,0.08);
-  --card-br2:  rgba(255,255,255,0.13);
-
-  /* Accent palette — gold + blue like reference chart lines */
-  --gold:      #F5C842;
-  --gold-dim:  rgba(245,200,66,0.15);
-  --gold-glow: rgba(245,200,66,0.3);
-  --sky:       #4A9EFF;
-  --sky-dim:   rgba(74,158,255,0.15);
-  --teal:      #38E2C8;
-  --rose:      #FF6B85;
-  --violet:    #A78BFA;
-  --emerald:   #34D399;
-  --amber:     #FBBF24;
+  /* Accents */
+  --azure:     #3B7BFF;
+  --azure-glow:rgba(59,123,255,0.18);
+  --azure-dim: rgba(59,123,255,0.08);
+  --cyan:      #00C6FF;
+  --emerald:   #00D68F;
+  --amber:     #FFB020;
+  --rose:      #FF4D6D;
+  --violet:    #8B5CF6;
 
   /* Text */
-  --tx0: #F2F6FF;
-  --tx1: #CBD5E8;
-  --tx2: #8EA3BE;
-  --tx3: #556580;
+  --tx0: #F0F4FF;
+  --tx1: #C8D4F0;
+  --tx2: #6B7FA8;
+  --tx3: #3D4F72;
 
   /* Status */
-  --ok-bg:  rgba(52,211,153,0.12);
-  --ok-bd:  rgba(52,211,153,0.3);
-  --ok-tx:  #34D399;
-  --wn-bg:  rgba(251,191,36,0.12);
-  --wn-bd:  rgba(251,191,36,0.3);
-  --wn-tx:  #FBBF24;
-  --cr-bg:  rgba(255,107,133,0.12);
-  --cr-bd:  rgba(255,107,133,0.3);
-  --cr-tx:  #FF6B85;
-  --bl-bg:  rgba(74,158,255,0.12);
-  --bl-bd:  rgba(74,158,255,0.3);
-  --bl-tx:  #4A9EFF;
+  --ok-bg:  rgba(0,214,143,0.08);
+  --ok-bd:  rgba(0,214,143,0.22);
+  --ok-tx:  #00D68F;
+  --wn-bg:  rgba(255,176,32,0.08);
+  --wn-bd:  rgba(255,176,32,0.22);
+  --wn-tx:  #FFB020;
+  --cr-bg:  rgba(255,77,109,0.08);
+  --cr-bd:  rgba(255,77,109,0.22);
+  --cr-tx:  #FF4D6D;
+  --bl-bg:  rgba(59,123,255,0.08);
+  --bl-bd:  rgba(59,123,255,0.22);
+  --bl-tx:  #3B7BFF;
 
-  --radius:    10px;
+  --radius: 10px;
   --radius-lg: 14px;
-  --shadow:    0 4px 20px rgba(0,0,0,0.25);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.35);
 }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Instrument Sans', sans-serif;
-  background: var(--bg2);
+  background: var(--ink);
   min-height: 100vh;
   color: var(--tx0);
   -webkit-font-smoothing: antialiased;
-  display: flex;
 }
 
-button,input,select,textarea { font-family: 'Instrument Sans', sans-serif; cursor: pointer; }
-
-/* ══ SIDEBAR ══ */
-.sidebar {
-  width: var(--sidebar-w);
-  min-height: 100vh;
-  background: var(--sidebar);
-  border-right: 1px solid var(--card-br);
-  display: flex; flex-direction: column;
-  flex-shrink: 0;
-  position: fixed; left: 0; top: 0; bottom: 0;
-  z-index: 200;
-  transition: transform 0.3s;
+/* Subtle grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59,123,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,123,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.sb-logo {
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--card-br);
+button, input, select { font-family: 'Instrument Sans', sans-serif; cursor: pointer; }
+
+/* ── HEADER ── */
+.hdr {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,10,20,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--edge2);
+  padding: 0 20px;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.sb-logo-icon {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--sky), var(--teal));
-  border-radius: 10px;
+
+.logo-mark {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--azure), var(--cyan));
+  border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Syne', sans-serif;
   font-weight: 800; font-size: 13px; color: #fff;
-  box-shadow: 0 0 18px rgba(74,158,255,0.4);
-  margin-bottom: 10px;
+  box-shadow: 0 0 16px rgba(59,123,255,0.35);
 }
-.sb-logo-name {
+.logo-text {
   font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 14px; color: var(--tx0);
-  letter-spacing: 0.02em;
+  font-weight: 700; font-size: 15px;
+  color: var(--tx0); letter-spacing: 0.02em;
 }
-.sb-logo-sub {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--tx3);
-  letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px;
-}
-
-.sb-section {
-  padding: 18px 12px 8px;
-  font-family: 'DM Mono', monospace;
-  font-size: 8px; color: var(--tx3);
-  letter-spacing: 0.12em; text-transform: uppercase;
+.logo-sub {
+  font-size: 10px; color: var(--tx2);
+  font-weight: 400; letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.sb-nav { flex: 1; overflow-y: auto; padding: 0 8px; scrollbar-width: none; }
-.sb-nav::-webkit-scrollbar { display: none; }
-
-.sb-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 8px; margin-bottom: 2px;
-  border: none; background: none; width: 100%; text-align: left;
-  color: var(--tx2); font-size: 12px; font-weight: 500;
-  transition: all 0.15s; position: relative;
-}
-.sb-item:hover { background: rgba(255,255,255,0.05); color: var(--tx1); }
-.sb-item.on {
-  background: linear-gradient(90deg, rgba(74,158,255,0.15), rgba(74,158,255,0.05));
-  color: var(--sky);
-  border-left: 2px solid var(--sky);
-  padding-left: 8px;
-}
-.sb-item-icon { font-size: 14px; flex-shrink: 0; width: 18px; text-align: center; }
-.sb-item-label { flex: 1; }
-.sb-badge {
-  background: var(--rose); color: #fff;
-  font-size: 8px; font-weight: 700;
-  padding: 1px 5px; border-radius: 99px;
-  font-family: 'DM Mono', monospace;
-}
-
-.sb-bottom {
-  padding: 12px 10px;
-  border-top: 1px solid var(--card-br);
-}
-.sb-sync {
-  width: 100%; padding: 9px 12px;
-  background: var(--bl-bg); border: 1px solid var(--bl-bd);
-  border-radius: 8px; color: var(--sky);
-  font-size: 11px; font-weight: 600;
-  display: flex; align-items: center; gap: 7px;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.sb-sync:hover { background: var(--sky); color: #fff; border-color: var(--sky); }
-
-/* ══ MAIN CONTENT ══ */
-.main {
-  margin-left: var(--sidebar-w);
-  flex: 1;
-  display: flex; flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ── TOP BAR ── */
-.topbar {
-  height: 56px;
-  background: var(--bg3);
-  border-bottom: 1px solid var(--card-br);
-  display: flex; align-items: center;
-  padding: 0 20px; gap: 12px;
-  position: sticky; top: 0; z-index: 100;
-  backdrop-filter: blur(8px);
-}
-
-.page-title-area { flex: 1; }
-.page-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 18px; color: var(--tx0);
-  display: flex; align-items: baseline; gap: 8px;
-}
-.page-title span {
-  font-weight: 400; font-size: 13px;
-  color: var(--tx2); letter-spacing: 0.01em;
-}
-.page-subtitle {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--tx3);
-  letter-spacing: 0.07em; text-transform: uppercase; margin-top: 1px;
-}
-
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-
-.status-info {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--tx3);
-  letter-spacing: 0.05em;
-  display: none;
-}
-@media(min-width:900px){ .status-info { display: block; } }
-
+.hdr-right { display: flex; align-items: center; gap: 16px; }
 .live-pill {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--ok-bg); border: 1px solid var(--ok-bd);
-  border-radius: 20px; padding: 4px 9px;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-bd);
+  border-radius: 20px; padding: 4px 10px;
 }
 .live-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -218,78 +124,130 @@ button,input,select,textarea { font-family: 'Instrument Sans', sans-serif; curso
   animation: livePulse 2s ease-in-out infinite;
 }
 @keyframes livePulse {
-  0%,100%{ opacity:1; box-shadow:0 0 6px var(--emerald); }
-  50%{ opacity:.5; box-shadow:0 0 12px var(--emerald); }
+  0%,100% { opacity: 1; box-shadow: 0 0 6px var(--emerald); }
+  50% { opacity: 0.5; box-shadow: 0 0 12px var(--emerald); }
 }
-.live-txt { font-family:'DM Mono',monospace; font-size:9px; color:var(--ok-tx); letter-spacing:.06em; }
+.live-txt { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ok-tx); letter-spacing: 0.06em; }
 
-.clock { font-family:'DM Mono',monospace; font-size:11px; color:var(--tx2); letter-spacing:.08em; }
-
-.user-pill {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--card); border: 1px solid var(--card-br);
-  border-radius: 20px; padding: 5px 12px 5px 5px;
+.clock {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; color: var(--tx2); letter-spacing: 0.08em;
 }
-.user-avatar {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--sky), var(--violet));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; color: #fff;
-}
-.user-name { font-size: 11px; color: var(--tx1); font-weight: 600; }
 
-/* ══ CONTENT AREA ══ */
-.content { padding: 20px 20px 60px; flex: 1; }
+.sync-btn {
+  height: 32px; padding: 0 14px;
+  background: var(--bl-bg);
+  border: 1px solid var(--bl-bd);
+  border-radius: 8px;
+  color: var(--azure); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.sync-btn:hover { background: var(--azure); color: #fff; border-color: var(--azure); box-shadow: 0 0 16px rgba(59,123,255,0.3); }
+.sync-icon { font-size: 13px; transition: transform 0.3s; }
+.spinning { animation: spin 0.8s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── STATUS BAR ── */
+.sbar {
+  background: var(--ink2);
+  border-bottom: 1px solid var(--edge);
+  padding: 8px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 1;
+}
+.sbar-info { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--tx3); letter-spacing: 0.05em; }
+.sbar-info span { color: var(--tx2); }
+
+/* ── TABS ── */
+.tabs {
+  background: var(--ink2);
+  border-bottom: 1px solid var(--edge);
+  display: flex; overflow-x: auto; padding: 0 16px;
+  scrollbar-width: none;
+  position: sticky; top: 56px; z-index: 99;
+  backdrop-filter: blur(8px);
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: 14px 16px;
+  border: none; background: none;
+  font-size: 11px; font-weight: 600;
+  color: var(--tx3);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap; margin-bottom: -1px;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab:hover { color: var(--tx1); }
+.tab.on { color: var(--azure); border-bottom-color: var(--azure); }
+
+/* ── LAYOUT ── */
+.wrap { padding: 20px 16px 80px; position: relative; z-index: 1; }
 .pg { display: none; } .pg.on { display: block; }
 
-/* ══ SECTION LABEL ══ */
+/* ── SECTION LABEL ── */
 .sec-label {
   font-family: 'DM Mono', monospace;
-  font-size: 9px; color: var(--tx3); letter-spacing: 0.12em;
-  text-transform: uppercase; margin-bottom: 10px;
+  font-size: 9px; font-weight: 500;
+  color: var(--tx3); letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
   display: flex; align-items: center; gap: 8px;
 }
-.sec-label::after { content:''; flex:1; height:1px; background:var(--card-br); }
+.sec-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--edge);
+}
 
-/* ══ CARDS ══ */
+/* ── CARDS ── */
 .card {
-  background: var(--card);
-  border: 1px solid var(--card-br);
+  background: var(--panel);
+  border: 1px solid var(--edge);
   border-radius: var(--radius-lg);
   padding: 18px;
   margin-bottom: 12px;
-  box-shadow: var(--shadow);
 }
+.card-hd { margin-bottom: 14px; }
 .card-title {
   font-family: 'Syne', sans-serif;
-  font-weight: 600; font-size: 13px; color: var(--tx0);
-  letter-spacing: 0.01em; margin-bottom: 2px;
+  font-weight: 600; font-size: 13px;
+  color: var(--tx0); letter-spacing: 0.01em;
+  margin-bottom: 2px;
 }
-.card-sub { font-size: 11px; color: var(--tx3); }
+.card-sub { font-size: 11px; color: var(--tx3); letter-spacing: 0.02em; }
 
-/* ══ KPI GRID ══ */
+/* ── KPI GRID ── */
 .kg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 
 .kc {
-  background: var(--card);
-  border: 1px solid var(--card-br);
+  background: var(--panel);
+  border: 1px solid var(--edge);
   border-radius: var(--radius-lg);
   padding: 16px;
   position: relative; overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: box-shadow 0.2s, transform 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.kc:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
 .kc::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--ac, var(--sky));
+  background: var(--ac, var(--azure));
 }
+.kc:hover {
+  border-color: rgba(59,123,255,0.25);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+/* Subtle glow bg */
 .kc::after {
   content: '';
-  position: absolute; top: -20px; right: -20px;
-  width: 70px; height: 70px; border-radius: 50%;
-  background: var(--ac, var(--sky)); opacity: 0.06;
+  position: absolute; top: -30px; right: -30px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--ac, var(--azure));
+  opacity: 0.04;
   pointer-events: none;
 }
 
@@ -301,7 +259,7 @@ button,input,select,textarea { font-family: 'Instrument Sans', sans-serif; curso
 }
 .klv {
   background: var(--bl-bg); border: 1px solid var(--bl-bd);
-  color: var(--sky); padding: 1px 5px; border-radius: 3px;
+  color: var(--azure); padding: 1px 5px; border-radius: 3px;
   font-size: 7px; font-weight: 700; letter-spacing: 0.08em;
 }
 .kv {
@@ -309,7 +267,7 @@ button,input,select,textarea { font-family: 'Instrument Sans', sans-serif; curso
   font-size: 28px; font-weight: 700; line-height: 1;
   color: var(--tx0); letter-spacing: -0.5px;
 }
-.ks { font-family:'DM Mono',monospace; font-size:9px; color:var(--tx3); margin-top:6px; letter-spacing:.05em; }
+.ks { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--tx3); margin-top: 6px; letter-spacing: 0.05em; }
 
 .ktg {
   display: inline-flex; align-items: center; gap: 4px;
@@ -317,305 +275,316 @@ button,input,select,textarea { font-family: 'Instrument Sans', sans-serif; curso
   font-family: 'DM Mono', monospace;
   font-size: 9px; font-weight: 500; letter-spacing: 0.06em;
 }
-.tok { background:var(--ok-bg); border:1px solid var(--ok-bd); color:var(--ok-tx); }
-.twn { background:var(--wn-bg); border:1px solid var(--wn-bd); color:var(--wn-tx); }
-.tcr { background:var(--cr-bg); border:1px solid var(--cr-bd); color:var(--cr-tx); }
+.tok { background: var(--ok-bg); border: 1px solid var(--ok-bd); color: var(--ok-tx); }
+.twn { background: var(--wn-bg); border: 1px solid var(--wn-bd); color: var(--wn-tx); }
+.tcr { background: var(--cr-bg); border: 1px solid var(--cr-bd); color: var(--cr-tx); }
 
-/* ══ ALERTS ══ */
-.al { border-radius:var(--radius); padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:flex-start; border:1px solid; }
-.al-r { background:var(--cr-bg); border-color:var(--cr-bd); }
-.al-a { background:var(--wn-bg); border-color:var(--wn-bd); }
-.al-g { background:var(--ok-bg); border-color:var(--ok-bd); }
-.al-b { background:var(--bl-bg); border-color:var(--bl-bd); }
-.aln { font-size:12px; font-weight:700; }
-.al-r .aln { color:var(--cr-tx); } .al-a .aln { color:var(--wn-tx); }
-.al-g .aln { color:var(--ok-tx); } .al-b .aln { color:var(--bl-tx); }
-.alx { font-size:11px; color:var(--tx2); margin-top:2px; line-height:1.5; }
-.arr { font-size:14px; color:var(--tx3); }
+/* ── ALERTS ── */
+.al {
+  border-radius: var(--radius);
+  padding: 12px 14px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border: 1px solid;
+  backdrop-filter: blur(4px);
+}
+.al-r { background: var(--cr-bg); border-color: var(--cr-bd); }
+.al-a { background: var(--wn-bg); border-color: var(--wn-bd); }
+.al-g { background: var(--ok-bg); border-color: var(--ok-bd); }
+.al-b { background: var(--bl-bg); border-color: var(--bl-bd); }
+.aln { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+.al-r .aln { color: var(--cr-tx); }
+.al-a .aln { color: var(--wn-tx); }
+.al-g .aln { color: var(--ok-tx); }
+.al-b .aln { color: var(--bl-tx); }
+.alx { font-size: 11px; color: var(--tx2); margin-top: 2px; line-height: 1.5; }
+.arr { font-size: 14px; color: var(--tx3); }
 
-/* ══ STAT / SNAP GRID ══ */
-.sg { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+/* ── STAT GRID ── */
+.sg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .si {
-  background: var(--card2);
-  border: 1px solid var(--card-br);
+  background: var(--ink2);
+  border: 1px solid var(--edge);
   border-radius: var(--radius);
   padding: 12px; text-align: center;
 }
-.sv { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:var(--tx0); }
-.sl { font-family:'DM Mono',monospace; font-size:9px; color:var(--tx3); margin-top:3px; text-transform:uppercase; letter-spacing:.07em; }
-
-/* ══ SLA BARS ══ */
-.sla-item { margin-bottom:14px; }
-.sla-row { display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; font-weight:500; }
-.sla-row span:first-child { color:var(--tx1); }
-.trk { height:4px; background:var(--card-br2); border-radius:99px; overflow:hidden; }
-.trf { height:4px; border-radius:99px; }
-
-/* ══ PERF TOGGLE ══ */
-.perf-tog {
-  display:flex; gap:2px;
-  background:var(--card2); border:1px solid var(--card-br); border-radius:8px; padding:3px;
+.sv {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; color: var(--tx0);
 }
-.ptb { padding:5px 12px; border:none; background:transparent; font-size:10px; font-weight:600; color:var(--tx3); border-radius:6px; letter-spacing:.05em; text-transform:uppercase; transition:all .15s; }
-.ptb.on { background:var(--card); color:var(--sky); box-shadow:0 1px 4px rgba(0,0,0,.2); }
+.sl {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; color: var(--tx3);
+  margin-top: 3px; text-transform: uppercase; letter-spacing: 0.07em;
+}
 
-/* ══ CHART WRAP ══ */
+/* ── SLA BARS ── */
+.sla-item { margin-bottom: 14px; }
+.sla-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; font-weight: 500; }
+.sla-row span:first-child { color: var(--tx1); }
+.trk { height: 4px; background: var(--edge2); border-radius: 99px; overflow: hidden; }
+.trf { height: 4px; border-radius: 99px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── PERF TOGGLE ── */
+.perf-tog {
+  display: flex; gap: 2px;
+  background: var(--ink2); border: 1px solid var(--edge); border-radius: 8px; padding: 3px;
+}
+.ptb {
+  padding: 5px 12px; border: none; background: transparent;
+  font-size: 10px; font-weight: 600; color: var(--tx3);
+  border-radius: 6px; letter-spacing: 0.05em; text-transform: uppercase;
+  transition: all 0.15s;
+}
+.ptb.on {
+  background: var(--panel2);
+  color: var(--azure);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ── CHART CONTAINER ── */
 .chart-wrap {
-  position:relative;
-  background: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05));
-  border:1px solid var(--card-br);
-  border-radius:var(--radius);
-  padding:4px;
-  overflow:hidden;
+  position: relative;
+  background: var(--ink2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 4px;
+  overflow: hidden;
 }
 .chart-wrap::before {
-  content:'';
-  position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 100%, rgba(74,158,255,0.05), transparent 70%);
-  pointer-events:none;
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(59,123,255,0.04), transparent 70%);
+  pointer-events: none;
 }
 
-/* ══ RIDERS ══ */
+/* ── RIDERS ── */
 .addbtn {
-  width:100%; padding:13px; border-radius:var(--radius); border:none;
-  background:linear-gradient(135deg,var(--sky),#2563EB);
-  color:#fff; font-size:13px; font-weight:700; margin-bottom:12px;
-  letter-spacing:.04em; text-transform:uppercase;
-  box-shadow:0 4px 20px rgba(74,158,255,0.3);
-  transition:all .2s;
+  width: 100%; padding: 13px;
+  border-radius: var(--radius);
+  border: none;
+  background: linear-gradient(135deg, var(--azure), #2563EB);
+  color: #fff; font-size: 13px; font-weight: 700;
+  margin-bottom: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(59,123,255,0.3);
+  transition: all 0.2s;
 }
-.addbtn:hover { box-shadow:0 6px 28px rgba(74,158,255,0.45); transform:translateY(-1px); }
+.addbtn:hover { box-shadow: 0 6px 28px rgba(59,123,255,0.45); transform: translateY(-1px); }
 
 .srch {
-  width:100%; padding:10px 14px; border-radius:var(--radius);
-  border:1px solid var(--card-br2);
-  font-size:13px; margin-bottom:10px; outline:none;
-  background:var(--card2); color:var(--tx0);
-  transition:border-color .15s;
+  width: 100%; padding: 11px 14px;
+  border-radius: var(--radius); border: 1px solid var(--edge2);
+  font-size: 13px; margin-bottom: 10px; outline: none;
+  background: var(--panel); color: var(--tx0);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.srch:focus { border-color:var(--sky); box-shadow:0 0 0 3px rgba(74,158,255,0.12); }
-.srch::placeholder { color:var(--tx3); }
+.srch:focus { border-color: var(--azure); box-shadow: 0 0 0 3px rgba(59,123,255,0.12); }
+.srch::placeholder { color: var(--tx3); }
 
-.frow2 { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
-.frow2::-webkit-scrollbar { display:none; }
+.frow2 {
+  display: flex; gap: 6px; margin-bottom: 12px;
+  overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+}
+.frow2::-webkit-scrollbar { display: none; }
 .fb {
-  padding:6px 13px; border-radius:6px; border:1px solid var(--card-br2);
-  background:var(--card); color:var(--tx2); font-size:10px; font-weight:600;
-  white-space:nowrap; letter-spacing:.05em; text-transform:uppercase; transition:all .15s;
+  padding: 6px 14px; border-radius: 6px;
+  border: 1px solid var(--edge2);
+  background: var(--panel); color: var(--tx2);
+  font-size: 10px; font-weight: 600; white-space: nowrap;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  transition: all 0.15s;
 }
-.fb:hover { border-color:var(--bl-bd); color:var(--sky); background:var(--bl-bg); }
-.fb.on { background:var(--sky); color:#fff; border-color:var(--sky); box-shadow:0 0 12px rgba(74,158,255,0.3); }
+.fb:hover { border-color: var(--bl-bd); color: var(--azure); background: var(--bl-bg); }
+.fb.on { background: var(--azure); color: #fff; border-color: var(--azure); box-shadow: 0 0 12px rgba(59,123,255,0.25); }
 
-/* ══ RIDER CARDS ══ */
+/* ── RIDER CARDS ── */
 .rc {
-  background:var(--card); border:1px solid var(--card-br);
-  border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:8px;
-  border-left:3px solid var(--card-br);
-  box-shadow:var(--shadow);
-  transition:box-shadow .2s, transform .15s;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px; margin-bottom: 8px;
+  border-left: 3px solid var(--edge2);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
-.rc:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
-.rc.crit { border-left-color:var(--rose); }
-.rc.warn { border-left-color:var(--amber); }
-.rc.act  { border-left-color:var(--emerald); }
+.rc:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.25); transform: translateY(-1px); }
+.rc.crit { border-left-color: var(--rose); }
+.rc.warn { border-left-color: var(--amber); }
+.rc.act  { border-left-color: var(--emerald); }
 
-.rn { font-family:'Syne',sans-serif; font-weight:600; font-size:13px; color:var(--tx0); }
-.ri { font-family:'DM Mono',monospace; font-size:10px; color:var(--tx3); margin-top:3px; letter-spacing:.04em; }
+.rn { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; color: var(--tx0); }
+.ri { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--tx3); margin-top: 3px; letter-spacing: 0.04em; }
 
-.bdg { padding:3px 8px; border-radius:4px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; font-family:'DM Mono',monospace; }
-.ba { background:var(--ok-bg); color:var(--ok-tx); border:1px solid var(--ok-bd); }
-.bw { background:var(--wn-bg); color:var(--wn-tx); border:1px solid var(--wn-bd); }
-.bc { background:var(--cr-bg); color:var(--cr-tx); border:1px solid var(--cr-bd); }
+.bdg {
+  padding: 3px 8px; border-radius: 4px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  font-family: 'DM Mono', monospace;
+}
+.ba { background: var(--ok-bg); color: var(--ok-tx); border: 1px solid var(--ok-bd); }
+.bw { background: var(--wn-bg); color: var(--wn-tx); border: 1px solid var(--wn-bd); }
+.bc { background: var(--cr-bg); color: var(--cr-tx); border: 1px solid var(--cr-bd); }
 
-/* ══ METRICS ══ */
-.mts { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:10px; }
-.mt { text-align:center; background:var(--card2); border:1px solid var(--card-br); border-radius:8px; padding:8px 4px; }
-.mv { font-family:'Syne',sans-serif; font-size:14px; font-weight:600; color:var(--tx0); }
-.ml { font-family:'DM Mono',monospace; font-size:8px; color:var(--tx3); margin-top:2px; text-transform:uppercase; letter-spacing:.06em; }
+/* ── METRICS GRID ── */
+.mts { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 10px; }
+.mt {
+  text-align: center; background: var(--ink2);
+  border: 1px solid var(--edge); border-radius: 8px; padding: 8px 4px;
+}
+.mv { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--tx0); }
+.ml { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--tx3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
 
-/* ══ ACTION / SOP ══ */
-.ax { border-radius:8px; padding:10px 12px; margin-bottom:10px; font-size:11px; line-height:1.6; border:1px solid; }
-.au { background:var(--cr-bg); border-color:var(--cr-bd); color:var(--cr-tx); }
-.aw { background:var(--wn-bg); border-color:var(--wn-bd); color:var(--wn-tx); }
-.ao { background:var(--ok-bg); border-color:var(--ok-bd); color:var(--ok-tx); }
-.axl { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; text-transform:uppercase; margin-bottom:4px; letter-spacing:.08em; opacity:.7; }
+/* ── ACTION BOXES ── */
+.ax { border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 11px; line-height: 1.6; border: 1px solid; }
+.au { background: var(--cr-bg); border-color: var(--cr-bd); color: var(--cr-tx); }
+.aw { background: var(--wn-bg); border-color: var(--wn-bd); color: var(--wn-tx); }
+.ao { background: var(--ok-bg); border-color: var(--ok-bd); color: var(--ok-tx); }
+.axl { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 9px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.08em; opacity: 0.7; }
 
-.ph { display:inline-block; padding:2px 7px; border-radius:3px; font-family:'DM Mono',monospace; font-size:9px; font-weight:500; margin-left:6px; border:1px solid; text-transform:uppercase; letter-spacing:.06em; }
-.pHI { background:var(--cr-bg); border-color:var(--cr-bd); color:var(--cr-tx); }
-.pMD { background:var(--wn-bg); border-color:var(--wn-bd); color:var(--wn-tx); }
-.pLO { background:rgba(255,255,255,0.04); border-color:var(--card-br); color:var(--tx3); }
+.ph {
+  display: inline-block; padding: 2px 7px; border-radius: 3px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 500; margin-left: 6px; border: 1px solid;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.pHI { background: var(--cr-bg); border-color: var(--cr-bd); color: var(--cr-tx); }
+.pMD { background: var(--wn-bg); border-color: var(--wn-bd); color: var(--wn-tx); }
+.pLO { background: var(--edge); border-color: var(--edge2); color: var(--tx3); }
 
-/* ══ ATTENDANCE ══ */
-.attP { background:var(--ok-bg); color:var(--ok-tx); padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid var(--ok-bd); font-family:'DM Mono',monospace; }
-.attL { background:var(--wn-bg); color:var(--wn-tx); padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid var(--wn-bd); font-family:'DM Mono',monospace; }
-.attA { background:var(--cr-bg); color:var(--cr-tx); padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid var(--cr-bd); font-family:'DM Mono',monospace; }
-.attS { background:rgba(255,255,255,0.05); color:var(--tx3); padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid var(--card-br); font-family:'DM Mono',monospace; }
+/* ── ATTENDANCE BADGES ── */
+.attP { background: var(--ok-bg); color: var(--ok-tx); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--ok-bd); font-family: 'DM Mono', monospace; }
+.attL { background: var(--wn-bg); color: var(--wn-tx); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--wn-bd); font-family: 'DM Mono', monospace; }
+.attA { background: var(--cr-bg); color: var(--cr-tx); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--cr-bd); font-family: 'DM Mono', monospace; }
+.attS { background: var(--edge); color: var(--tx3); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid var(--edge2); font-family: 'DM Mono', monospace; }
 
-/* ══ ZONE CARDS ══ */
-.zc2 { background:var(--card); border:1px solid var(--card-br); border-radius:var(--radius-lg); padding:18px; margin-bottom:12px; box-shadow:var(--shadow); }
-.zn { font-family:'Syne',sans-serif; font-weight:700; font-size:16px; color:var(--tx0); }
-.zs { font-family:'DM Mono',monospace; font-size:10px; color:var(--tx3); margin-bottom:12px; margin-top:2px; letter-spacing:.04em; }
+/* ── ZONE CARDS ── */
+.zc2 { background: var(--panel); border: 1px solid var(--edge); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; }
+.zn { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--tx0); }
+.zs { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--tx3); margin-bottom: 12px; margin-top: 2px; letter-spacing: 0.04em; }
 
-/* ══ LEADERBOARD ══ */
+/* ── LEADERBOARD ── */
 .lbc {
-  background:var(--card); border:1px solid var(--card-br);
-  border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:8px;
-  display:flex; align-items:center; gap:14px;
-  box-shadow:var(--shadow);
-  transition:box-shadow .2s;
+  background: var(--panel); border: 1px solid var(--edge);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.lbc:hover { box-shadow:var(--shadow-lg); }
-.lrk { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:12px; flex-shrink:0; }
+.lbc:hover { border-color: var(--edge2); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.lrk {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; flex-shrink: 0;
+}
 
-/* ══ FORM OVERLAY ══ */
-.fov { display:none; position:fixed; inset:0; background:rgba(15,23,42,.65); z-index:998; backdrop-filter:blur(4px); }
-.fov.on { display:block; }
+/* ── FORM OVERLAY ── */
+.fov { display: none; position: fixed; inset: 0; background: rgba(6,10,20,0.7); z-index: 998; backdrop-filter: blur(4px); }
+.fov.on { display: block; }
 .fwp {
-  position:fixed; bottom:0; left:var(--sidebar-w); right:0;
-  background:var(--card);
-  border-radius:16px 16px 0 0; z-index:999;
-  max-height:88vh; overflow-y:auto;
-  transform:translateY(100%); transition:transform .3s cubic-bezier(.4,0,.2,1);
-  padding-bottom:env(safe-area-inset-bottom,20px);
-  border-top:1px solid var(--card-br2);
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--panel);
+  border-radius: 16px 16px 0 0; z-index: 999;
+  max-height: 88vh; overflow-y: auto;
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+  border-top: 1px solid var(--edge2);
 }
-.fwp.on { transform:translateY(0); }
-.fdg { width:36px; height:3px; background:var(--card-br2); border-radius:99px; margin:14px auto 18px; }
-.finner { padding:0 18px 24px; }
-.ftl { font-family:'Syne',sans-serif; font-weight:700; font-size:16px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; color:var(--tx0); }
-.fcl { background:none; border:none; font-size:18px; color:var(--tx3); }
-.frw { margin-bottom:12px; }
-.flb { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; color:var(--tx3); display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.08em; }
-.fin,.fsl {
-  width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--card-br2);
-  font-size:14px; color:var(--tx0); background:var(--card2); outline:none; -webkit-appearance:none; display:block;
-  transition:border-color .15s;
+.fwp.on { transform: translateY(0); }
+.fdg { width: 36px; height: 3px; background: var(--edge2); border-radius: 99px; margin: 14px auto 18px; }
+.finner { padding: 0 18px 24px; }
+.ftl {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+  margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; color: var(--tx0);
 }
-.fin:focus,.fsl:focus { border-color:var(--sky); box-shadow:0 0 0 3px rgba(74,158,255,0.12); }
-.fgr { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.fact { display:flex; gap:10px; margin-top:18px; }
-.bcn { flex:1; padding:13px; border-radius:8px; border:1px solid var(--card-br2); background:transparent; color:var(--tx2); font-size:13px; font-weight:600; }
-.bsv { flex:2; padding:13px; border-radius:8px; border:none; background:linear-gradient(135deg,var(--sky),#2563EB); color:#fff; font-size:13px; font-weight:700; box-shadow:0 4px 16px rgba(74,158,255,0.3); }
+.fcl { background: none; border: none; font-size: 18px; color: var(--tx3); line-height: 1; }
+.frw { margin-bottom: 12px; }
+.flb {
+  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+  color: var(--tx3); display: block; margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.fin, .fsl {
+  width: 100%; padding: 11px 13px;
+  border-radius: 8px; border: 1px solid var(--edge2);
+  font-size: 14px; color: var(--tx0); background: var(--ink2);
+  outline: none; -webkit-appearance: none; display: block;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.fin:focus, .fsl:focus { border-color: var(--azure); box-shadow: 0 0 0 3px rgba(59,123,255,0.12); }
+.fgr { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fact { display: flex; gap: 10px; margin-top: 18px; }
+.bcn {
+  flex: 1; padding: 13px; border-radius: 8px;
+  border: 1px solid var(--edge2); background: transparent; color: var(--tx2);
+  font-size: 13px; font-weight: 600;
+}
+.bsv {
+  flex: 2; padding: 13px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, var(--azure), #2563EB);
+  color: #fff; font-size: 13px; font-weight: 700;
+  box-shadow: 0 4px 16px rgba(59,123,255,0.3);
+}
 
-/* ══ TABLE ══ */
-.data-table { width:100%; border-collapse:collapse; font-size:12px; }
-.data-table thead tr { background:var(--card2); }
-.data-table th { padding:10px; text-align:left; font-family:'DM Mono',monospace; font-size:9px; font-weight:500; color:var(--tx3); letter-spacing:.08em; text-transform:uppercase; border-bottom:1px solid var(--card-br2); }
-.data-table td { padding:9px 10px; border-bottom:1px solid var(--card-br); color:var(--tx1); }
-.data-table tbody tr:hover { background:rgba(74,158,255,0.03); }
-.data-table tfoot td { background:var(--card2); font-weight:700; color:var(--tx0); font-family:'Syne',sans-serif; border-top:1px solid var(--card-br2); }
+.empty { text-align: center; padding: 40px 20px; color: var(--tx3); font-size: 13px; line-height: 2; }
 
-/* ══ MONTHLY ══ */
+.sba {
+  display: inline-block; padding: 2px 7px; border-radius: 3px;
+  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 600; margin-top: 4px;
+}
+.sb1 { background: var(--ok-bg); color: var(--ok-tx); }
+.sb2 { background: var(--wn-bg); color: var(--wn-tx); }
+.sb3 { background: var(--cr-bg); color: var(--cr-tx); }
+
+@media(min-width:600px){
+  .kg { grid-template-columns: repeat(3,1fr); }
+  .sg { grid-template-columns: repeat(4,1fr); }
+  .wrap { padding: 20px 24px 60px; }
+  .fgr { grid-template-columns: repeat(3,1fr); }
+  .kv { font-size: 32px; }
+}
+
+/* ─ Monthly inputs ─ */
 .ml-input {
-  width:100%; padding:9px 10px; border-radius:7px;
-  border:1px solid var(--card-br2); font-size:13px;
-  background:var(--card2); color:var(--tx0); outline:none;
-  font-family:'Instrument Sans',sans-serif;
-  transition:border-color .15s;
+  width: 100%; padding: 9px 10px; border-radius: 7px;
+  border: 1px solid var(--edge2); font-size: 13px;
+  background: var(--ink2); color: var(--tx0); outline: none;
+  font-family: 'Instrument Sans', sans-serif;
+  transition: border-color 0.15s;
 }
-.ml-input:focus { border-color:var(--sky); }
-.ml-lbl { font-family:'DM Mono',monospace; font-size:9px; font-weight:500; color:var(--tx3); margin-bottom:4px; text-transform:uppercase; letter-spacing:.07em; }
-
-/* ══ STATUS BADGE INLINE ══ */
-.sba { display:inline-block; padding:2px 7px; border-radius:3px; font-family:'DM Mono',monospace; font-size:9px; font-weight:600; margin-top:4px; }
-.sb1 { background:var(--ok-bg); color:var(--ok-tx); }
-.sb2 { background:var(--wn-bg); color:var(--wn-tx); }
-.sb3 { background:var(--cr-bg); color:var(--cr-tx); }
-
-.empty { text-align:center; padding:40px 20px; color:var(--tx3); font-size:13px; line-height:2; }
-.divider { height:1px; background:var(--card-br); margin:12px 0; }
-
-/* ══ SPINNING ══ */
-.spinning { animation:spin .8s linear infinite; display:inline-block; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* ══ MOBILE: hide sidebar, show hamburger ══ */
-@media(max-width:680px){
-  .sidebar { transform:translateX(-100%); }
-  .sidebar.open { transform:translateX(0); }
-  .main { margin-left:0; }
-  .fwp { left:0; }
-  .mob-menu-btn { display:flex !important; }
-}
-.mob-menu-btn {
-  display:none; align-items:center; justify-content:center;
-  width:36px; height:36px; border-radius:8px;
-  background:var(--card); border:1px solid var(--card-br);
-  color:var(--tx1); font-size:18px; cursor:pointer;
-  margin-right:6px;
+.ml-input:focus { border-color: var(--azure); }
+.ml-lbl {
+  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+  color: var(--tx3); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.07em;
 }
 
-@media(min-width:681px){
-  .kg { grid-template-columns:repeat(3,1fr); }
-  .sg { grid-template-columns:repeat(4,1fr); }
-  .fgr { grid-template-columns:repeat(3,1fr); }
-  .kv { font-size:32px; }
+/* ─ Table ─ */
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.data-table thead tr {
+  background: var(--ink2);
+}
+.data-table th {
+  padding: 10px 10px; text-align: left;
+  font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500;
+  color: var(--tx3); letter-spacing: 0.08em; text-transform: uppercase;
+  border-bottom: 1px solid var(--edge2);
+}
+.data-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--edge);
+  color: var(--tx1);
+}
+.data-table tbody tr:hover { background: rgba(59,123,255,0.03); }
+.data-table tfoot td {
+  background: var(--ink2); font-weight: 700; color: var(--tx0);
+  font-family: 'Syne', sans-serif;
+  border-top: 1px solid var(--edge2);
 }
 
-/* ══ COMPLIANCE ══ */
-.comp-login-wrap { min-height:60vh; display:flex; align-items:center; justify-content:center; padding:20px; }
-.comp-login-box { background:var(--card); border:1px solid var(--card-br2); border-radius:18px; padding:32px 28px; width:100%; max-width:360px; box-shadow:var(--shadow-lg); }
-.comp-login-icon { width:52px; height:52px; background:linear-gradient(135deg,var(--sky),var(--violet)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 16px; box-shadow:0 0 24px rgba(74,158,255,0.35); }
-.comp-login-title { font-family:'Syne',sans-serif; font-weight:700; font-size:18px; text-align:center; color:var(--tx0); margin-bottom:4px; }
-.comp-login-sub { font-family:'DM Mono',monospace; font-size:10px; color:var(--tx3); text-align:center; margin-bottom:24px; letter-spacing:.06em; }
-.comp-field { margin-bottom:14px; }
-.comp-field label { font-family:'DM Mono',monospace; font-size:9px; color:var(--tx3); display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.08em; }
-.comp-field input { width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--card-br2); background:var(--card2); color:var(--tx0); font-size:14px; outline:none; transition:border-color .15s; }
-.comp-field input:focus { border-color:var(--sky); box-shadow:0 0 0 3px rgba(74,158,255,0.12); }
-.comp-login-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--sky),#2563EB); border:none; border-radius:9px; color:#fff; font-size:13px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; margin-top:6px; box-shadow:0 4px 20px rgba(74,158,255,0.35); transition:all .2s; }
-.comp-login-btn:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(74,158,255,0.45); }
-.comp-login-err { background:var(--cr-bg); border:1px solid var(--cr-bd); color:var(--cr-tx); padding:8px 12px; border-radius:7px; font-size:11px; margin-top:10px; text-align:center; display:none; font-family:'DM Mono',monospace; }
-.doc-rider-card { background:var(--card); border:1px solid var(--card-br); border-radius:14px; margin-bottom:12px; overflow:hidden; box-shadow:var(--shadow); }
-.doc-rider-hdr { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; border-bottom:1px solid var(--card-br); background:var(--card2); }
-.doc-rider-name { font-family:'Syne',sans-serif; font-weight:600; font-size:14px; color:var(--tx0); }
-.doc-rider-id { font-family:'DM Mono',monospace; font-size:10px; color:var(--tx3); margin-top:2px; letter-spacing:.04em; }
-.doc-rider-status { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
-.doc-rider-body { padding:14px 16px; }
-.doc-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.doc-slot { background:var(--card2); border:1px solid var(--card-br); border-radius:10px; padding:12px; position:relative; transition:border-color .2s; }
-.doc-slot.has-doc { border-color:var(--ok-bd); }
-.doc-slot.expiring { border-color:var(--wn-bd); }
-.doc-slot.expired  { border-color:var(--cr-bd); }
-.doc-slot-lbl { font-family:'DM Mono',monospace; font-size:9px; color:var(--tx3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; }
-.doc-slot-thumb { width:100%; height:70px; object-fit:cover; border-radius:6px; margin-bottom:6px; display:block; cursor:pointer; }
-.doc-slot-thumb-placeholder { width:100%; height:70px; border-radius:6px; border:2px dashed var(--card-br2); display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:6px; color:var(--tx3); font-size:10px; cursor:pointer; transition:border-color .2s,background .2s; }
-.doc-slot-thumb-placeholder:hover { border-color:var(--sky); background:var(--bl-bg); color:var(--sky); }
-.doc-slot-thumb-placeholder span { font-size:20px; margin-bottom:4px; }
-.doc-expiry { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.04em; display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
-.doc-expiry-val { font-weight:600; }
-.doc-expiry-btn { font-size:8px; padding:1px 5px; border-radius:3px; border:1px solid var(--card-br2); background:transparent; color:var(--tx3); cursor:pointer; margin-left:4px; transition:all .15s; }
-.doc-expiry-btn:hover { border-color:var(--sky); color:var(--sky); }
-.doc-upload-input { display:none; }
-.doc-ok { background:var(--ok-bg); color:var(--ok-tx); border:1px solid var(--ok-bd); padding:2px 7px; border-radius:4px; font-family:'DM Mono',monospace; font-size:9px; font-weight:600; }
-.doc-wn { background:var(--wn-bg); color:var(--wn-tx); border:1px solid var(--wn-bd); padding:2px 7px; border-radius:4px; font-family:'DM Mono',monospace; font-size:9px; font-weight:600; }
-.doc-cr { background:var(--cr-bg); color:var(--cr-tx); border:1px solid var(--cr-bd); padding:2px 7px; border-radius:4px; font-family:'DM Mono',monospace; font-size:9px; font-weight:600; }
-.doc-na { background:rgba(255,255,255,0.05); color:var(--tx3); border:1px solid var(--card-br); padding:2px 7px; border-radius:4px; font-family:'DM Mono',monospace; font-size:9px; font-weight:600; }
-.comp-report-table { width:100%; border-collapse:collapse; font-size:11px; }
-.comp-report-table th { padding:8px 10px; text-align:left; font-family:'DM Mono',monospace; font-size:8px; font-weight:500; color:var(--tx3); letter-spacing:.08em; text-transform:uppercase; border-bottom:1px solid var(--card-br2); background:var(--card2); white-space:nowrap; }
-.comp-report-table td { padding:7px 10px; border-bottom:1px solid var(--card-br); color:var(--tx1); font-family:'DM Mono',monospace; font-size:9px; }
-.comp-report-table tbody tr:hover { background:rgba(74,158,255,0.03); }
-.exp-banner { border-radius:10px; padding:12px 14px; margin-bottom:10px; border:1px solid; display:flex; gap:10px; align-items:flex-start; }
-.exp-banner-icon { font-size:18px; flex-shrink:0; }
-.exp-banner-body { flex:1; }
-.exp-banner-title { font-weight:700; font-size:12px; margin-bottom:2px; }
-.exp-banner-detail { font-family:'DM Mono',monospace; font-size:10px; opacity:.8; }
-.comp-admin-bar { background:var(--card2); border:1px solid var(--card-br); border-radius:10px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
-.comp-admin-info { font-family:'DM Mono',monospace; font-size:10px; color:var(--tx2); letter-spacing:.05em; }
-.comp-logout-btn { padding:5px 12px; border-radius:6px; border:1px solid var(--cr-bd); background:transparent; color:var(--cr-tx); font-size:10px; font-weight:700; cursor:pointer; letter-spacing:.05em; text-transform:uppercase; font-family:'DM Mono',monospace; transition:all .15s; }
-.comp-logout-btn:hover { background:var(--cr-bg); }
-.comp-search { width:100%; padding:10px 13px; border-radius:8px; border:1px solid var(--card-br2); background:var(--card2); color:var(--tx0); font-size:13px; outline:none; margin-bottom:10px; transition:border-color .15s; }
-.comp-search:focus { border-color:var(--sky); }
-.comp-search::placeholder { color:var(--tx3); }
-.lightbox-overlay { position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:2000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
-.lightbox-img { max-width:92vw; max-height:88vh; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.6); }
-.lightbox-close { position:absolute; top:16px; right:20px; font-size:28px; color:#fff; cursor:pointer; background:none; border:none; line-height:1; opacity:.7; }
-.lightbox-close:hover { opacity:1; }
-.comp-subtabs { display:flex; gap:4px; margin-bottom:16px; background:var(--card2); border:1px solid var(--card-br); border-radius:10px; padding:4px; }
-.comp-stab { flex:1; padding:8px; border:none; background:transparent; font-size:11px; font-weight:600; color:var(--tx3); border-radius:7px; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; transition:all .15s; }
-.comp-stab.on { background:var(--card); color:var(--sky); box-shadow:0 1px 4px rgba(0,0,0,.3); }
-@media(min-width:600px){ .doc-grid { grid-template-columns:repeat(3,1fr); } }
+/* ─ Divider ─ */
+.divider { height: 1px; background: var(--edge); margin: 12px 0; }
 </style>
 
+<!-- ── Inline Chart Engine ── -->
 <script>
 var Chart=(function(){
 function clr(ctx,w,h){ctx.clearRect(0,0,w,h);}
@@ -782,246 +751,272 @@ ChartInst.prototype.update=function(){if(this._canvas)drawChart(this._canvas,thi
 return function(canvas,cfg){return new ChartInst(canvas,cfg);};
 })();
 </script>
-
 </head>
 <body>
 
-<!-- ══ SIDEBAR ══ -->
-<nav class="sidebar" id="sidebar">
-  <div class="sb-logo">
-    <div class="sb-logo-icon">RO</div>
-    <div class="sb-logo-name">RiderOps</div>
-    <div class="sb-logo-sub">Bahrain Ground Ops</div>
-  </div>
-  <div class="sb-nav">
-    <div class="sb-section">Main</div>
-    <button class="sb-item on" id="sb-ov"  onclick="go('ov',this)"><span class="sb-item-icon">📊</span><span class="sb-item-label">Overview</span></button>
-    <button class="sb-item" id="sb-att" onclick="go('att',this)"><span class="sb-item-icon">📋</span><span class="sb-item-label">Attendance</span></button>
-    <button class="sb-item" id="sb-riders" onclick="go('riders',this)"><span class="sb-item-icon">🏍</span><span class="sb-item-label">Riders</span></button>
-    <button class="sb-item" id="sb-zones" onclick="go('zones',this)"><span class="sb-item-icon">🗺</span><span class="sb-item-label">Zones</span></button>
-    <button class="sb-item" id="sb-lb" onclick="go('lb',this)"><span class="sb-item-icon">🏆</span><span class="sb-item-label">Leaderboard</span></button>
-    <button class="sb-item" id="sb-monthly" onclick="go('monthly',this)"><span class="sb-item-icon">📅</span><span class="sb-item-label">Monthly</span></button>
-    <div class="sb-section">Admin</div>
-    <button class="sb-item" id="sb-compliance" onclick="go('compliance',this)"><span class="sb-item-icon">🛡</span><span class="sb-item-label">Compliance</span><span class="sb-badge" id="comp-badge" style="display:none">!</span></button>
-  </div>
-  <div class="sb-bottom">
-    <div style="font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);margin-bottom:8px;letter-spacing:0.05em" id="sb-status">Loading…</div>
-    <button class="sb-sync" onclick="doSync()"><span id="si" style="font-size:13px">↻</span> Sync</button>
-  </div>
-</nav>
-
-<!-- ══ MAIN ══ -->
-<div class="main">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <button class="mob-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-    <div class="page-title-area">
-      <div class="page-title" id="page-title">Overview <span>Workforce Performance</span></div>
-      <div class="page-subtitle" id="page-sub">Bahrain Ground Operations · Live Data</div>
-    </div>
-    <div class="topbar-right">
-      <div class="status-info" id="ss">Initializing…</div>
-      <div class="live-pill"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
-      <div class="clock" id="ltime"></div>
-      <div class="user-pill"><div class="user-avatar">AZ</div><span class="user-name">azeem</span></div>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo-mark">
+    <div class="logo-icon">RO</div>
+    <div>
+      <div class="logo-text">RiderOps</div>
+      <div class="logo-sub">Bahrain Ground Operations</div>
     </div>
   </div>
-
-  <!-- CONTENT -->
-  <div class="content">
-
-  <!-- ═══ OVERVIEW ═══ -->
-  <div class="pg on" id="pg-ov">
-    <div id="alerts" style="margin-bottom:12px"></div>
-    <div class="sec-label">Key Performance Indicators</div>
-    <div class="kg">
-      <div class="kc" style="--ac:var(--sky)"><div class="kl">Attendance <span class="klv">LIVE</span></div><div class="kv" id="k-att">—</div><div class="ks">Target: 90%</div><div class="ktg" id="t-att">—</div></div>
-      <div class="kc" style="--ac:var(--gold)"><div class="kl">Fill Rate <span class="klv">LIVE</span></div><div class="kv" id="k-fill">—</div><div class="ks">Target: 92%</div><div class="ktg" id="t-fill">—</div></div>
-      <div class="kc" style="--ac:var(--teal)"><div class="kl">Efficiency <span class="klv">LIVE</span></div><div class="kv" id="k-eff">—</div><div class="ks">Target: 85%</div><div class="ktg" id="t-eff">—</div></div>
+  <div class="hdr-right">
+    <div class="live-pill">
+      <div class="live-dot"></div>
+      <span class="live-txt">LIVE</span>
     </div>
-    <div class="kg" style="margin-bottom:18px">
-      <div class="kc" style="--ac:var(--emerald)"><div class="kl">Orders Today</div><div class="kv" id="k-ord">—</div><div class="ks" id="k-ords">—</div></div>
-      <div class="kc" style="--ac:var(--sky)"><div class="kl">Uniform Compliance</div><div class="kv" id="k-uni">—</div><div class="ks" id="k-unis">—</div><div class="ktg" id="t-uni">—</div></div>
-      <div class="kc" style="--ac:var(--rose)"><div class="kl">Need Action</div><div class="kv" id="k-act">—</div><div class="ks" id="k-acts">—</div></div>
-    </div>
-
-    <div class="sec-label">Today's Snapshot</div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="card-title">Attendance Breakdown</div>
-        <div style="font-family:DM Mono,monospace;font-size:10px;color:var(--tx3)" id="today-sub">—</div>
-      </div>
-      <div id="snap-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px"></div>
-      <div id="absent-list"></div>
-    </div>
-
-    <!-- PERFORMANCE CHART - styled like reference: gold + blue area lines on dark card -->
-    <div class="sec-label">Performance Trends</div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-        <div>
-          <div class="card-title">Daily Line Chart</div>
-          <div class="card-sub">Fill Rate &amp; Efficiency — all riders</div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
-          <!-- Legend like reference: colored dots + labels -->
-          <span style="display:flex;align-items:center;gap:5px;font-family:DM Mono,monospace;font-size:9px;color:var(--tx2)"><span style="width:24px;height:2px;background:var(--gold);border-radius:2px;box-shadow:0 0 6px var(--gold-glow);display:inline-block"></span>Fill Rate</span>
-          <span style="display:flex;align-items:center;gap:5px;font-family:DM Mono,monospace;font-size:9px;color:var(--tx2)"><span style="width:24px;height:2px;background:var(--sky);border-radius:2px;box-shadow:0 0 6px rgba(74,158,255,0.4);display:inline-block"></span>Efficiency</span>
-          <span style="display:flex;align-items:center;gap:5px;font-family:DM Mono,monospace;font-size:9px;color:var(--tx3)"><span style="width:24px;height:1px;border-top:1px dashed var(--tx3);display:inline-block"></span>Target</span>
-          <div class="perf-tog">
-            <button class="ptb on" onclick="setPV('daily',this)">Daily</button>
-            <button class="ptb" onclick="setPV('weekly',this)">Weekly</button>
-            <button class="ptb" onclick="setPV('monthly',this)">Monthly</button>
-          </div>
-        </div>
-      </div>
-      <div class="chart-wrap" style="height:240px">
-        <canvas id="pvChart" style="width:100%;height:100%"></canvas>
-      </div>
-      <div id="pv-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px"></div>
-    </div>
-
-    <div class="sec-label">Compliance &amp; SLA</div>
-    <div class="card"><div class="card-title" style="margin-bottom:12px">SOP Compliance</div><div class="sg" id="sop-g"></div></div>
-    <div class="card"><div class="card-title" style="margin-bottom:14px">SLA by Zone</div><div id="sla-b"></div></div>
-    <div class="card">
-      <div class="card-title" style="margin-bottom:4px">Fill Rate by Zone</div>
-      <div class="card-sub" style="margin-bottom:12px">vs 92% target</div>
-      <div class="chart-wrap" style="height:200px"><canvas id="zChart" style="width:100%;height:100%"></canvas></div>
-    </div>
+    <div class="clock" id="ltime"></div>
+    <button class="sync-btn" onclick="doSync()">
+      <span class="sync-icon" id="si">↻</span>
+      <span>Sync</span>
+    </button>
   </div>
-
-  <!-- ═══ ATTENDANCE ═══ -->
-  <div class="pg" id="pg-att">
-    <div style="background:var(--card);border:1px solid var(--card-br);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)">
-      <div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:var(--tx0)">Today's Attendance</div>
-      <div style="font-family:DM Mono,monospace;font-size:10px;color:var(--tx3);margin-top:3px;letter-spacing:.05em">BAHRAIN GROUND OPS</div></div>
-      <div style="font-family:DM Mono,monospace;color:var(--sky);font-size:12px;font-weight:500" id="att-date"></div>
-    </div>
-    <div id="att-sum" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
-    <div id="att-absent"></div><div id="att-late"></div><div id="att-present"></div><div id="att-off"></div>
-    <div style="background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:8px;padding:12px;font-family:DM Mono,monospace;font-size:10px;color:var(--bl-tx);line-height:1.8;margin-top:4px;letter-spacing:.03em">◆ Staff marks P / L / A / S in Daily Attendance sheet each morning → syncs here automatically.</div>
-  </div>
-
-  <!-- ═══ RIDERS ═══ -->
-  <div class="pg" id="pg-riders">
-    <button class="addbtn" onclick="oForm()">+ Add Rider</button>
-    <input class="srch" id="srch" type="text" placeholder="Search name, ID or zone…" oninput="renderRiders()" autocomplete="off"/>
-    <div class="frow2">
-      <button class="fb on" onclick="flt('all',this)">All</button>
-      <button class="fb" onclick="flt('active',this)">Active</button>
-      <button class="fb" onclick="flt('warning',this)">Warning</button>
-      <button class="fb" onclick="flt('critical',this)">Critical</button>
-      <button class="fb" onclick="flt('high',this)">HIGH Priority</button>
-      <button class="fb" onclick="flt('sop',this)">SOP Breach</button>
-      <button class="fb" onclick="flt('uni',this)">Non-Uniform</button>
-    </div>
-    <div id="rcards"></div>
-  </div>
-
-  <!-- ═══ ZONES ═══ -->
-  <div class="pg" id="pg-zones"><div id="zcards"></div></div>
-
-  <!-- ═══ LEADERBOARD ═══ -->
-  <div class="pg" id="pg-lb">
-    <div class="card" style="margin-bottom:12px"><div class="card-title">Performance Leaderboard</div><div class="card-sub">Ranked by Efficiency · Fill 60% + Orders 40%</div></div>
-    <div id="lbcards"></div>
-  </div>
-
-  <!-- ═══ MONTHLY ═══ -->
-  <div class="pg" id="pg-monthly">
-    <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-        <div style="font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em">Month</div>
-        <select id="msel" onchange="renderMonthly()" style="padding:8px 12px;border-radius:7px;border:1px solid var(--card-br2);font-size:12px;background:var(--card2);color:var(--tx0);-webkit-appearance:none;outline:none;flex:1;max-width:180px;font-family:Instrument Sans,sans-serif;"></select>
-        <span id="m-count" style="font-family:DM Mono,monospace;font-size:10px;color:var(--tx3);margin-left:auto;letter-spacing:.04em"></span>
-      </div>
-      <div style="background:var(--card2);border:1px solid var(--card-br);border-radius:var(--radius);padding:14px">
-        <div style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;color:var(--tx0);margin-bottom:12px">Log Today's Summary</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div><div class="ml-lbl">Date</div><input id="ml-date" type="date" class="ml-input"/></div>
-          <div><div class="ml-lbl">Total Orders</div><input id="ml-ord" type="number" min="0" placeholder="e.g. 420" inputmode="numeric" class="ml-input"/></div>
-          <div><div class="ml-lbl">Att % (auto)</div><input id="ml-att" type="number" min="0" max="100" placeholder="auto" inputmode="numeric" class="ml-input"/></div>
-          <div><div class="ml-lbl">Fill Rate % (auto)</div><input id="ml-fill" type="number" min="0" max="100" placeholder="auto" inputmode="numeric" class="ml-input"/></div>
-        </div>
-        <button onclick="logToday()" style="width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--sky),#2563EB);color:#fff;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 4px 16px rgba(74,158,255,0.3)">Save Today's Log</button>
-      </div>
-    </div>
-    <div class="kg" style="margin-bottom:10px">
-      <div class="kc" style="--ac:var(--sky)"><div class="kl">Days Logged</div><div class="kv" id="m-days">—</div><div class="ks" id="m-ds">this month</div></div>
-      <div class="kc" style="--ac:var(--emerald)"><div class="kl">Total Orders</div><div class="kv" id="m-ord">—</div><div class="ks" id="m-os">this month</div></div>
-      <div class="kc" style="--ac:var(--gold)"><div class="kl">Avg Daily Orders</div><div class="kv" id="m-ao">—</div><div class="ks">per day</div></div>
-    </div>
-    <div class="kg" style="margin-bottom:18px">
-      <div class="kc" style="--ac:var(--sky)"><div class="kl">Avg Attendance</div><div class="kv" id="m-att">—</div><div class="ks">Target 90%</div><div class="ktg" id="m-at">—</div></div>
-      <div class="kc" style="--ac:var(--gold)"><div class="kl">Avg Fill Rate</div><div class="kv" id="m-fill">—</div><div class="ks">Target 92%</div><div class="ktg" id="m-ft">—</div></div>
-      <div class="kc" style="--ac:var(--teal)"><div class="kl">Avg Efficiency</div><div class="kv" id="m-eff">—</div><div class="ks">Target 85%</div><div class="ktg" id="m-et">—</div></div>
-    </div>
-    <div class="card"><div class="card-title" style="margin-bottom:4px">Daily Orders</div><div class="card-sub" style="margin-bottom:12px">Total orders per day</div><div class="chart-wrap" style="height:200px"><canvas id="mOrdChart" style="width:100%;height:100%"></canvas></div></div>
-    <div class="card"><div class="card-title" style="margin-bottom:4px">Attendance Trend</div><div class="card-sub" style="margin-bottom:12px">Daily attendance % vs 90% target</div><div class="chart-wrap" style="height:180px"><canvas id="mAttChart" style="width:100%;height:100%"></canvas></div></div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div><div class="card-title">Daily Log</div><div class="card-sub">All entries for selected month</div></div>
-        <button onclick="clearMonth()" style="padding:6px 12px;border-radius:6px;border:1px solid var(--cr-bd);background:transparent;color:var(--cr-tx);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;font-family:DM Mono,monospace">Clear Month</button>
-      </div>
-      <div id="mlog" style="overflow-x:auto"></div>
-    </div>
-  </div>
-
-  <!-- ═══ COMPLIANCE ═══ -->
-  <div class="pg" id="pg-compliance">
-    <div id="comp-login-screen">
-      <div class="comp-login-wrap">
-        <div class="comp-login-box">
-          <div class="comp-login-icon">🛡</div>
-          <div class="comp-login-title">Compliance Admin</div>
-          <div class="comp-login-sub">RESTRICTED ACCESS · AUTHORISED PERSONNEL ONLY</div>
-          <div class="comp-field"><label>Username</label><input type="text" id="comp-usr" placeholder="Enter username" autocomplete="off"/></div>
-          <div class="comp-field"><label>Password</label><input type="password" id="comp-pwd" placeholder="Enter password" onkeydown="if(event.key==='Enter')compLogin()"/></div>
-          <button class="comp-login-btn" onclick="compLogin()">Sign In</button>
-          <div class="comp-login-err" id="comp-err">Invalid credentials. Please try again.</div>
-          <div style="margin-top:20px;border-top:1px solid var(--card-br);padding-top:14px">
-            <div style="font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);text-align:center;letter-spacing:.06em;margin-bottom:8px">PUBLIC ACCESS</div>
-            <button onclick="showCompReport()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--card-br2);background:transparent;color:var(--tx2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--bl-bd)';this.style.color='var(--sky)'" onmouseout="this.style.borderColor='var(--card-br2)';this.style.color='var(--tx2)'">📊 View Compliance Report (Public)</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="comp-admin-panel" style="display:none">
-      <div class="comp-admin-bar">
-        <div class="comp-admin-info">🔐 Signed in as <strong style="color:var(--sky)">azeem</strong> · Compliance Administrator</div>
-        <button class="comp-logout-btn" onclick="compLogout()">Sign Out</button>
-      </div>
-      <div id="comp-notifications" style="margin-bottom:14px"></div>
-      <div class="comp-subtabs">
-        <button class="comp-stab on" onclick="compTab('upload',this)">📁 Documents</button>
-        <button class="comp-stab" onclick="compTab('report',this)">📊 Report</button>
-      </div>
-      <div id="comp-upload-panel">
-        <input class="comp-search" type="text" id="comp-srch" placeholder="Search rider name or ID…" oninput="renderCompDocs()"/>
-        <div id="comp-doc-cards"></div>
-      </div>
-      <div id="comp-report-panel" style="display:none"></div>
-    </div>
-    <div id="comp-public-report" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:16px;color:var(--tx0)">Compliance Report</div>
-        <div style="font-family:DM Mono,monospace;font-size:10px;color:var(--tx3);margin-top:2px;letter-spacing:.04em">Public · Read-Only View</div></div>
-        <button onclick="backToCompLogin()" style="padding:7px 14px;border-radius:7px;border:1px solid var(--card-br2);background:transparent;color:var(--tx2);font-size:11px;font-weight:600;cursor:pointer">← Back</button>
-      </div>
-      <div id="comp-pub-report-content"></div>
-    </div>
-  </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-
-<!-- LIGHTBOX -->
-<div id="lightbox" class="lightbox-overlay" style="display:none" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" class="lightbox-img" src="" alt="Document"/>
 </div>
+
+<!-- STATUS BAR -->
+<div class="sbar">
+  <span class="sbar-info" id="ss">Initializing…</span>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on"  onclick="go('ov',this)">Overview</button>
+  <button class="tab"     onclick="go('att',this)">Attendance</button>
+  <button class="tab"     onclick="go('riders',this)">Riders</button>
+  <button class="tab"     onclick="go('zones',this)">Zones</button>
+  <button class="tab"     onclick="go('lb',this)">Leaderboard</button>
+  <button class="tab"     onclick="go('monthly',this)">Monthly</button>
+</div>
+
+<div class="wrap">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div class="pg on" id="pg-ov">
+  <div id="alerts" style="margin-bottom:12px"></div>
+
+  <div class="sec-label">Key Performance Indicators</div>
+  <div class="kg">
+    <div class="kc" style="--ac:var(--azure)">
+      <div class="kl">Attendance <span class="klv">LIVE</span></div>
+      <div class="kv" id="k-att">—</div>
+      <div class="ks">Target: 90%</div>
+      <div class="ktg" id="t-att">—</div>
+    </div>
+    <div class="kc" style="--ac:var(--cyan)">
+      <div class="kl">Fill Rate <span class="klv">LIVE</span></div>
+      <div class="kv" id="k-fill">—</div>
+      <div class="ks">Target: 92%</div>
+      <div class="ktg" id="t-fill">—</div>
+    </div>
+    <div class="kc" style="--ac:var(--violet)">
+      <div class="kl">Efficiency <span class="klv">LIVE</span></div>
+      <div class="kv" id="k-eff">—</div>
+      <div class="ks">Target: 85%</div>
+      <div class="ktg" id="t-eff">—</div>
+    </div>
+  </div>
+
+  <div class="kg" style="margin-bottom:18px">
+    <div class="kc" style="--ac:var(--emerald)">
+      <div class="kl">Orders Today</div>
+      <div class="kv" id="k-ord">—</div>
+      <div class="ks" id="k-ords">—</div>
+    </div>
+    <div class="kc" style="--ac:var(--azure)">
+      <div class="kl">Uniform Compliance</div>
+      <div class="kv" id="k-uni">—</div>
+      <div class="ks" id="k-unis">—</div>
+      <div class="ktg" id="t-uni">—</div>
+    </div>
+    <div class="kc" style="--ac:var(--rose)">
+      <div class="kl">Need Action</div>
+      <div class="kv" id="k-act">—</div>
+      <div class="ks" id="k-acts">—</div>
+    </div>
+  </div>
+
+  <!-- Today Snapshot -->
+  <div class="sec-label">Today's Attendance Snapshot</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="card-title">Attendance Breakdown</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3)" id="today-sub">—</div>
+    </div>
+    <div id="snap-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px"></div>
+    <div id="absent-list"></div>
+  </div>
+
+  <!-- Performance Chart -->
+  <div class="sec-label">Performance Trends</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <div class="card-title">Fill Rate & Efficiency</div>
+        <div class="card-sub" id="pv-sub">Historical performance across all riders</div>
+      </div>
+      <div class="perf-tog">
+        <button class="ptb on" onclick="setPV('daily',this)">Daily</button>
+        <button class="ptb" onclick="setPV('weekly',this)">Weekly</button>
+        <button class="ptb" onclick="setPV('monthly',this)">Monthly</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:6px">
+        <span style="width:20px;height:2px;background:var(--azure);border-radius:2px;box-shadow:0 0 6px var(--azure);display:inline-block"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--tx2);letter-spacing:0.06em">FILL RATE</span>
+      </span>
+      <span style="display:flex;align-items:center;gap:6px">
+        <span style="width:20px;height:2px;background:var(--cyan);border-radius:2px;box-shadow:0 0 6px var(--cyan);display:inline-block"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--tx2);letter-spacing:0.06em">EFFICIENCY</span>
+      </span>
+      <span style="display:flex;align-items:center;gap:6px">
+        <span style="width:20px;height:1px;background:var(--tx3);border-radius:2px;display:inline-block;border-top:1px dashed var(--tx3)"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--tx3);letter-spacing:0.06em">TARGET 90%</span>
+      </span>
+    </div>
+
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="pvChart" style="width:100%;height:100%"></canvas>
+    </div>
+
+    <div id="pv-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px"></div>
+  </div>
+
+  <!-- SOP & SLA -->
+  <div class="sec-label">Compliance & SLA</div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">SOP Compliance</div>
+    <div class="sg" id="sop-g"></div>
+    <div id="sop-d"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">SLA by Zone</div>
+    <div id="sla-b"></div>
+  </div>
+
+  <!-- Zone chart -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:4px">Fill Rate by Zone</div>
+    <div class="card-sub" style="margin-bottom:12px">vs 92% target threshold</div>
+    <div class="chart-wrap" style="height:200px">
+      <canvas id="zChart" style="width:100%;height:100%"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTENDANCE ═══ -->
+<div class="pg" id="pg-att">
+  <div style="background:var(--panel);border:1px solid var(--edge);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--tx0)">Today's Attendance</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3);margin-top:3px;letter-spacing:0.05em">BAHRAIN GROUND OPS</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;color:var(--azure);font-size:12px;font-weight:500" id="att-date"></div>
+  </div>
+  <div id="att-sum" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"></div>
+  <div id="att-absent"></div>
+  <div id="att-late"></div>
+  <div id="att-present"></div>
+  <div id="att-off"></div>
+  <div style="background:var(--bl-bg);border:1px solid var(--bl-bd);border-radius:8px;padding:12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--bl-tx);line-height:1.8;margin-top:4px;letter-spacing:0.03em">
+    ◆ Staff marks P / L / A / S in Daily Attendance sheet each morning → syncs here automatically.
+  </div>
+</div>
+
+<!-- ═══ RIDERS ═══ -->
+<div class="pg" id="pg-riders">
+  <button class="addbtn" onclick="oForm()">+ Add Rider</button>
+  <input class="srch" id="srch" type="text" placeholder="Search name, ID or zone…" oninput="renderRiders()" autocomplete="off"/>
+  <div class="frow2">
+    <button class="fb on"  onclick="flt('all',this)">All</button>
+    <button class="fb"     onclick="flt('active',this)">Active</button>
+    <button class="fb"     onclick="flt('warning',this)">Warning</button>
+    <button class="fb"     onclick="flt('critical',this)">Critical</button>
+    <button class="fb"     onclick="flt('high',this)">HIGH Priority</button>
+    <button class="fb"     onclick="flt('sop',this)">SOP Breach</button>
+    <button class="fb"     onclick="flt('uni',this)">Non-Uniform</button>
+  </div>
+  <div id="rcards"></div>
+</div>
+
+<!-- ═══ ZONES ═══ -->
+<div class="pg" id="pg-zones"><div id="zcards"></div></div>
+
+<!-- ═══ LEADERBOARD ═══ -->
+<div class="pg" id="pg-lb">
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Performance Leaderboard</div>
+    <div class="card-sub">Ranked by Efficiency Score · Fill 60% + Orders 40%</div>
+  </div>
+  <div id="lbcards"></div>
+</div>
+
+<!-- ═══ MONTHLY ═══ -->
+<div class="pg" id="pg-monthly">
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:0.08em">Month</div>
+      <select id="msel" onchange="renderMonthly()" style="padding:8px 12px;border-radius:7px;border:1px solid var(--edge2);font-size:12px;background:var(--ink2);color:var(--tx0);-webkit-appearance:none;outline:none;flex:1;max-width:180px;font-family:'Instrument Sans',sans-serif;"></select>
+      <span id="m-count" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tx3);margin-left:auto;letter-spacing:0.04em"></span>
+    </div>
+
+    <div style="background:var(--ink2);border:1px solid var(--edge);border-radius:var(--radius);padding:14px">
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--tx0);margin-bottom:12px;letter-spacing:0.02em">Log Today's Summary</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div>
+          <div class="ml-lbl">Date</div>
+          <input id="ml-date" type="date" class="ml-input"/>
+        </div>
+        <div>
+          <div class="ml-lbl">Total Orders</div>
+          <input id="ml-ord" type="number" min="0" placeholder="e.g. 420" inputmode="numeric" class="ml-input"/>
+        </div>
+        <div>
+          <div class="ml-lbl">Att % (auto)</div>
+          <input id="ml-att" type="number" min="0" max="100" placeholder="auto" inputmode="numeric" class="ml-input"/>
+        </div>
+        <div>
+          <div class="ml-lbl">Fill Rate % (auto)</div>
+          <input id="ml-fill" type="number" min="0" max="100" placeholder="auto" inputmode="numeric" class="ml-input"/>
+        </div>
+      </div>
+      <button onclick="logToday()" style="width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--azure),#2563EB);color:#fff;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 4px 16px rgba(59,123,255,0.3);">Save Today's Log</button>
+    </div>
+  </div>
+
+  <div class="kg" style="margin-bottom:10px">
+    <div class="kc" style="--ac:var(--azure)"><div class="kl">Days Logged</div><div class="kv" id="m-days">—</div><div class="ks" id="m-ds">this month</div></div>
+    <div class="kc" style="--ac:var(--emerald)"><div class="kl">Total Orders</div><div class="kv" id="m-ord">—</div><div class="ks" id="m-os">this month</div></div>
+    <div class="kc" style="--ac:var(--cyan)"><div class="kl">Avg Daily Orders</div><div class="kv" id="m-ao">—</div><div class="ks">per day</div></div>
+  </div>
+  <div class="kg" style="margin-bottom:18px">
+    <div class="kc" style="--ac:var(--azure)"><div class="kl">Avg Attendance</div><div class="kv" id="m-att">—</div><div class="ks">Target 90%</div><div class="ktg" id="m-at">—</div></div>
+    <div class="kc" style="--ac:var(--cyan)"><div class="kl">Avg Fill Rate</div><div class="kv" id="m-fill">—</div><div class="ks">Target 92%</div><div class="ktg" id="m-ft">—</div></div>
+    <div class="kc" style="--ac:var(--violet)"><div class="kl">Avg Efficiency</div><div class="kv" id="m-eff">—</div><div class="ks">Target 85%</div><div class="ktg" id="m-et">—</div></div>
+  </div>
+
+  <div class="card"><div class="card-title" style="margin-bottom:4px">Daily Orders</div><div class="card-sub" style="margin-bottom:12px">Total orders per day this month</div><div class="chart-wrap" style="height:200px"><canvas id="mOrdChart" style="width:100%;height:100%"></canvas></div></div>
+  <div class="card"><div class="card-title" style="margin-bottom:4px">Attendance Trend</div><div class="card-sub" style="margin-bottom:12px">Daily attendance % vs 90% target</div><div class="chart-wrap" style="height:180px"><canvas id="mAttChart" style="width:100%;height:100%"></canvas></div></div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div>
+        <div class="card-title">Daily Log</div>
+        <div class="card-sub">All entries for selected month</div>
+      </div>
+      <button onclick="clearMonth()" style="padding:6px 12px;border-radius:6px;border:1px solid var(--cr-bd);background:transparent;color:var(--cr-tx);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;font-family:'DM Mono',monospace;">Clear Month</button>
+    </div>
+    <div id="mlog" style="overflow-x:auto"></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
 
 <!-- FORM -->
 <div class="fov" id="fov" onclick="cForm()"></div>
@@ -1032,18 +1027,37 @@ return function(canvas,cfg){return new ChartInst(canvas,cfg);};
     <div class="frw"><label class="flb">Full Name *</label><input class="fin" id="fn" type="text" placeholder="Ahmed Ali" autocomplete="off"/></div>
     <div class="fgr">
       <div class="frw"><label class="flb">Rider ID *</label><input class="fin" id="fi" type="text" placeholder="R051" autocomplete="off"/></div>
-      <div class="frw"><label class="flb">Zone</label><select class="fsl" id="fz"><option>Manama</option><option>Riffa</option><option>Juffair</option><option>Salmabad</option><option>Isa Town</option><option>Muharraq</option><option>Hamad Town</option><option>Budaiya</option></select></div>
+      <div class="frw"><label class="flb">Zone</label>
+        <select class="fsl" id="fz">
+          <option>Manama</option><option>Riffa</option><option>Juffair</option>
+          <option>Salmabad</option><option>Isa Town</option><option>Muharraq</option>
+          <option>Hamad Town</option><option>Budaiya</option>
+        </select>
+      </div>
       <div class="frw"><label class="flb">Fill Rate %</label><input class="fin" id="ff" type="number" min="0" max="100" placeholder="92" inputmode="numeric"/></div>
       <div class="frw"><label class="flb">Orders Today</label><input class="fin" id="fo" type="number" min="0" placeholder="10" inputmode="numeric"/></div>
-      <div class="frw"><label class="flb">Attendance</label><select class="fsl" id="fa"><option value="P">P — Present</option><option value="L">L — Late</option><option value="A">A — Absent</option><option value="S">S — Not Scheduled</option></select></div>
-      <div class="frw"><label class="flb">Uniform</label><select class="fsl" id="fu"><option value="1">Y — Compliant</option><option value="0">N — Not Compliant</option></select></div>
+      <div class="frw"><label class="flb">Attendance</label>
+        <select class="fsl" id="fa">
+          <option value="P">P — Present</option><option value="L">L — Late</option>
+          <option value="A">A — Absent</option><option value="S">S — Not Scheduled</option>
+        </select>
+      </div>
+      <div class="frw"><label class="flb">Uniform</label>
+        <select class="fsl" id="fu">
+          <option value="1">Y — Compliant</option><option value="0">N — Not Compliant</option>
+        </select>
+      </div>
     </div>
-    <div class="fact"><button class="bcn" onclick="cForm()">Cancel</button><button class="bsv" onclick="saveR()">Save Rider</button></div>
+    <div class="fact">
+      <button class="bcn" onclick="cForm()">Cancel</button>
+      <button class="bsv" onclick="saveR()">Save Rider</button>
+    </div>
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════ SCRIPTS ══ -->
 <script>
-var PERF_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
+var PERF_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?gid=1657315848&single=true&output=csv";
 var SEED=[{"id":"R001","name":"Ahmed Al Mansoori","zone":"Manama","fill":88.0,"ord":7,"uni":true,"eff":95.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R002","name":"Rajesh Kumar","zone":"Riffa","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R003","name":"Mohammed Siddiqui","zone":"Juffair","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R004","name":"Saidul Rabbi","zone":"Salmabad","fill":100.0,"ord":9,"uni":false,"eff":114.7,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R005","name":"Faisal Al Dosari","zone":"Manama","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R006","name":"MD Joynal","zone":"Salmabad","fill":100.0,"ord":0,"uni":true,"eff":60.0,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R007","name":"Ghulam Rasool","zone":"Isa Town","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R008","name":"Tahir Mehmood","zone":"Muharraq","fill":99.0,"ord":11,"uni":true,"eff":126.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R009","name":"Gundaveni Sitharam","zone":"Budaiya","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R010","name":"Noor","zone":"Hamad Town","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R011","name":"Ghulam Rabbi","zone":"Salmabad","fill":68.0,"ord":9,"uni":true,"eff":95.5,"status":"critical","sop":"SOP BREACH — Escalate","action":"URGENT: Performance critical — call rider immediately. Initiate replacement if no response.","priority":"HIGH","att":""},{"id":"R012","name":"Hamza Tabish","zone":"Riffa","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R013","name":"Muhammad Anas","zone":"Juffair","fill":98.0,"ord":13,"uni":false,"eff":137.8,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R014","name":"Muhammad Rizwan","zone":"Juffair","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R015","name":"Waleed Omeyele","zone":"Juffair","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R016","name":"Muhammad Saleem","zone":"Manama","fill":100.0,"ord":15,"uni":true,"eff":151.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R017","name":"Jahangir Rukhsan","zone":"Manama","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R018","name":"Sabeer Ammapole","zone":"Manama","fill":100.0,"ord":4,"uni":true,"eff":84.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R019","name":"Mughees Ahmed","zone":"Isa Town","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R020","name":"Manjit Singh","zone":"Isa Town","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R021","name":"Shahzaib Hameed","zone":"Hamad Town","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R022","name":"Gurwinder Singh","zone":"Muharraq","fill":94.0,"ord":9,"uni":true,"eff":111.1,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R023","name":"Farooq Sattar","zone":"Salmabad","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R024","name":"Rameez Khan","zone":"Manama","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R025","name":"Yasir Ali","zone":"Isa Town","fill":100.0,"ord":2,"uni":true,"eff":72.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R026","name":"Abdulla Nabi","zone":"Isa Town","fill":96.0,"ord":9,"uni":true,"eff":112.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R027","name":"Farhad","zone":"Manama","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R028","name":"Darshana Chitrasinghe","zone":"Budaiya","fill":100.0,"ord":6,"uni":false,"eff":96.5,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R029","name":"Sidhesh Dhebe","zone":"Muharraq","fill":72.0,"ord":8,"uni":true,"eff":91.8,"status":"warning","sop":"SOP REVIEW REQUIRED","action":"WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.","priority":"MEDIUM","att":""},{"id":"R030","name":"Gurpreet Singh","zone":"Juffair","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R031","name":"Tariq Khurram","zone":"Muharraq","fill":55.0,"ord":7,"uni":true,"eff":75.6,"status":"critical","sop":"SOP BREACH — Escalate","action":"URGENT: Performance critical — call rider immediately. Initiate replacement if no response.","priority":"HIGH","att":""},{"id":"R032","name":"Gulraiz Hakeem","zone":"Juffair","fill":100.0,"ord":2,"uni":true,"eff":72.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R033","name":"Yasin Adil","zone":"Hamad Town","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R034","name":"Darshan Singh","zone":"Hamad Town","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R035","name":"Basharat Mehmood","zone":"Budaiya","fill":88.0,"ord":11,"uni":true,"eff":119.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R036","name":"Khan Bahadur","zone":"Riffa","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R037","name":"Qamar uz Zaman","zone":"Manama","fill":96.0,"ord":8,"uni":true,"eff":106.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R038","name":"Harpeet Singh","zone":"Manama","fill":100.0,"ord":6,"uni":true,"eff":96.5,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R039","name":"Zia ur Rehman","zone":"Manama","fill":100.0,"ord":4,"uni":true,"eff":84.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R040","name":"Yamin Adil","zone":"Isa Town","fill":100.0,"ord":2,"uni":true,"eff":72.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R041","name":"Faheem Ahmed","zone":"Riffa","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R042","name":"Bilal Abid","zone":"Riffa","fill":81.0,"ord":11,"uni":true,"eff":115.5,"status":"warning","sop":"SOP REVIEW REQUIRED","action":"WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.","priority":"MEDIUM","att":""},{"id":"R043","name":"Asad Nawaz","zone":"Juffair","fill":100.0,"ord":5,"uni":true,"eff":90.4,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R044","name":"Qazi Ghulam Nabi","zone":"Isa Town","fill":100.0,"ord":8,"uni":true,"eff":108.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R045","name":"Gurmail Singh","zone":"Muharraq","fill":100.0,"ord":3,"uni":true,"eff":78.2,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R046","name":"Muhammad Abbas","zone":"Juffair","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"critical","sop":"SOP BREACH — Escalate","action":"URGENT: Performance critical — call rider immediately. Initiate replacement if no response.","priority":"HIGH","att":""},{"id":"R047","name":"Zubair Khan","zone":"Salmabad","fill":100.0,"ord":4,"uni":false,"eff":84.3,"status":"active","sop":"SOP REVIEW REQUIRED","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R048","name":"Saddam Altaf","zone":"Manama","fill":100.0,"ord":9,"uni":true,"eff":114.7,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R049","name":"Zeeshan Shafique","zone":"Hamad Town","fill":100.0,"ord":4,"uni":true,"eff":84.3,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""},{"id":"R050","name":"Ubaid Ur Rehman","zone":"Manama","fill":100.0,"ord":7,"uni":true,"eff":102.6,"status":"active","sop":"SOP COMPLIANT","action":"No action required — rider meeting all performance targets.","priority":"LOW","att":""}];
 
 var riders=JSON.parse(JSON.stringify(SEED));
@@ -1576,367 +1590,6 @@ function renderMonthly(){
   document.getElementById("mlog").innerHTML=tbl;
 }
 
-
-/* ══════════════════════════════════════════════
-   COMPLIANCE MODULE
-══════════════════════════════════════════════ */
-
-var COMP_USER = 'azeem';
-var COMP_PASS = 'riderops2025';
-var compLoggedIn = false;
-var compActiveTab = 'upload';
-
-var DOC_TYPES = [
-  { key: 'cpr_front',   label: 'CPR Front',               hasExpiry: false },
-  { key: 'cpr_back',    label: 'CPR Back',                hasExpiry: false },
-  { key: 'lic_front',   label: 'License Front',           hasExpiry: true  },
-  { key: 'lic_back',    label: 'License Back',            hasExpiry: true  },
-  { key: 'passport',    label: 'Passport',                hasExpiry: true  },
-  { key: 'voc_front',   label: 'Ownership Front',         hasExpiry: true  },
-  { key: 'voc_back',    label: 'Ownership Back',          hasExpiry: true  },
-  { key: 'insurance',   label: 'Insurance',               hasExpiry: true  }
-];
-
-var compDocs = {};
-(function(){
-  try { var s=localStorage.getItem('riderops_comp'); if(s)compDocs=JSON.parse(s); } catch(e){ compDocs={}; }
-})();
-
-function saveCompDocs(){ try{localStorage.setItem('riderops_comp',JSON.stringify(compDocs));}catch(e){} }
-
-function ensureRider(id){
-  if(!compDocs[id])compDocs[id]={};
-  DOC_TYPES.forEach(function(dt){ if(!compDocs[id][dt.key])compDocs[id][dt.key]={dataURL:null,expiry:null,fileName:null}; });
-}
-
-function daysUntil(ds){
-  if(!ds)return null;
-  var exp=new Date(ds);exp.setHours(0,0,0,0);
-  var now=new Date();now.setHours(0,0,0,0);
-  return Math.round((exp-now)/86400000);
-}
-
-function expiryStatus(ds,hasExpiry){
-  if(!hasExpiry)return'ok';
-  var d=daysUntil(ds);
-  if(d===null)return'no-date';
-  if(d<0)return'expired';
-  if(d<=30)return'expiring';
-  return'ok';
-}
-
-function expiryBadgeHtml(ds,hasExpiry){
-  if(!hasExpiry)return'';
-  var st=expiryStatus(ds,hasExpiry);
-  if(st==='no-date')return'<span class="doc-na">No Date</span>';
-  if(st==='expired')return'<span class="doc-cr">EXPIRED</span>';
-  if(st==='expiring'){var d=daysUntil(ds);return'<span class="doc-wn">'+d+'d left</span>';}
-  return'<span class="doc-ok">Valid</span>';
-}
-
-function slotCls(doc,hasExpiry){
-  if(!doc||!doc.dataURL)return'doc-slot';
-  var st=expiryStatus(doc.expiry,hasExpiry);
-  if(st==='expired')return'doc-slot expired';
-  if(st==='expiring')return'doc-slot expiring';
-  return'doc-slot has-doc';
-}
-
-function fmtDate(s){
-  if(!s)return'—';
-  try{var d=new Date(s);return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();}
-  catch(e){return s;}
-}
-
-function ocrDate(fn){
-  var p1=/(\d{4})[-_](\d{1,2})[-_](\d{1,2})/,p2=/(\d{1,2})[-_](\d{1,2})[-_](\d{4})/;
-  var m=fn.match(p1);
-  if(m){var dt=m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');if(!isNaN(new Date(dt)))return dt;}
-  m=fn.match(p2);
-  if(m){var dt=m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');if(!isNaN(new Date(dt)))return dt;}
-  return null;
-}
-
-function compLogin(){
-  var u=(document.getElementById('comp-usr').value||'').trim();
-  var p=(document.getElementById('comp-pwd').value||'').trim();
-  var err=document.getElementById('comp-err');
-  if(u===COMP_USER&&p===COMP_PASS){
-    compLoggedIn=true;err.style.display='none';
-    document.getElementById('comp-login-screen').style.display='none';
-    document.getElementById('comp-admin-panel').style.display='block';
-    document.getElementById('comp-public-report').style.display='none';
-    renderCompNotifications();renderCompDocs();
-  } else {err.style.display='block';document.getElementById('comp-pwd').value='';}
-}
-
-function compLogout(){
-  compLoggedIn=false;
-  document.getElementById('comp-admin-panel').style.display='none';
-  document.getElementById('comp-login-screen').style.display='block';
-  document.getElementById('comp-usr').value='';document.getElementById('comp-pwd').value='';
-}
-
-function showCompReport(){
-  document.getElementById('comp-login-screen').style.display='none';
-  document.getElementById('comp-admin-panel').style.display='none';
-  document.getElementById('comp-public-report').style.display='block';
-  renderPublicReport();
-}
-
-function backToCompLogin(){
-  document.getElementById('comp-public-report').style.display='none';
-  document.getElementById('comp-login-screen').style.display='block';
-}
-
-function compTab(name,el){
-  compActiveTab=name;
-  document.querySelectorAll('.comp-stab').forEach(function(b){b.classList.remove('on');});
-  el.classList.add('on');
-  document.getElementById('comp-upload-panel').style.display=name==='upload'?'block':'none';
-  document.getElementById('comp-report-panel').style.display=name==='report'?'block':'none';
-  if(name==='report')renderAdminReport();
-}
-
-function renderCompNotifications(){
-  var alerts=[];
-  riders.forEach(function(r){
-    ensureRider(r.id);
-    DOC_TYPES.forEach(function(dt){
-      if(!dt.hasExpiry)return;
-      var doc=compDocs[r.id][dt.key];
-      if(!doc||!doc.dataURL)return;
-      var d=daysUntil(doc.expiry);
-      if(d===null)return;
-      if(d<0)alerts.push({type:'cr',rider:r.name,doc:dt.label,days:d});
-      else if(d<=30)alerts.push({type:'wn',rider:r.name,doc:dt.label,days:d});
-    });
-  });
-  var html='';
-  if(!alerts.length){
-    html='<div class="exp-banner" style="background:var(--ok-bg);border-color:var(--ok-bd)"><div class="exp-banner-icon">✅</div><div class="exp-banner-body"><div class="exp-banner-title" style="color:var(--ok-tx)">All Documents Clear</div><div class="exp-banner-detail" style="color:var(--ok-tx)">No documents expiring within 30 days</div></div></div>';
-  } else {
-    var crs=alerts.filter(function(a){return a.type==='cr';});
-    var wns=alerts.filter(function(a){return a.type==='wn';});
-    if(crs.length)html+='<div class="exp-banner" style="background:var(--cr-bg);border-color:var(--cr-bd)"><div class="exp-banner-icon">🚨</div><div class="exp-banner-body"><div class="exp-banner-title" style="color:var(--cr-tx)">'+crs.length+' Document'+(crs.length>1?'s':'')+' EXPIRED</div><div class="exp-banner-detail" style="color:var(--cr-tx)">'+crs.map(function(a){return a.rider+' · '+a.doc+' ('+Math.abs(a.days)+'d ago)';}).join(' | ')+'</div></div></div>';
-    if(wns.length)html+='<div class="exp-banner" style="background:var(--wn-bg);border-color:var(--wn-bd)"><div class="exp-banner-icon">⚠️</div><div class="exp-banner-body"><div class="exp-banner-title" style="color:var(--wn-tx)">'+wns.length+' Document'+(wns.length>1?'s':'')+' Expiring Soon</div><div class="exp-banner-detail" style="color:var(--wn-tx)">'+wns.map(function(a){return a.rider+' · '+a.doc+' ('+a.days+'d left)';}).join(' | ')+'</div></div></div>';
-  }
-  document.getElementById('comp-notifications').innerHTML=html;
-}
-
-function renderCompDocs(){
-  var q=(document.getElementById('comp-srch').value||'').toLowerCase();
-  var fl=riders.filter(function(r){return !q||r.name.toLowerCase().indexOf(q)>=0||r.id.toLowerCase().indexOf(q)>=0;});
-  var html='';
-  fl.forEach(function(r){
-    ensureRider(r.id);
-    var docs=compDocs[r.id];
-    var total=DOC_TYPES.length,uploaded=0,expCr=0,expWn=0;
-    DOC_TYPES.forEach(function(dt){
-      var doc=docs[dt.key];
-      if(doc&&doc.dataURL){uploaded++;
-        if(dt.hasExpiry){var st=expiryStatus(doc.expiry,true);if(st==='expired')expCr++;else if(st==='expiring')expWn++;}}
-    });
-    var statusBadge=expCr>0?'<span class="doc-cr">'+expCr+' Expired</span>':expWn>0?'<span class="doc-wn">'+expWn+' Expiring</span>':uploaded<total?'<span class="doc-na">'+(total-uploaded)+' Missing</span>':'<span class="doc-ok">Complete</span>';
-    html+='<div class="doc-rider-card"><div class="doc-rider-hdr" onclick="toggleDocRider('dr-'+r.id+'')">';
-    html+='<div><div class="doc-rider-name">'+r.name+'</div><div class="doc-rider-id">'+r.id+' · '+r.zone+' · '+uploaded+'/'+total+' docs</div></div>';
-    html+='<div class="doc-rider-status">'+statusBadge+'<span style="font-size:12px;color:var(--tx3);margin-left:6px">▾</span></div></div>';
-    html+='<div id="dr-'+r.id+'" class="doc-rider-body" style="display:none"><div class="doc-grid">';
-    DOC_TYPES.forEach(function(dt){
-      var doc=docs[dt.key]||{};
-      var hasDoc=!!doc.dataURL;
-      html+='<div class="'+slotCls(doc,dt.hasExpiry)+'" id="slot-'+r.id+'-'+dt.key+'">';
-      html+='<div class="doc-slot-lbl">'+dt.label+'</div>';
-      if(hasDoc){
-        html+='<img class="doc-slot-thumb" src="'+doc.dataURL+'" onclick="openLightbox(''+r.id+'',''+dt.key+'')" title="Click to enlarge"/>';
-      } else {
-        html+='<div class="doc-slot-thumb-placeholder" onclick="triggerUpload(''+r.id+'',''+dt.key+'')"><span>⬆</span><div>Upload</div></div>';
-      }
-      if(dt.hasExpiry){
-        html+='<div class="doc-expiry">'+expiryBadgeHtml(doc.expiry,true);
-        if(doc.expiry)html+='<span class="doc-expiry-val" style="color:var(--tx2);margin-left:4px">'+fmtDate(doc.expiry)+'</span>';
-        html+='<button class="doc-expiry-btn" onclick="editExpiry(''+r.id+'',''+dt.key+'')">✏</button></div>';
-      }
-      if(hasDoc){
-        html+='<div style="display:flex;gap:4px;margin-top:6px"><button onclick="triggerUpload(''+r.id+'',''+dt.key+'')" style="flex:1;padding:4px;font-size:9px;border-radius:5px;border:1px solid var(--edge2);background:transparent;color:var(--tx3);cursor:pointer;font-family:DM Mono,monospace">Replace</button>';
-        html+='<button onclick="removeDoc(''+r.id+'',''+dt.key+'')" style="padding:4px 8px;font-size:9px;border-radius:5px;border:1px solid var(--cr-bd);background:transparent;color:var(--cr-tx);cursor:pointer;font-family:DM Mono,monospace">✕</button></div>';
-      }
-      html+='<input type="file" accept="image/*,.pdf" class="doc-upload-input" id="file-'+r.id+'-'+dt.key+'" onchange="handleUpload(''+r.id+'',''+dt.key+'',this)"/>';
-      html+='</div>';
-    });
-    html+='</div></div></div>';
-  });
-  document.getElementById('comp-doc-cards').innerHTML=html||'<div class="empty">No riders found.</div>';
-}
-
-function toggleDocRider(id){var el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
-
-function triggerUpload(rid,dk){var inp=document.getElementById('file-'+rid+'-'+dk);if(inp)inp.click();}
-
-function handleUpload(rid,dk,input){
-  var file=input.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    ensureRider(rid);
-    compDocs[rid][dk].dataURL=e.target.result;
-    compDocs[rid][dk].fileName=file.name;
-    var dt=ocrDate(file.name);
-    var docType=DOC_TYPES.find(function(d){return d.key===dk;});
-    if(dt&&docType&&docType.hasExpiry){
-      compDocs[rid][dk].expiry=dt;
-      saveCompDocs();renderCompDocs();renderCompNotifications();
-      var ac=document.getElementById('dr-'+rid);if(ac)ac.style.display='block';
-      showOcrToast(dt);
-    } else {
-      saveCompDocs();renderCompDocs();renderCompNotifications();
-      var ac=document.getElementById('dr-'+rid);if(ac)ac.style.display='block';
-      if(docType&&docType.hasExpiry)setTimeout(function(){editExpiry(rid,dk);},300);
-    }
-  };
-  reader.readAsDataURL(file);input.value='';
-}
-
-function showOcrToast(date){
-  var t=document.createElement('div');
-  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ok-bg);border:1px solid var(--ok-bd);color:var(--ok-tx);padding:10px 18px;border-radius:8px;font-family:DM Mono,monospace;font-size:11px;z-index:3000;box-shadow:0 4px 20px rgba(0,0,0,0.3);letter-spacing:0.04em;white-space:nowrap;';
-  t.textContent='✓ OCR detected expiry: '+fmtDate(date);
-  document.body.appendChild(t);setTimeout(function(){t.remove();},3500);
-}
-
-function removeDoc(rid,dk){
-  if(!confirm('Remove this document?'))return;
-  ensureRider(rid);compDocs[rid][dk]={dataURL:null,expiry:null,fileName:null};
-  saveCompDocs();renderCompDocs();renderCompNotifications();
-  var ac=document.getElementById('dr-'+rid);if(ac)ac.style.display='block';
-}
-
-function editExpiry(rid,dk){
-  var docType=DOC_TYPES.find(function(d){return d.key===dk;});
-  if(!docType||!docType.hasExpiry)return;
-  ensureRider(rid);
-  var cur=compDocs[rid][dk].expiry||'';
-  var d=document.createElement('div');
-  d.style.cssText='position:fixed;inset:0;background:rgba(6,10,20,0.78);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;';
-  d.innerHTML='<div style="background:var(--panel);border:1px solid var(--edge2);border-radius:14px;padding:24px;width:100%;max-width:320px;box-shadow:0 20px 50px rgba(0,0,0,0.5)">'
-    +'<div style="font-family:Syne,sans-serif;font-weight:700;font-size:15px;color:var(--tx0);margin-bottom:4px">Set Expiry Date</div>'
-    +'<div style="font-family:DM Mono,monospace;font-size:10px;color:var(--tx3);margin-bottom:16px;letter-spacing:0.04em">'+docType.label+'</div>'
-    +'<div style="font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em">Expiry Date</div>'
-    +'<input type="date" id="expiry-inp" value="'+cur+'" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--edge2);background:var(--ink2);color:var(--tx0);font-size:14px;margin-bottom:10px;outline:none;"/>'
-    +'<div style="font-family:DM Mono,monospace;font-size:9px;color:var(--tx3);margin-bottom:14px;line-height:1.7;opacity:0.75">💡 Tip: Name files like <em>license_2027-03-15.jpg</em> for auto OCR detection on upload</div>'
-    +'<div style="display:flex;gap:8px">'
-    +'<button style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--edge2);background:transparent;color:var(--tx2);font-size:12px;font-weight:600;cursor:pointer" onclick="this.closest('[style*=fixed]').remove()">Cancel</button>'
-    +'<button style="flex:2;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--azure),#2563EB);color:#fff;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(59,123,255,0.3)" onclick="saveExpiryInline(''+rid+'',''+dk+'',this)">Save Date</button>'
-    +'</div></div>';
-  document.body.appendChild(d);
-}
-
-function saveExpiryInline(rid,dk,btn){
-  var val=document.getElementById('expiry-inp').value;
-  if(!val){alert('Please select a date.');return;}
-  ensureRider(rid);compDocs[rid][dk].expiry=val;saveCompDocs();
-  btn.closest('[style*="fixed"]').remove();
-  renderCompDocs();renderCompNotifications();
-  var ac=document.getElementById('dr-'+rid);if(ac)ac.style.display='block';
-}
-
-function openLightbox(rid,dk){
-  ensureRider(rid);var doc=compDocs[rid][dk];
-  if(!doc||!doc.dataURL)return;
-  document.getElementById('lightbox-img').src=doc.dataURL;
-  document.getElementById('lightbox').style.display='flex';
-}
-function closeLightbox(){document.getElementById('lightbox').style.display='none';document.getElementById('lightbox-img').src='';}
-
-function buildReportRows(){
-  var rows=[];
-  riders.forEach(function(r){
-    ensureRider(r.id);
-    var docs=compDocs[r.id];
-    var row={rider:r,docs:{}};
-    DOC_TYPES.forEach(function(dt){
-      var doc=docs[dt.key]||{};
-      var status='missing';
-      if(doc.dataURL){status=expiryStatus(doc.expiry,dt.hasExpiry);}
-      row.docs[dt.key]={status:status,expiry:doc.expiry,days:daysUntil(doc.expiry)};
-    });
-    rows.push(row);
-  });
-  return rows;
-}
-
-function reportStatusCell(s,expiry,days){
-  if(s==='missing')return'<span class="doc-na">Not Uploaded</span>';
-  if(s==='expired')return'<span class="doc-cr">Expired<br><span style="font-size:8px">'+fmtDate(expiry)+'</span></span>';
-  if(s==='expiring')return'<span class="doc-wn">'+(days||'')+'d left<br><span style="font-size:8px">'+fmtDate(expiry)+'</span></span>';
-  if(s==='no-date')return'<span class="doc-wn">No Date</span>';
-  if(s==='ok'){if(expiry)return'<span class="doc-ok">✓<br><span style="font-size:8px">'+fmtDate(expiry)+'</span></span>';return'<span class="doc-ok">✓</span>';}
-  return'—';
-}
-
-function buildReportHTML(){
-  var data=buildReportRows();
-  var totalRiders=data.length;
-  var complete=data.filter(function(row){return DOC_TYPES.every(function(dt){return row.docs[dt.key].status!=='missing';});}).length;
-  var expiredDocs=0,expiringDocs=0,missingDocs=0;
-  data.forEach(function(row){DOC_TYPES.forEach(function(dt){var s=row.docs[dt.key].status;if(s==='expired')expiredDocs++;if(s==='expiring')expiringDocs++;if(s==='missing')missingDocs++;});});
-
-  var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'
-    +'<div class="si"><div class="sv" style="color:var(--azure)">'+totalRiders+'</div><div class="sl">Total Riders</div></div>'
-    +'<div class="si"><div class="sv" style="color:var(--emerald)">'+complete+'</div><div class="sl">Complete</div></div>'
-    +'<div class="si"><div class="sv" style="color:var(--rose)">'+expiredDocs+'</div><div class="sl">Expired Docs</div></div>'
-    +'<div class="si"><div class="sv" style="color:var(--amber)">'+expiringDocs+'</div><div class="sl">Expiring Soon</div></div>'
-    +'</div>';
-
-  var missingRiders=data.filter(function(row){return DOC_TYPES.some(function(dt){return row.docs[dt.key].status==='missing';});});
-  if(missingRiders.length){
-    html+='<div class="exp-banner" style="background:var(--cr-bg);border-color:var(--cr-bd);margin-bottom:14px">'
-      +'<div class="exp-banner-icon">📋</div>'
-      +'<div class="exp-banner-body"><div class="exp-banner-title" style="color:var(--cr-tx)">Documents Not Uploaded</div>'
-      +'<div class="exp-banner-detail" style="color:var(--cr-tx)">'
-      +missingRiders.map(function(row){
-        var miss=DOC_TYPES.filter(function(dt){return row.docs[dt.key].status==='missing';}).map(function(dt){return dt.label;});
-        return row.rider.name+': '+miss.join(', ');
-      }).join(' | ')
-      +'</div></div></div>';
-  }
-
-  html+='<div style="overflow-x:auto"><table class="comp-report-table"><thead><tr><th>Rider</th><th>Zone</th>';
-  DOC_TYPES.forEach(function(dt){html+='<th>'+dt.label+'</th>';});
-  html+='</tr></thead><tbody>';
-  data.forEach(function(row){
-    var r=row.rider;
-    var hasIssue=DOC_TYPES.some(function(dt){var s=row.docs[dt.key].status;return s==='missing'||s==='expired'||s==='expiring';});
-    html+='<tr style="'+(hasIssue?'background:rgba(255,77,109,0.04)':'')+'"><td style="font-family:Syne,sans-serif;font-weight:600;color:var(--tx0);white-space:nowrap">'+r.name+'</td><td style="white-space:nowrap;font-family:DM Mono,monospace;font-size:10px;color:var(--tx2)">'+r.zone+'</td>';
-    DOC_TYPES.forEach(function(dt){var d=row.docs[dt.key];html+='<td style="text-align:center;vertical-align:middle">'+reportStatusCell(d.status,d.expiry,d.days)+'</td>';});
-    html+='</tr>';
-  });
-  html+='</tbody></table></div>';
-  return html;
-}
-
-function renderAdminReport(){document.getElementById('comp-report-panel').innerHTML=buildReportHTML();}
-function renderPublicReport(){document.getElementById('comp-pub-report-content').innerHTML=buildReportHTML();}
-
-/* Override go to handle compliance screen state */
-
-var _origGo=go;
-go=function(name,el){
-  _origGo(name,el);
-  if(name==='compliance'){
-    if(compLoggedIn){
-      document.getElementById('comp-login-screen').style.display='none';
-      document.getElementById('comp-admin-panel').style.display='block';
-      document.getElementById('comp-public-report').style.display='none';
-      renderCompNotifications();renderCompDocs();
-    } else {
-      document.getElementById('comp-login-screen').style.display='block';
-      document.getElementById('comp-admin-panel').style.display='none';
-      document.getElementById('comp-public-report').style.display='none';
-    }
-  }
-};
-/* ══ END COMPLIANCE MODULE ══ */
-
 window.addEventListener("resize",function(){renderAll();});
 try{
   renderAll();
@@ -1946,98 +1599,6 @@ try{
   console.error(e);
 }
 setTimeout(doSync,1200);
-
-/* ── Sidebar navigation override ── */
-var PAGE_TITLES = {
-  ov: ['Overview','Workforce Performance'],
-  att: ['Attendance','Daily Check-In Status'],
-  riders: ['Riders','Individual Performance Tracker'],
-  zones: ['Zones','Coverage by Area'],
-  lb: ['Leaderboard','Top Performers'],
-  monthly: ['Monthly','Historical Trends & Logs'],
-  compliance: ['Compliance','Document Management']
-};
-
-var _sbOrigGo = go;
-go = function(name, el) {
-  /* hide all pages */
-  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
-  var pg = document.getElementById('pg-'+name);
-  if(pg) pg.classList.add('on');
-  /* sidebar highlight */
-  document.querySelectorAll('.sb-item').forEach(function(b){b.classList.remove('on');});
-  var sbEl = document.getElementById('sb-'+name);
-  if(sbEl) sbEl.classList.add('on');
-  /* page title */
-  var titles = PAGE_TITLES[name] || [name, ''];
-  document.getElementById('page-title').innerHTML = titles[0]+'<span>'+titles[1]+'</span>';
-  document.getElementById('page-sub').textContent = 'Bahrain Ground Operations · Live Data';
-  /* status bar */
-  var ss=document.getElementById('sb-status');
-  /* compliance routing */
-  if(name==='compliance'){
-    if(compLoggedIn){
-      document.getElementById('comp-login-screen').style.display='none';
-      document.getElementById('comp-admin-panel').style.display='block';
-      document.getElementById('comp-public-report').style.display='none';
-      renderCompNotifications();renderCompDocs();
-    } else {
-      document.getElementById('comp-login-screen').style.display='block';
-      document.getElementById('comp-admin-panel').style.display='none';
-      document.getElementById('comp-public-report').style.display='none';
-    }
-  }
-  if(name==='zones') renderZones();
-  if(name==='monthly') loadMonthly();
-  /* close mobile sidebar */
-  document.getElementById('sidebar').classList.remove('open');
-};
-
-/* sync status to sidebar bottom */
-var _syncStatus = document.getElementById('ss');
-Object.defineProperty(document, '_ssSetter', {});
-setInterval(function(){
-  var sb = document.getElementById('sb-status');
-  var top = document.getElementById('ss');
-  if(sb && top) sb.textContent = top.textContent;
-}, 1000);
-
-window.addEventListener("resize",function(){renderAll();});
-try{
-  renderAll();
-  document.getElementById("ss").textContent="Loaded · "+riders.length+" riders · Tap Sync for live data";
-}catch(e){
-  document.getElementById("ss").textContent="Error: "+e.message;
-  console.error(e);
-}
-setTimeout(doSync,1200);
-
-/* Override chart colors to match reference: gold fill + sky line */
-var _origRenderPvChart = renderPvChart;
-renderPvChart = function(){
-  var d=pvHistory[pvView]; if(!d||!d.labels) return;
-  var c=document.getElementById("pvChart"); if(!c||!c.getContext) return;
-  if(pvChartObj){pvChartObj.destroy();pvChartObj=null;}
-  pvChartObj=new Chart(c,{type:"line",data:{labels:d.labels,datasets:[
-    {label:"Fill %",data:d.fill,borderColor:"#F5C842",fill:true,fillColorTop:"rgba(245,200,66,0.22)",fillColorBot:"rgba(245,200,66,0)",pointRadius:3,pointBackgroundColor:"#F5C842",borderWidth:2.5,glowBlur:10},
-    {label:"Eff %",data:d.eff,borderColor:"#4A9EFF",fill:true,fillColorTop:"rgba(74,158,255,0.15)",fillColorBot:"rgba(74,158,255,0)",pointRadius:2,borderWidth:2,glowBlur:8},
-    {label:"Target",data:d.labels.map(function(){return 90;}),borderColor:"rgba(142,163,190,0.3)",borderDash:[5,5],pointRadius:0,fill:false,borderWidth:1.5}
-  ]},options:{responsive:true,maintainAspectRatio:false,scales:{
-    x:{grid:{display:false},ticks:{font:{size:9},color:"#556580"}},
-    y:{min:60,max:110,grid:{color:"rgba(255,255,255,0.04)"},ticks:{font:{size:9},color:"#556580",callback:function(v){return v+"%";}}}
-  }}});
-  var aF=d.fill.reduce(function(s,v){return s+v;},0)/d.fill.length;
-  var aE=d.eff.reduce(function(s,v){return s+v;},0)/d.eff.length;
-  var minF=Math.min.apply(null,d.fill),maxF=Math.max.apply(null,d.fill);
-  document.getElementById("pv-stats").innerHTML=[
-    {l:"Avg Fill",v:r1(aF)+"%",c:"var(--gold)"},
-    {l:"Fill Range",v:minF+"–"+maxF+"%",c:"var(--tx2)"},
-    {l:"Avg Efficiency",v:r1(aE)+"%",c:"var(--sky)"}
-  ].map(function(s){return "<div class='si'><div class='sv' style='color:"+s.c+"'>"  +s.v+"</div><div class='sl'>"+s.l+"</div></div>";}).join("");
-};
-
-/* Re-run to apply gold chart */
-setTimeout(function(){ buildPvHistory(); renderPvChart(); }, 200);
 </script>
 </body>
 </html>
