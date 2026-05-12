@@ -1,1153 +1,1685 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>RiderOps — Ground Operations Dashboard</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-:root {
-  --bg: #080c16;
-  --bg2: #0d1424;
-  --card: #111827;
-  --card2: #161f32;
-  --border: #1e2d47;
-  --border2: #253550;
-  --text: #f0f4ff;
-  --text2: #8899bb;
-  --text3: #4a5f82;
-  --primary: #3b82f6;
-  --primary-glow: rgba(59,130,246,0.15);
-  --green: #10b981;
-  --green-bg: rgba(16,185,129,0.12);
-  --yellow: #f59e0b;
-  --yellow-bg: rgba(245,158,11,0.12);
-  --red: #ef4444;
-  --red-bg: rgba(239,68,68,0.12);
-  --cyan: #22d3ee;
-  --radius: 10px;
-  --font: 'Plus Jakarta Sans', sans-serif;
-  --mono: 'DM Mono', monospace;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --bg:#080c16;
+  --bg2:#0d1424;
+  --card:#111827;
+  --card2:#161f32;
+  --border:#1e2d47;
+  --border2:#253550;
+  --text:#f0f4ff;
+  --text2:#8899bb;
+  --text3:#4a5f82;
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  overflow-x: hidden;
+  --primary:#3b82f6;
+  --primary-glow:rgba(59,130,246,.15);
+
+  --green:#10b981;
+  --green-bg:rgba(16,185,129,.12);
+
+  --yellow:#f59e0b;
+  --yellow-bg:rgba(245,158,11,.12);
+
+  --red:#ef4444;
+  --red-bg:rgba(239,68,68,.12);
+
+  --cyan:#22d3ee;
+
+  --radius:12px;
+
+  --font:'Plus Jakarta Sans',sans-serif;
+  --mono:'DM Mono',monospace;
 }
 
-/* Background grain */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-.app-wrap { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
-
-/* ── Header ── */
-header {
-  background: rgba(8,12,22,0.9);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  min-height:100vh;
+  overflow-x:hidden;
 }
-.logo {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 17px; font-weight: 800; letter-spacing: -0.3px;
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 12px var(--primary); }
-.logo span { color: var(--primary); }
 
-.header-right { display: flex; align-items: center; gap: 12px; }
-.last-updated { font-size: 11px; color: var(--text3); font-family: var(--mono); }
-.refresh-btn {
-  background: var(--card2); border: 1px solid var(--border); color: var(--text2);
-  padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
-  font-family: var(--font); display: flex; align-items: center; gap: 6px;
-  transition: all .2s;
+.app{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
-.refresh-btn:hover { background: var(--border); color: var(--text); }
-.refresh-btn svg { width: 13px; height: 13px; }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-/* ── Nav Tabs ── */
-nav {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  display: flex;
-  gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
+/* HEADER */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:999;
+  height:64px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 24px;
+
+  background:rgba(8,12,22,.92);
+  backdrop-filter:blur(16px);
+
+  border-bottom:1px solid var(--border);
 }
-nav::-webkit-scrollbar { display: none; }
-.tab-btn {
-  background: none; border: none; color: var(--text3); padding: 14px 16px;
-  font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
-  white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
-  transition: all .2s; display: flex; align-items: center; gap: 6px;
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:18px;
+  font-weight:800;
 }
-.tab-btn:hover { color: var(--text2); }
-.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-.tab-btn svg { width: 14px; height: 14px; }
 
-/* ── Main Content ── */
-main { flex: 1; padding: 24px; max-width: 1600px; width: 100%; margin: 0 auto; }
-
-/* ── Loading / Error ── */
-.state-box {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 16px; padding: 80px 20px; color: var(--text2); text-align: center;
+.logo-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--primary);
+  box-shadow:0 0 18px var(--primary);
 }
-.state-box .spinner {
-  width: 36px; height: 36px; border: 3px solid var(--border);
-  border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;
+
+.logo span{
+  color:var(--primary);
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-.state-box h3 { font-size: 15px; color: var(--text); }
-.state-box p { font-size: 13px; max-width: 400px; }
 
-/* ── KPI Cards ── */
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
-.kpi-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 18px 20px; position: relative; overflow: hidden; transition: border-color .2s;
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
-.kpi-card:hover { border-color: var(--border2); }
-.kpi-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+
+.last-updated{
+  font-size:11px;
+  color:var(--text3);
+  font-family:var(--mono);
 }
-.kpi-card.blue::before { background: var(--primary); }
-.kpi-card.green::before { background: var(--green); }
-.kpi-card.yellow::before { background: var(--yellow); }
-.kpi-card.red::before { background: var(--red); }
-.kpi-card.cyan::before { background: var(--cyan); }
 
-.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 10px; }
-.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; letter-spacing: -1px; margin-bottom: 6px; }
-.kpi-sub { font-size: 12px; color: var(--text2); }
-.kpi-card.blue .kpi-value { color: var(--primary); }
-.kpi-card.green .kpi-value { color: var(--green); }
-.kpi-card.yellow .kpi-value { color: var(--yellow); }
-.kpi-card.red .kpi-value { color: var(--red); }
-.kpi-card.cyan .kpi-value { color: var(--cyan); }
-
-/* ── Section Header ── */
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.section-title { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
-.section-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-
-/* ── Table ── */
-.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.table-toolbar {
-  padding: 12px 16px; border-bottom: 1px solid var(--border);
-  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+.live-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  animation:pulse 2s infinite;
 }
-.search-input {
-  background: var(--bg); border: 1px solid var(--border); color: var(--text);
-  padding: 7px 12px; border-radius: 6px; font-size: 13px; font-family: var(--font);
-  width: 220px; outline: none; transition: border-color .2s;
+
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.3}
 }
-.search-input::placeholder { color: var(--text3); }
-.search-input:focus { border-color: var(--primary); }
-.filter-select {
-  background: var(--bg); border: 1px solid var(--border); color: var(--text2);
-  padding: 7px 10px; border-radius: 6px; font-size: 12px; font-family: var(--font);
-  outline: none; cursor: pointer;
+
+.refresh-btn{
+  border:none;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  padding:8px 14px;
+
+  border-radius:8px;
+
+  background:var(--card2);
+  border:1px solid var(--border);
+
+  color:var(--text2);
+  font-family:var(--font);
+  font-size:12px;
+  font-weight:600;
+
+  transition:.2s;
 }
-.row-count { font-size: 12px; color: var(--text3); margin-left: auto; }
 
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.data-table th {
-  text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3);
-  background: var(--bg2); border-bottom: 1px solid var(--border); white-space: nowrap;
-  cursor: pointer; user-select: none;
+.refresh-btn:hover{
+  background:var(--border2);
+  color:var(--text);
 }
-.data-table th:hover { color: var(--text2); }
-.data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-/* ── Badges ── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 600;
-  white-space: nowrap;
+.refresh-btn svg{
+  width:14px;
+  height:14px;
 }
-.badge-green { background: var(--green-bg); color: var(--green); }
-.badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
-.badge-red { background: var(--red-bg); color: var(--red); }
-.badge-blue { background: var(--primary-glow); color: var(--primary); }
-.badge-gray { background: rgba(100,120,160,0.15); color: var(--text2); }
-.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
-/* ── Progress Bar ── */
-.progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-.progress-label { display: flex; align-items: center; gap: 8px; }
-.progress-label span { font-size: 12px; font-weight: 600; min-width: 36px; text-align: right; }
+/* NAV */
 
-/* ── Charts (CSS-based bars) ── */
-.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-.bar-chart { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
-.bar-row { display: flex; align-items: center; gap: 10px; }
-.bar-row-label { font-size: 12px; color: var(--text2); min-width: 90px; text-align: right; }
-.bar-track { flex: 1; height: 22px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
-.bar-fill {
-  height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end;
-  padding-right: 8px; font-size: 11px; font-weight: 700; transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+nav{
+  display:flex;
+  gap:2px;
+
+  overflow-x:auto;
+  scrollbar-width:none;
+
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+
+  padding:0 24px;
 }
-.bar-fill.blue { background: linear-gradient(90deg, #1d4ed8, var(--primary)); color: white; }
-.bar-fill.green { background: linear-gradient(90deg, #059669, var(--green)); color: white; }
-.bar-fill.yellow { background: linear-gradient(90deg, #d97706, var(--yellow)); color: white; }
-.bar-fill.red { background: linear-gradient(90deg, #b91c1c, var(--red)); color: white; }
 
-/* ── Grid layouts ── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-@media (max-width: 900px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
-
-/* ── Section spacing ── */
-.section { margin-bottom: 24px; }
-
-/* ── Attendance status pill ── */
-.att-p { color: var(--green); font-weight: 700; }
-.att-a { color: var(--red); font-weight: 700; }
-.att-o { color: var(--text3); font-weight: 600; }
-
-/* ── Leaderboard rank ── */
-.rank-1 { color: #ffd700; font-weight: 800; }
-.rank-2 { color: #c0c0c0; font-weight: 800; }
-.rank-3 { color: #cd7f32; font-weight: 800; }
-
-/* ── Action cell ── */
-.action-text { font-size: 12px; color: var(--text2); max-width: 260px; line-height: 1.4; }
-.action-text.urgent { color: var(--red); font-weight: 600; }
-.action-text.warning { color: var(--yellow); font-weight: 600; }
-
-/* ── Panel card ── */
-.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-
-/* ── Zone summary ── */
-.zone-card {
-  background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px; transition: border-color .2s;
+nav::-webkit-scrollbar{
+  display:none;
 }
-.zone-card:hover { border-color: var(--border2); }
-.zone-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.zone-name { font-size: 14px; font-weight: 700; }
-.zone-count { font-size: 12px; color: var(--text3); }
-.zone-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.zone-stat { font-size: 11px; color: var(--text3); }
-.zone-stat strong { display: block; font-size: 15px; font-weight: 700; color: var(--text); margin-top: 2px; }
 
-/* ── Monthly tab ── */
-.month-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-.month-btn {
-  background: var(--card); border: 1px solid var(--border); color: var(--text2);
-  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-family: var(--font);
-  cursor: pointer; transition: all .2s;
+.tab-btn{
+  border:none;
+  background:none;
+
+  color:var(--text3);
+
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  padding:15px 16px;
+
+  font-size:13px;
+  font-weight:700;
+  font-family:var(--font);
+
+  cursor:pointer;
+
+  border-bottom:2px solid transparent;
+
+  transition:.2s;
+
+  white-space:nowrap;
 }
-.month-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
 
-/* ── Tooltip / no data ── */
-.empty-msg { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+.tab-btn svg{
+  width:14px;
+  height:14px;
+}
 
-/* ── Compliance boxes ── */
-.compliance-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
-.compliance-row:last-child { border-bottom: none; }
-.compliance-name { flex: 1; font-size: 13px; font-weight: 500; }
-.compliance-detail { font-size: 12px; color: var(--text2); }
+.tab-btn:hover{
+  color:var(--text2);
+}
 
-/* ── Scrollable table container ── */
-.table-scroll { overflow-x: auto; }
+.tab-btn.active{
+  color:var(--primary);
+  border-bottom-color:var(--primary);
+}
+
+/* MAIN */
+
+main{
+  flex:1;
+  width:100%;
+  max-width:1700px;
+  margin:0 auto;
+  padding:24px;
+}
+
+/* STATE */
+
+.state-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  gap:16px;
+
+  padding:90px 20px;
+
+  text-align:center;
+
+  color:var(--text2);
+}
+
+.spinner{
+  width:42px;
+  height:42px;
+
+  border-radius:50%;
+
+  border:3px solid var(--border);
+  border-top-color:var(--primary);
+
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+.state-box h3{
+  font-size:16px;
+}
+
+.state-box p{
+  font-size:13px;
+  max-width:420px;
+}
+
+/* KPI */
+
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.kpi-card{
+  position:relative;
+  overflow:hidden;
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+
+  padding:20px;
+}
+
+.kpi-card::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  height:2px;
+}
+
+.kpi-card.blue::before{background:var(--primary);}
+.kpi-card.green::before{background:var(--green);}
+.kpi-card.yellow::before{background:var(--yellow);}
+.kpi-card.red::before{background:var(--red);}
+.kpi-card.cyan::before{background:var(--cyan);}
+
+.kpi-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--text3);
+  margin-bottom:10px;
+  font-weight:700;
+}
+
+.kpi-value{
+  font-size:32px;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:-1px;
+  margin-bottom:6px;
+}
+
+.kpi-sub{
+  font-size:12px;
+  color:var(--text2);
+}
+
+.kpi-card.blue .kpi-value{color:var(--primary);}
+.kpi-card.green .kpi-value{color:var(--green);}
+.kpi-card.yellow .kpi-value{color:var(--yellow);}
+.kpi-card.red .kpi-value{color:var(--red);}
+.kpi-card.cyan .kpi-value{color:var(--cyan);}
+
+/* PANEL */
+
+.panel,
+.chart-card,
+.table-wrap{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+}
+
+.panel,
+.chart-card{
+  padding:20px;
+}
+
+.section{
+  margin-bottom:24px;
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+
+.section-title{
+  font-size:15px;
+  font-weight:800;
+}
+
+.section-sub{
+  font-size:12px;
+  color:var(--text3);
+  margin-top:2px;
+}
+
+/* GRID */
+
+.grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+@media(max-width:980px){
+  .grid-2,
+  .grid-3{
+    grid-template-columns:1fr;
+  }
+}
+
+/* TABLE */
+
+.table-toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+
+  padding:14px 16px;
+
+  border-bottom:1px solid var(--border);
+}
+
+.table-scroll{
+  overflow:auto;
+}
+
+.data-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+.data-table th{
+  background:var(--bg2);
+
+  color:var(--text3);
+
+  text-align:left;
+
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+
+  padding:12px 14px;
+
+  border-bottom:1px solid var(--border);
+
+  white-space:nowrap;
+}
+
+.data-table td{
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+
+.data-table tr:last-child td{
+  border-bottom:none;
+}
+
+.data-table tr:hover td{
+  background:rgba(255,255,255,.02);
+}
+
+/* FILTERS */
+
+.search-input,
+.filter-select{
+  background:var(--bg);
+
+  border:1px solid var(--border);
+
+  color:var(--text);
+
+  border-radius:8px;
+
+  outline:none;
+
+  font-family:var(--font);
+
+  transition:.2s;
+}
+
+.search-input{
+  width:240px;
+  padding:8px 12px;
+  font-size:13px;
+}
+
+.search-input::placeholder{
+  color:var(--text3);
+}
+
+.search-input:focus,
+.filter-select:focus{
+  border-color:var(--primary);
+}
+
+.filter-select{
+  padding:8px 12px;
+  cursor:pointer;
+  font-size:12px;
+  color:var(--text2);
+}
+
+.row-count{
+  margin-left:auto;
+  color:var(--text3);
+  font-size:12px;
+}
+
+/* BADGES */
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+
+  padding:4px 8px;
+
+  border-radius:999px;
+
+  font-size:11px;
+  font-weight:700;
+}
+
+.badge-dot{
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:currentColor;
+}
+
+.badge-green{
+  background:var(--green-bg);
+  color:var(--green);
+}
+
+.badge-yellow{
+  background:var(--yellow-bg);
+  color:var(--yellow);
+}
+
+.badge-red{
+  background:var(--red-bg);
+  color:var(--red);
+}
+
+.badge-blue{
+  background:var(--primary-glow);
+  color:var(--primary);
+}
+
+.badge-gray{
+  background:rgba(100,120,160,.15);
+  color:var(--text2);
+}
+
+/* PROGRESS */
+
+.progress-bar{
+  width:100%;
+  height:6px;
+  background:var(--border);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  height:100%;
+  border-radius:999px;
+}
+
+.progress-label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.progress-label span{
+  font-size:12px;
+  font-weight:700;
+}
+
+/* BARS */
+
+.bar-chart{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:14px;
+}
+
+.bar-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.bar-row-label{
+  width:90px;
+  text-align:right;
+  color:var(--text2);
+  font-size:12px;
+}
+
+.bar-track{
+  flex:1;
+  height:22px;
+  border-radius:5px;
+  overflow:hidden;
+  background:var(--border);
+}
+
+.bar-fill{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+
+  padding-right:8px;
+
+  font-size:11px;
+  font-weight:700;
+
+  transition:width .5s ease;
+}
+
+.bar-fill.blue{
+  background:linear-gradient(90deg,#1d4ed8,var(--primary));
+  color:#fff;
+}
+
+.bar-fill.green{
+  background:linear-gradient(90deg,#047857,var(--green));
+  color:#fff;
+}
+
+.bar-fill.yellow{
+  background:linear-gradient(90deg,#d97706,var(--yellow));
+  color:#fff;
+}
+
+.bar-fill.red{
+  background:linear-gradient(90deg,#b91c1c,var(--red));
+  color:#fff;
+}
+
+/* SMALL */
+
+.empty-msg{
+  padding:40px;
+  text-align:center;
+  color:var(--text3);
+  font-size:13px;
+}
+
+.att-p{
+  color:var(--green);
+  font-weight:700;
+}
+
+.att-a{
+  color:var(--red);
+  font-weight:700;
+}
+
+.att-o{
+  color:var(--text3);
+  font-weight:700;
+}
+
+.rank-1{color:#ffd700;}
+.rank-2{color:#c0c0c0;}
+.rank-3{color:#cd7f32;}
+
+.action-text{
+  max-width:260px;
+  line-height:1.45;
+  font-size:12px;
+  color:var(--text2);
+}
+
+.action-text.urgent{
+  color:var(--red);
+  font-weight:700;
+}
+
+.action-text.warning{
+  color:var(--yellow);
+  font-weight:700;
+}
+
+.zone-card{
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+}
+
+.zone-card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.zone-name{
+  font-size:14px;
+  font-weight:800;
+}
+
+.zone-count{
+  font-size:11px;
+  color:var(--text3);
+}
+
+.zone-stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+.zone-stat{
+  font-size:11px;
+  color:var(--text3);
+}
+
+.zone-stat strong{
+  display:block;
+  margin-top:3px;
+  color:var(--text);
+  font-size:15px;
+}
 </style>
 </head>
-<body>
-<div class="app-wrap">
 
-<!-- Header -->
+<body>
+
+<div class="app">
+
 <header>
   <div class="logo">
     <div class="logo-dot"></div>
     Rider<span>Ops</span>
   </div>
+
   <div class="header-right">
     <div class="live-dot"></div>
-    <span class="last-updated" id="lastUpdated">Connecting to sheet…</span>
+    <div class="last-updated" id="lastUpdated">Connecting to Google Sheets...</div>
+
     <button class="refresh-btn" onclick="loadData()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+        <path d="M1 4v6h6"/>
+        <path d="M23 20v-6h-6"/>
+        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"/>
+        <path d="M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+      </svg>
       Refresh
     </button>
   </div>
 </header>
 
-<!-- Tabs -->
-<nav id="tabNav">
-  <button class="tab-btn active" onclick="switchTab('overview', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    Overview
-  </button>
-  <button class="tab-btn" onclick="switchTab('riders', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    Riders
-  </button>
-  <button class="tab-btn" onclick="switchTab('attendance', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-    Attendance
-  </button>
-  <button class="tab-btn" onclick="switchTab('compliance', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    Compliance
-  </button>
-  <button class="tab-btn" onclick="switchTab('leaderboard', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
-    Leaderboard
-  </button>
-  <button class="tab-btn" onclick="switchTab('zones', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
-    Zones
-  </button>
-  <button class="tab-btn" onclick="switchTab('monthly', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
-    Monthly
-  </button>
+<nav>
+  <button class="tab-btn active" onclick="switchTab('overview', this)">Overview</button>
+  <button class="tab-btn" onclick="switchTab('riders', this)">Riders</button>
+  <button class="tab-btn" onclick="switchTab('attendance', this)">Attendance</button>
+  <button class="tab-btn" onclick="switchTab('compliance', this)">Compliance</button>
+  <button class="tab-btn" onclick="switchTab('leaderboard', this)">Leaderboard</button>
+  <button class="tab-btn" onclick="switchTab('zones', this)">Zones</button>
 </nav>
 
-<!-- Main -->
 <main id="mainContent">
   <div class="state-box">
     <div class="spinner"></div>
-    <h3>Loading data from Google Sheets…</h3>
-    <p>Fetching live rider performance data</p>
+    <h3>Loading live rider data...</h3>
+    <p>Fetching latest information from Google Sheets</p>
   </div>
 </main>
 
 </div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
 
-// ── STATE ──────────────────────────────────────────────────────
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const SHEET_URL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vRRLM-Fe7nGM6INfV4TzGfiiirfLoYUI1-nK1rVHCqmR0sQgit8Q7EeUW0fKXRyqpQvtXXeJqZWSlzs/pub?output=csv";
+
+/* =========================================================
+   STATE
+========================================================= */
+
 let riders = [];
 let currentTab = 'overview';
 
-// ── CSV PARSER ─────────────────────────────────────────────────
-function parseCSV(text) {
+let sortKey = 'name';
+let sortDir = 1;
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function parseCSV(text){
+
   const lines = text.trim().split('\n');
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase().replace(/\s+/g,'_'));
+
+  if(lines.length < 2) return [];
+
+  const headers = lines[0]
+    .split(',')
+    .map(h =>
+      h.trim()
+      .replace(/^"|"$/g,'')
+      .toLowerCase()
+      .replace(/\s+/g,'_')
+    );
+
   return lines.slice(1).map(line => {
+
     const vals = parseCSVLine(line);
+
     const obj = {};
-    headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim().replace(/^"|"$/g, ''); });
+
+    headers.forEach((h,i)=>{
+      obj[h] = (vals[i] || '')
+        .trim()
+        .replace(/^"|"$/g,'');
+    });
+
     return obj;
+
   }).filter(r => Object.values(r).some(v => v !== ''));
 }
 
-function parseCSVLine(line) {
+function parseCSVLine(line){
+
   const result = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') { inQ = !inQ; }
-    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
-    else { cur += c; }
+
+  let current = '';
+  let inQuotes = false;
+
+  for(let i=0;i<line.length;i++){
+
+    const char = line[i];
+
+    if(char === '"'){
+      inQuotes = !inQuotes;
+    }
+
+    else if(char === ',' && !inQuotes){
+      result.push(current);
+      current = '';
+    }
+
+    else{
+      current += char;
+    }
   }
-  result.push(cur);
+
+  result.push(current);
+
   return result;
 }
 
-// ── MAP ROW → RIDER ───────────────────────────────────────────
-function mapRow(row) {
-  const g = (keys) => {
-    for (const k of keys) {
-      if (row[k] !== undefined && row[k] !== '') return row[k];
+/* =========================================================
+   MAP DATA
+========================================================= */
+
+function mapRow(row){
+
+  const g = keys => {
+    for(const k of keys){
+      if(row[k] !== undefined && row[k] !== ''){
+        return row[k];
+      }
     }
     return '';
   };
 
-  const id         = g(['rider_id','id','rider id','emp_id','employee_id']) || '';
-  const name       = g(['name','rider_name','rider name','full_name']) || 'Unknown';
-  const zone       = g(['zone','area','region','location']) || '—';
-  const fillRaw    = g(['fill_rate','fill rate','fillrate','fill%','fill rate (%)']) || '0';
-  const effRaw     = g(['efficiency','efficiency (%)','eff','performance']) || '0';
-  const ordersRaw  = g(['orders_today','orders today','orders','daily_orders','today_orders']) || '0';
-  const attRaw     = g(['attendance','att','present_absent','status_attendance']) || '';
-  const uniformRaw = g(['uniform_compliant','uniform','uniform compliant','uniform_compliance']) || '';
-  const statusRaw  = g(['status','rider_status']) || '';
-  const sopRaw     = g(['sop_status','sop status','sop','sop_compliance']) || '';
-  const actionRaw  = g(['action','action_required','recommendation','notes']) || '';
-  const priorityRaw= g(['priority','urgency']) || 'LOW';
-  const shiftRaw   = g(['shift','shift_type','timing']) || '';
-  const vehicleRaw = g(['vehicle','vehicle_type','bike_type']) || '';
-  const phoneRaw   = g(['phone','mobile','contact','phone_number']) || '';
+  const id = g(['rider_id','id','employee_id']) || '';
+  const name = g(['name','rider_name']) || 'Unknown';
+  const zone = g(['zone','area','region']) || '—';
 
-  const fill = parseFloat(fillRaw) || 0;
-  const eff  = parseFloat(effRaw) || 0;
-  const orders = parseInt(ordersRaw) || 0;
+  const fill = parseFloat(g(['fill_rate','fillrate','fill'])) || 0;
+  const eff = parseFloat(g(['efficiency','eff'])) || 0;
+  const orders = parseInt(g(['orders_today','orders'])) || 0;
 
-  // Derive status from fill_rate if not explicit
-  let status = statusRaw.toLowerCase();
-  if (!status || status === '') {
-    if (fill < 75) status = 'critical';
-    else if (fill < 85) status = 'warning';
-    else status = 'active';
-  }
+  const attendanceRaw = g(['attendance','att']) || '';
+  const uniformRaw = g(['uniform','uniform_compliant']) || '';
+  const phone = g(['phone','mobile']) || '';
 
-  // Derive SOP from uniform + fill
-  let sop = sopRaw || '';
-  if (!sop) {
-    const unifComp = uniformRaw.toLowerCase();
-    const unifBool = unifComp === 'true' || unifComp === 'yes' || unifComp === '1' || unifComp === 'y';
-    if (fill < 75) sop = 'SOP BREACH — Escalate';
-    else if (!unifBool || fill < 85) sop = 'SOP REVIEW REQUIRED';
-    else sop = 'SOP COMPLIANT';
-  }
-
-  // Derive action
-  let action = actionRaw || '';
-  if (!action) {
-    if (status === 'critical') action = 'URGENT: Performance critical — call rider immediately. Initiate replacement if no response.';
-    else if (status === 'warning') action = 'WARNING: Performance below target — issue verbal warning. Monitor daily for 3 days.';
-    else action = 'No action required — rider meeting all performance targets.';
-  }
-
-  // Attendance string → clean display
-  const attUp = attRaw.toUpperCase();
   let attendance = 'Present';
-  if (attUp === 'A' || attUp === 'ABSENT') attendance = 'Absent';
-  else if (attUp === 'O' || attUp === 'OFF' || attUp === 'OFF SHIFT') attendance = 'Off Shift';
-  else if (attUp === 'L' || attUp === 'LEAVE') attendance = 'Leave';
 
-  const unifBool = ['true','yes','1','y','compliant'].includes(uniformRaw.toLowerCase());
-  const priority = priorityRaw.toUpperCase() === 'HIGH' ? 'HIGH' : priorityRaw.toUpperCase() === 'MEDIUM' ? 'MEDIUM' : 'LOW';
+  const att = attendanceRaw.toUpperCase();
 
-  return { id, name, zone, fill, eff, orders, attendance, uniform: unifBool,
-           status, sop, action, priority, shift: shiftRaw, vehicle: vehicleRaw, phone: phoneRaw };
+  if(att === 'A' || att === 'ABSENT'){
+    attendance = 'Absent';
+  }
+  else if(att === 'OFF' || att === 'O'){
+    attendance = 'Off Shift';
+  }
+  else if(att === 'LEAVE' || att === 'L'){
+    attendance = 'Leave';
+  }
+
+  let status = 'active';
+
+  if(fill < 75) status = 'critical';
+  else if(fill < 85) status = 'warning';
+
+  const uniform = ['true','yes','1','y','compliant']
+    .includes(uniformRaw.toLowerCase());
+
+  let sop = 'SOP COMPLIANT';
+
+  if(fill < 75){
+    sop = 'SOP BREACH — Escalate';
+  }
+  else if(fill < 85 || !uniform){
+    sop = 'SOP REVIEW REQUIRED';
+  }
+
+  let action = 'No action required';
+
+  if(status === 'critical'){
+    action = 'URGENT: Performance critical — immediate escalation required.';
+  }
+  else if(status === 'warning'){
+    action = 'WARNING: Monitor rider performance closely.';
+  }
+
+  return {
+    id,
+    name,
+    zone,
+    fill,
+    eff,
+    orders,
+    attendance,
+    uniform,
+    sop,
+    status,
+    action,
+    phone
+  };
 }
 
-// ── LOAD DATA ─────────────────────────────────────────────────
-async function loadData() {
-  document.getElementById('lastUpdated').textContent = 'Refreshing…';
+/* =========================================================
+   LOAD DATA
+========================================================= */
+
+async function loadData(){
+
+  document.getElementById('lastUpdated').textContent =
+    'Refreshing...';
+
   document.getElementById('mainContent').innerHTML = `
     <div class="state-box">
       <div class="spinner"></div>
-      <h3>Fetching from Google Sheets…</h3>
-      <p>Pulling live rider data</p>
-    </div>`;
-  try {
+      <h3>Fetching from Google Sheets...</h3>
+      <p>Pulling live rider operations data</p>
+    </div>
+  `;
+
+  try{
+
     const res = await fetch(SHEET_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    if(!res.ok){
+      throw new Error('HTTP ' + res.status);
+    }
+
     const text = await res.text();
+
     const rows = parseCSV(text);
-    riders = rows.map(mapRow).filter(r => r.name !== 'Unknown' || r.id !== '');
+
+    riders = rows
+      .map(mapRow)
+      .filter(r => r.name !== 'Unknown' || r.id !== '');
+
     const now = new Date();
+
     document.getElementById('lastUpdated').textContent =
-      `Updated ${now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`;
+      `Updated ${now.toLocaleTimeString('en-GB', {
+        hour:'2-digit',
+        minute:'2-digit'
+      })}`;
+
     renderTab(currentTab);
-  } catch (e) {
-    document.getElementById('lastUpdated').textContent = 'Failed to load';
+
+  }catch(err){
+
+    document.getElementById('lastUpdated').textContent =
+      'Load failed';
+
     document.getElementById('mainContent').innerHTML = `
       <div class="state-box">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <h3>Could not load data</h3>
-        <p>${e.message}. Make sure the Google Sheet is published and the URL is correct.</p>
-      </div>`;
+        <p>${err.message}</p>
+      </div>
+    `;
   }
 }
 
-// ── TAB SWITCHING ─────────────────────────────────────────────
-function switchTab(tab, btn) {
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function avg(arr,key){
+  if(!arr.length) return 0;
+
+  return Math.round(
+    arr.reduce((s,r)=>s+(r[key]||0),0) / arr.length
+  );
+}
+
+function statusBadge(status){
+
+  if(status === 'critical'){
+    return `
+      <span class="badge badge-red">
+        <span class="badge-dot"></span>
+        Critical
+      </span>
+    `;
+  }
+
+  if(status === 'warning'){
+    return `
+      <span class="badge badge-yellow">
+        <span class="badge-dot"></span>
+        Warning
+      </span>
+    `;
+  }
+
+  return `
+    <span class="badge badge-green">
+      <span class="badge-dot"></span>
+      Active
+    </span>
+  `;
+}
+
+function sopBadge(s){
+
+  if(s.includes('BREACH')){
+    return `<span class="badge badge-red">Breach</span>`;
+  }
+
+  if(s.includes('REVIEW')){
+    return `<span class="badge badge-yellow">Review</span>`;
+  }
+
+  return `<span class="badge badge-green">Compliant</span>`;
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+function switchTab(tab, btn){
+
   currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  document
+    .querySelectorAll('.tab-btn')
+    .forEach(b => b.classList.remove('active'));
+
   btn.classList.add('active');
+
   renderTab(tab);
 }
 
-function renderTab(tab) {
+function renderTab(tab){
+
   const el = document.getElementById('mainContent');
-  if (tab === 'overview')    el.innerHTML = renderOverview();
-  else if (tab === 'riders') el.innerHTML = renderRiders();
-  else if (tab === 'attendance') el.innerHTML = renderAttendance();
-  else if (tab === 'compliance') el.innerHTML = renderCompliance();
-  else if (tab === 'leaderboard') el.innerHTML = renderLeaderboard();
-  else if (tab === 'zones')  el.innerHTML = renderZones();
-  else if (tab === 'monthly') el.innerHTML = renderMonthly();
-  bindFilters(tab);
+
+  if(tab === 'overview'){
+    el.innerHTML = renderOverview();
+  }
+
+  else if(tab === 'riders'){
+    el.innerHTML = renderRiders();
+  }
+
+  else if(tab === 'attendance'){
+    el.innerHTML = renderAttendance();
+  }
+
+  else if(tab === 'compliance'){
+    el.innerHTML = renderCompliance();
+  }
+
+  else if(tab === 'leaderboard'){
+    el.innerHTML = renderLeaderboard();
+  }
+
+  else if(tab === 'zones'){
+    el.innerHTML = renderZones();
+  }
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
-function statusBadge(s) {
-  if (s === 'critical') return `<span class="badge badge-red"><span class="badge-dot"></span>Critical</span>`;
-  if (s === 'warning')  return `<span class="badge badge-yellow"><span class="badge-dot"></span>Warning</span>`;
-  return `<span class="badge badge-green"><span class="badge-dot"></span>Active</span>`;
-}
-function sopBadge(s) {
-  if (!s) return '';
-  if (s.includes('BREACH'))  return `<span class="badge badge-red">Breach</span>`;
-  if (s.includes('REVIEW'))  return `<span class="badge badge-yellow">Review</span>`;
-  return `<span class="badge badge-green">Compliant</span>`;
-}
-function fillColor(v) {
-  if (v < 75) return 'red';
-  if (v < 85) return 'yellow';
-  return 'green';
-}
-function effColor(v) {
-  if (v > 110) return 'blue';
-  if (v >= 90) return 'green';
-  if (v >= 75) return 'yellow';
-  return 'red';
-}
-function avg(arr, key) {
-  if (!arr.length) return 0;
-  return Math.round(arr.reduce((s,r) => s + (r[key]||0), 0) / arr.length * 10) / 10;
-}
+/* =========================================================
+   OVERVIEW
+========================================================= */
 
-// ── OVERVIEW TAB ──────────────────────────────────────────────
-function renderOverview() {
-  const total     = riders.length;
-  const active    = riders.filter(r => r.status === 'active').length;
-  const warning   = riders.filter(r => r.status === 'warning').length;
-  const critical  = riders.filter(r => r.status === 'critical').length;
-  const present   = riders.filter(r => r.attendance === 'Present').length;
-  const avgFill   = avg(riders, 'fill');
-  const avgEff    = avg(riders, 'eff');
-  const totalOrds = riders.reduce((s,r) => s + r.orders, 0);
+function renderOverview(){
 
-  // Zone breakdown
+  const total = riders.length;
+
+  const active = riders.filter(r => r.status === 'active').length;
+  const warning = riders.filter(r => r.status === 'warning').length;
+  const critical = riders.filter(r => r.status === 'critical').length;
+
+  const avgFill = avg(riders,'fill');
+  const avgEff = avg(riders,'eff');
+
+  const totalOrders = riders.reduce((s,r)=>s+r.orders,0);
+
   const zoneMap = {};
+
   riders.forEach(r => {
-    if (!zoneMap[r.zone]) zoneMap[r.zone] = { count:0, fillSum:0, orders:0 };
+
+    if(!zoneMap[r.zone]){
+      zoneMap[r.zone] = {
+        count:0,
+        fill:0,
+        orders:0
+      };
+    }
+
     zoneMap[r.zone].count++;
-    zoneMap[r.zone].fillSum += r.fill;
+    zoneMap[r.zone].fill += r.fill;
     zoneMap[r.zone].orders += r.orders;
   });
-  const zones = Object.entries(zoneMap).sort((a,b) => b[1].orders - a[1].orders);
 
-  // Critical riders preview
-  const critRiders = riders.filter(r => r.status !== 'active').sort((a,b) => a.fill - b.fill).slice(0, 5);
+  const zones = Object.entries(zoneMap);
 
   return `
-  <div class="section kpi-grid">
+
+  <div class="kpi-grid section">
+
     <div class="kpi-card blue">
       <div class="kpi-label">Total Riders</div>
       <div class="kpi-value">${total}</div>
-      <div class="kpi-sub">${present} present today</div>
+      <div class="kpi-sub">Live fleet size</div>
     </div>
+
     <div class="kpi-card green">
       <div class="kpi-label">Active</div>
       <div class="kpi-value">${active}</div>
-      <div class="kpi-sub">${Math.round(active/total*100)||0}% of fleet</div>
+      <div class="kpi-sub">Meeting targets</div>
     </div>
+
     <div class="kpi-card yellow">
       <div class="kpi-label">Warning</div>
       <div class="kpi-value">${warning}</div>
       <div class="kpi-sub">Needs monitoring</div>
     </div>
+
     <div class="kpi-card red">
       <div class="kpi-label">Critical</div>
       <div class="kpi-value">${critical}</div>
       <div class="kpi-sub">Immediate action</div>
     </div>
+
     <div class="kpi-card cyan">
       <div class="kpi-label">Avg Fill Rate</div>
       <div class="kpi-value">${avgFill}%</div>
-      <div class="kpi-sub">Target: ≥85%</div>
+      <div class="kpi-sub">Operational average</div>
     </div>
+
     <div class="kpi-card blue">
-      <div class="kpi-label">Avg Efficiency</div>
-      <div class="kpi-value">${avgEff}%</div>
-      <div class="kpi-sub">vs. baseline</div>
+      <div class="kpi-label">Orders Today</div>
+      <div class="kpi-value">${totalOrders}</div>
+      <div class="kpi-sub">Total deliveries</div>
     </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Total Orders</div>
-      <div class="kpi-value">${totalOrds}</div>
-      <div class="kpi-sub">Today</div>
-    </div>
+
   </div>
 
   <div class="grid-2 section">
+
     <div class="chart-card">
+
       <div class="section-header">
         <div>
-          <div class="section-title">Fill Rate by Zone</div>
-          <div class="section-sub">Avg fill rate per zone</div>
+          <div class="section-title">Zone Fill Rates</div>
+          <div class="section-sub">Average performance per zone</div>
         </div>
       </div>
+
       <div class="bar-chart">
-        ${zones.map(([zone, d]) => {
-          const fr = Math.round(d.fillSum/d.count);
-          const col = fillColor(fr);
+
+        ${zones.map(([zone,d])=>{
+
+          const fr = Math.round(d.fill/d.count);
+
           return `
-          <div class="bar-row">
-            <div class="bar-row-label">${zone}</div>
-            <div class="bar-track">
-              <div class="bar-fill ${col}" style="width:${fr}%">${fr}%</div>
+            <div class="bar-row">
+              <div class="bar-row-label">${zone}</div>
+
+              <div class="bar-track">
+                <div class="bar-fill ${
+                  fr >= 85 ? 'green' :
+                  fr >= 75 ? 'yellow' : 'red'
+                }" style="width:${fr}%">
+                  ${fr}%
+                </div>
+              </div>
             </div>
-          </div>`;
+          `;
         }).join('')}
+
       </div>
+
     </div>
 
     <div class="chart-card">
+
       <div class="section-header">
         <div>
           <div class="section-title">Orders by Zone</div>
-          <div class="section-sub">Total orders today per zone</div>
+          <div class="section-sub">Daily order volume</div>
         </div>
       </div>
-      <div class="bar-chart">
-        ${zones.map(([zone, d]) => {
-          const maxO = Math.max(...zones.map(z=>z[1].orders), 1);
-          const pct = Math.round(d.orders/maxO*100);
-          return `
-          <div class="bar-row">
-            <div class="bar-row-label">${zone}</div>
-            <div class="bar-track">
-              <div class="bar-fill blue" style="width:${pct}%">${d.orders}</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-  </div>
 
-  ${critRiders.length ? `
-  <div class="section">
-    <div class="section-header"><div class="section-title">Action Required</div></div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-      <table class="data-table">
-        <thead><tr>
-          <th>Rider</th><th>Zone</th><th>Fill Rate</th><th>Status</th><th>Action</th>
-        </tr></thead>
-        <tbody>
-          ${critRiders.map(r => `
-          <tr>
-            <td><strong>${r.name}</strong>${r.id ? `<br><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</span>` : ''}</td>
-            <td>${r.zone}</td>
-            <td>
-              <div class="progress-label">
-                <div class="progress-bar" style="width:80px">
-                  <div class="progress-fill" style="background:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'};width:${r.fill}%"></div>
+      <div class="bar-chart">
+
+        ${zones.map(([zone,d])=>{
+
+          const max = Math.max(...zones.map(z=>z[1].orders),1);
+
+          const pct = Math.round((d.orders/max)*100);
+
+          return `
+            <div class="bar-row">
+              <div class="bar-row-label">${zone}</div>
+
+              <div class="bar-track">
+                <div class="bar-fill blue" style="width:${pct}%">
+                  ${d.orders}
                 </div>
-                <span style="color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span>
               </div>
-            </td>
-            <td>${statusBadge(r.status)}</td>
-            <td><div class="action-text ${r.status==='critical'?'urgent':r.status==='warning'?'warning':''}">${r.action}</div></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
+            </div>
+          `;
+        }).join('')}
+
       </div>
+
     </div>
-  </div>` : ''}
+
+  </div>
   `;
 }
 
-// ── RIDERS TAB ────────────────────────────────────────────────
-function renderRiders(data, filterZone='all', filterStatus='all', q='') {
-  let rows = data || riders;
-  if (filterZone !== 'all') rows = rows.filter(r => r.zone === filterZone);
-  if (filterStatus !== 'all') rows = rows.filter(r => r.status === filterStatus);
-  if (q) rows = rows.filter(r => (r.name+r.id+r.zone).toLowerCase().includes(q.toLowerCase()));
+/* =========================================================
+   RIDERS
+========================================================= */
 
-  const zones = [...new Set(riders.map(r => r.zone))].sort();
+function renderRiders(){
 
   return `
-  <div class="section table-wrap" id="ridersTable">
+  <div class="table-wrap">
+
     <div class="table-toolbar">
-      <input class="search-input" id="riderSearch" placeholder="Search rider, ID, zone…" value="${q}" oninput="updateRiders()">
-      <select class="filter-select" id="zoneFilter" onchange="updateRiders()">
-        <option value="all">All Zones</option>
-        ${zones.map(z => `<option value="${z}" ${filterZone===z?'selected':''}>${z}</option>`).join('')}
-      </select>
-      <select class="filter-select" id="statusFilter" onchange="updateRiders()">
+
+      <input
+        id="searchInput"
+        class="search-input"
+        placeholder="Search riders..."
+        oninput="updateRidersTable()"
+      >
+
+      <select
+        id="statusFilter"
+        class="filter-select"
+        onchange="updateRidersTable()"
+      >
         <option value="all">All Status</option>
-        <option value="active" ${filterStatus==='active'?'selected':''}>Active</option>
-        <option value="warning" ${filterStatus==='warning'?'selected':''}>Warning</option>
-        <option value="critical" ${filterStatus==='critical'?'selected':''}>Critical</option>
+        <option value="active">Active</option>
+        <option value="warning">Warning</option>
+        <option value="critical">Critical</option>
       </select>
-      <span class="row-count">${rows.length} riders</span>
+
+      <span class="row-count">
+        ${riders.length} riders
+      </span>
+
     </div>
+
     <div class="table-scroll">
-    <table class="data-table">
-      <thead><tr>
-        <th onclick="sortTable('name')">Rider ▾</th>
-        <th onclick="sortTable('zone')">Zone</th>
-        <th onclick="sortTable('fill')">Fill Rate</th>
-        <th onclick="sortTable('eff')">Efficiency</th>
-        <th onclick="sortTable('orders')">Orders</th>
-        <th>Attendance</th>
-        <th>Uniform</th>
-        <th>Status</th>
-        <th>SOP</th>
-        <th>Action</th>
-      </tr></thead>
-      <tbody>
-        ${rows.length ? rows.map(r => `
-        <tr>
-          <td>
-            <div style="font-weight:600">${r.name}</div>
-            ${r.id ? `<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</div>` : ''}
-            ${r.phone ? `<div style="font-size:11px;color:var(--text3)">${r.phone}</div>` : ''}
-          </td>
-          <td>${r.zone}</td>
-          <td>
-            <div class="progress-label">
-              <div class="progress-bar" style="width:70px">
-                <div class="progress-fill" style="background:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'};width:${r.fill}%"></div>
-              </div>
-              <span style="font-size:12px;font-weight:700;color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span>
-            </div>
-          </td>
-          <td><span style="font-weight:700;color:${r.eff>110?'var(--cyan)':r.eff>=90?'var(--green)':r.eff>=75?'var(--yellow)':'var(--red)'}">${r.eff}%</span></td>
-          <td><span style="font-weight:600">${r.orders}</span></td>
-          <td><span class="${r.attendance==='Present'?'att-p':r.attendance==='Absent'?'att-a':'att-o'}">${r.attendance}</span></td>
-          <td>${r.uniform ? '<span class="badge badge-green">✓ Yes</span>' : '<span class="badge badge-red">✗ No</span>'}</td>
-          <td>${statusBadge(r.status)}</td>
-          <td>${sopBadge(r.sop)}</td>
-          <td><div class="action-text ${r.status==='critical'?'urgent':r.status==='warning'?'warning':''}">${r.action.length > 60 ? r.action.slice(0,58)+'…' : r.action}</div></td>
-        </tr>`).join('') : `<tr><td colspan="10"><div class="empty-msg">No riders match your filters</div></td></tr>`}
-      </tbody>
-    </table>
+
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>Rider</th>
+            <th>Zone</th>
+            <th>Fill Rate</th>
+            <th>Efficiency</th>
+            <th>Orders</th>
+            <th>Attendance</th>
+            <th>Status</th>
+            <th>SOP</th>
+          </tr>
+        </thead>
+
+        <tbody id="ridersTableBody">
+
+          ${renderRiderRows(riders)}
+
+        </tbody>
+
+      </table>
+
     </div>
-  </div>`;
+
+  </div>
+  `;
 }
 
-let sortKey = 'name', sortDir = 1;
-function sortTable(key) {
-  if (sortKey === key) sortDir *= -1;
-  else { sortKey = key; sortDir = 1; }
-  updateRiders();
+function renderRiderRows(rows){
+
+  if(!rows.length){
+    return `
+      <tr>
+        <td colspan="8">
+          <div class="empty-msg">
+            No riders found
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  return rows.map(r => `
+    <tr>
+
+      <td>
+        <div style="font-weight:700">${r.name}</div>
+        ${r.id ? `
+          <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">
+            ${r.id}
+          </div>
+        ` : ''}
+      </td>
+
+      <td>${r.zone}</td>
+
+      <td>
+        <div class="progress-label">
+
+          <div class="progress-bar" style="width:70px">
+            <div
+              class="progress-fill"
+              style="
+                width:${r.fill}%;
+                background:${
+                  r.fill >= 85 ? 'var(--green)' :
+                  r.fill >= 75 ? 'var(--yellow)' :
+                  'var(--red)'
+                }
+              ">
+            </div>
+          </div>
+
+          <span>${r.fill}%</span>
+
+        </div>
+      </td>
+
+      <td>
+        <span style="font-weight:700;color:var(--cyan)">
+          ${r.eff}%
+        </span>
+      </td>
+
+      <td>
+        <strong>${r.orders}</strong>
+      </td>
+
+      <td>
+        <span class="${
+          r.attendance === 'Present'
+          ? 'att-p'
+          : r.attendance === 'Absent'
+          ? 'att-a'
+          : 'att-o'
+        }">
+          ${r.attendance}
+        </span>
+      </td>
+
+      <td>
+        ${statusBadge(r.status)}
+      </td>
+
+      <td>
+        ${sopBadge(r.sop)}
+      </td>
+
+    </tr>
+  `).join('');
 }
-function updateRiders() {
-  const q = document.getElementById('riderSearch')?.value || '';
-  const zone = document.getElementById('zoneFilter')?.value || 'all';
-  const status = document.getElementById('statusFilter')?.value || 'all';
+
+function updateRidersTable(){
+
+  const q = document
+    .getElementById('searchInput')
+    .value
+    .toLowerCase();
+
+  const status = document
+    .getElementById('statusFilter')
+    .value;
+
   let rows = [...riders];
-  if (zone !== 'all') rows = rows.filter(r => r.zone === zone);
-  if (status !== 'all') rows = rows.filter(r => r.status === status);
-  if (q) rows = rows.filter(r => (r.name+r.id+r.zone).toLowerCase().includes(q.toLowerCase()));
-  rows.sort((a,b) => {
-    const va = a[sortKey], vb = b[sortKey];
-    if (typeof va === 'number') return (va - vb) * sortDir;
-    return String(va).localeCompare(String(vb)) * sortDir;
-  });
-  document.getElementById('mainContent').innerHTML = renderRiders(rows, zone, status, q);
+
+  if(status !== 'all'){
+    rows = rows.filter(r => r.status === status);
+  }
+
+  if(q){
+    rows = rows.filter(r =>
+      (r.name + r.id + r.zone)
+      .toLowerCase()
+      .includes(q)
+    );
+  }
+
+  document.getElementById('ridersTableBody').innerHTML =
+    renderRiderRows(rows);
 }
 
-// ── ATTENDANCE TAB ────────────────────────────────────────────
-function renderAttendance() {
-  const present  = riders.filter(r => r.attendance === 'Present').length;
-  const absent   = riders.filter(r => r.attendance === 'Absent').length;
-  const offShift = riders.filter(r => r.attendance === 'Off Shift').length;
-  const leave    = riders.filter(r => r.attendance === 'Leave').length;
-  const total    = riders.length;
+/* =========================================================
+   ATTENDANCE
+========================================================= */
 
-  const zoneAtt = {};
-  riders.forEach(r => {
-    if (!zoneAtt[r.zone]) zoneAtt[r.zone] = { present:0, total:0 };
-    zoneAtt[r.zone].total++;
-    if (r.attendance === 'Present') zoneAtt[r.zone].present++;
-  });
+function renderAttendance(){
+
+  const present = riders.filter(r=>r.attendance==='Present').length;
+  const absent = riders.filter(r=>r.attendance==='Absent').length;
+  const off = riders.filter(r=>r.attendance==='Off Shift').length;
 
   return `
   <div class="kpi-grid section">
+
     <div class="kpi-card green">
       <div class="kpi-label">Present</div>
       <div class="kpi-value">${present}</div>
-      <div class="kpi-sub">${Math.round(present/total*100)||0}% attendance rate</div>
     </div>
+
     <div class="kpi-card red">
       <div class="kpi-label">Absent</div>
       <div class="kpi-value">${absent}</div>
-      <div class="kpi-sub">No-show today</div>
     </div>
+
     <div class="kpi-card yellow">
       <div class="kpi-label">Off Shift</div>
-      <div class="kpi-value">${offShift}</div>
-      <div class="kpi-sub">Scheduled off</div>
+      <div class="kpi-value">${off}</div>
     </div>
-    <div class="kpi-card blue">
-      <div class="kpi-label">On Leave</div>
-      <div class="kpi-value">${leave}</div>
-      <div class="kpi-sub">Approved leave</div>
-    </div>
-  </div>
 
-  <div class="grid-2 section">
-    <div class="chart-card">
-      <div class="section-header"><div class="section-title">Attendance by Zone</div></div>
-      <div class="bar-chart">
-        ${Object.entries(zoneAtt).sort((a,b) => b[1].present/b[1].total - a[1].present/a[1].total).map(([z, d]) => {
-          const pct = Math.round(d.present/d.total*100);
-          return `
-          <div class="bar-row">
-            <div class="bar-row-label">${z}</div>
-            <div class="bar-track">
-              <div class="bar-fill ${pct>=90?'green':pct>=70?'yellow':'red'}" style="width:${pct}%">${pct}%</div>
+  </div>
+  `;
+}
+
+/* =========================================================
+   COMPLIANCE
+========================================================= */
+
+function renderCompliance(){
+
+  const breach = riders.filter(r=>r.sop.includes('BREACH'));
+  const review = riders.filter(r=>r.sop.includes('REVIEW'));
+
+  return `
+  <div class="grid-2">
+
+    <div class="panel">
+      <div class="section-header">
+        <div class="section-title">
+          SOP Breaches
+        </div>
+      </div>
+
+      ${
+        breach.length
+        ? breach.map(r => `
+          <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+            <div style="font-weight:700">${r.name}</div>
+            <div style="font-size:12px;color:var(--text2)">
+              ${r.zone} · Fill ${r.fill}%
             </div>
-          </div>`;
-        }).join('')}
+          </div>
+        `).join('')
+        : `<div class="empty-msg">No SOP breaches</div>`
+      }
+    </div>
+
+    <div class="panel">
+      <div class="section-header">
+        <div class="section-title">
+          Review Required
+        </div>
+      </div>
+
+      ${
+        review.length
+        ? review.map(r => `
+          <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+            <div style="font-weight:700">${r.name}</div>
+            <div style="font-size:12px;color:var(--text2)">
+              ${r.zone} · Fill ${r.fill}%
+            </div>
+          </div>
+        `).join('')
+        : `<div class="empty-msg">No review cases</div>`
+      }
+    </div>
+
+  </div>
+  `;
+}
+
+/* =========================================================
+   LEADERBOARD
+========================================================= */
+
+function renderLeaderboard(){
+
+  const topFill = [...riders]
+    .sort((a,b)=>b.fill-a.fill)
+    .slice(0,10);
+
+  return `
+  <div class="panel">
+
+    <div class="section-header">
+      <div class="section-title">
+        Top Riders by Fill Rate
       </div>
     </div>
 
-    <div class="panel">
-      <div class="section-header"><div class="section-title">Absent Riders</div></div>
-      ${riders.filter(r => r.attendance === 'Absent').length ? `
-      <div class="table-scroll">
-      <table class="data-table">
-        <thead><tr><th>Rider</th><th>Zone</th><th>Status</th>${riders.some(r=>r.phone)?'<th>Contact</th>':''}</tr></thead>
-        <tbody>
-          ${riders.filter(r => r.attendance === 'Absent').map(r => `
-          <tr>
-            <td><div style="font-weight:600">${r.name}</div>${r.id?`<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</div>`:''}</td>
-            <td>${r.zone}</td>
-            <td>${statusBadge(r.status)}</td>
-            ${riders.some(r=>r.phone)?`<td style="font-family:var(--mono);font-size:12px">${r.phone||'—'}</td>`:''}
-          </tr>`).join('')}
-        </tbody>
-      </table>
-      </div>` : `<div class="empty-msg">✓ No absences today</div>`}
-    </div>
-  </div>
-
-  <div class="section table-wrap">
-    <div class="table-toolbar"><div class="section-title">Full Attendance Register</div><span class="row-count">${riders.length} riders</span></div>
-    <div class="table-scroll">
     <table class="data-table">
-      <thead><tr><th>ID</th><th>Rider</th><th>Zone</th><th>Attendance</th>${riders.some(r=>r.shift)?'<th>Shift</th>':''}</tr></thead>
-      <tbody>
-        ${riders.map((r,i) => `
+
+      <thead>
         <tr>
-          <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${r.id || i+1}</td>
-          <td style="font-weight:600">${r.name}</td>
-          <td>${r.zone}</td>
-          <td><span class="${r.attendance==='Present'?'att-p':r.attendance==='Absent'?'att-a':'att-o'}">${r.attendance}</span></td>
-          ${riders.some(r=>r.shift)?`<td style="font-size:12px;color:var(--text2)">${r.shift||'—'}</td>`:''}
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    </div>
-  </div>`;
-}
+          <th>#</th>
+          <th>Rider</th>
+          <th>Zone</th>
+          <th>Fill Rate</th>
+        </tr>
+      </thead>
 
-// ── COMPLIANCE TAB ────────────────────────────────────────────
-function renderCompliance() {
-  const compliant     = riders.filter(r => r.sop.includes('COMPLIANT') && !r.sop.includes('NON')).length;
-  const review        = riders.filter(r => r.sop.includes('REVIEW')).length;
-  const breach        = riders.filter(r => r.sop.includes('BREACH')).length;
-  const uniformOk     = riders.filter(r => r.uniform).length;
-  const uniformFail   = riders.filter(r => !r.uniform).length;
-
-  return `
-  <div class="kpi-grid section">
-    <div class="kpi-card green">
-      <div class="kpi-label">SOP Compliant</div>
-      <div class="kpi-value">${compliant}</div>
-      <div class="kpi-sub">Meeting all standards</div>
-    </div>
-    <div class="kpi-card yellow">
-      <div class="kpi-label">Review Required</div>
-      <div class="kpi-value">${review}</div>
-      <div class="kpi-sub">Needs attention</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">SOP Breach</div>
-      <div class="kpi-value">${breach}</div>
-      <div class="kpi-sub">Escalate immediately</div>
-    </div>
-    <div class="kpi-card blue">
-      <div class="kpi-label">Uniform OK</div>
-      <div class="kpi-value">${uniformOk}</div>
-      <div class="kpi-sub">${uniformFail} non-compliant</div>
-    </div>
-  </div>
-
-  <div class="grid-2 section">
-    <div class="panel">
-      <div class="section-header"><div class="section-title">SOP Breach — Escalate</div></div>
-      ${riders.filter(r => r.sop.includes('BREACH')).length ? riders.filter(r => r.sop.includes('BREACH')).map(r => `
-      <div class="compliance-row">
-        <div>
-          <div class="compliance-name">${r.name} <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">${r.id}</span></div>
-          <div class="compliance-detail">${r.zone} · Fill: ${r.fill}% · Eff: ${r.eff}%</div>
-        </div>
-        <div style="text-align:right">
-          ${sopBadge(r.sop)}
-          <div class="compliance-detail" style="margin-top:4px">${r.sop}</div>
-        </div>
-      </div>`).join('') : '<div class="empty-msg">✓ No SOP breaches</div>'}
-    </div>
-
-    <div class="panel">
-      <div class="section-header"><div class="section-title">Uniform Non-Compliance</div></div>
-      ${riders.filter(r => !r.uniform).length ? riders.filter(r => !r.uniform).map(r => `
-      <div class="compliance-row">
-        <div>
-          <div class="compliance-name">${r.name}</div>
-          <div class="compliance-detail">${r.zone} · ${r.id}</div>
-        </div>
-        <span class="badge badge-red">No Uniform</span>
-      </div>`).join('') : '<div class="empty-msg">✓ All riders in uniform</div>'}
-    </div>
-  </div>
-
-  <div class="section table-wrap">
-    <div class="table-toolbar"><div class="section-title">Full Compliance Report</div></div>
-    <div class="table-scroll">
-    <table class="data-table">
-      <thead><tr><th>Rider</th><th>Zone</th><th>Fill Rate</th><th>Uniform</th><th>SOP Status</th><th>Priority</th><th>Action</th></tr></thead>
       <tbody>
-        ${riders.map(r => `
-        <tr>
-          <td><div style="font-weight:600">${r.name}</div>${r.id?`<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</div>`:''}</td>
-          <td>${r.zone}</td>
-          <td><span style="font-weight:700;color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span></td>
-          <td>${r.uniform ? '<span class="badge badge-green">✓</span>' : '<span class="badge badge-red">✗</span>'}</td>
-          <td>${sopBadge(r.sop)}<span style="font-size:11px;color:var(--text3);margin-left:6px">${r.sop}</span></td>
-          <td><span class="badge ${r.priority==='HIGH'?'badge-red':r.priority==='MEDIUM'?'badge-yellow':'badge-gray'}">${r.priority}</span></td>
-          <td><div class="action-text ${r.status==='critical'?'urgent':r.status==='warning'?'warning':''}">${r.action.slice(0,60)}…</div></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    </div>
-  </div>`;
-}
 
-// ── LEADERBOARD TAB ───────────────────────────────────────────
-function renderLeaderboard() {
-  const byFill = [...riders].sort((a,b) => b.fill - a.fill);
-  const byEff  = [...riders].sort((a,b) => b.eff - a.eff);
-  const byOrds = [...riders].sort((a,b) => b.orders - a.orders);
-
-  const rankClass = i => i===0 ? 'rank-1' : i===1 ? 'rank-2' : i===2 ? 'rank-3' : '';
-
-  const leaderTable = (arr, key, label, suffix='%') => `
-    <div class="panel">
-      <div class="section-header"><div class="section-title">Top by ${label}</div></div>
-      <table class="data-table">
-        <thead><tr><th>#</th><th>Rider</th><th>Zone</th><th>${label}</th></tr></thead>
-        <tbody>
-          ${arr.slice(0,10).map((r,i) => `
+        ${topFill.map((r,i)=>`
           <tr>
-            <td class="${rankClass(i)}" style="font-weight:800;font-size:14px">${i+1}</td>
-            <td><div style="font-weight:600">${r.name}</div>${r.id?`<span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</span>`:''}</td>
-            <td>${r.zone}</td>
-            <td style="font-weight:700;color:${key==='fill'?'var(--green)':key==='eff'?'var(--cyan)':'var(--primary)'}">${r[key]}${suffix}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
 
-  return `
-  <div class="grid-3 section">
-    ${leaderTable(byFill, 'fill', 'Fill Rate', '%')}
-    ${leaderTable(byEff,  'eff',  'Efficiency', '%')}
-    ${leaderTable(byOrds, 'orders', 'Orders Today', '')}
-  </div>`;
+            <td class="${
+              i===0?'rank-1':
+              i===1?'rank-2':
+              i===2?'rank-3':''
+            }">
+              ${i+1}
+            </td>
+
+            <td>${r.name}</td>
+
+            <td>${r.zone}</td>
+
+            <td>
+              <strong style="color:var(--green)">
+                ${r.fill}%
+              </strong>
+            </td>
+
+          </tr>
+        `).join('')}
+
+      </tbody>
+
+    </table>
+
+  </div>
+  `;
 }
 
-// ── ZONES TAB ─────────────────────────────────────────────────
-function renderZones() {
+/* =========================================================
+   ZONES
+========================================================= */
+
+function renderZones(){
+
   const zoneMap = {};
+
   riders.forEach(r => {
-    if (!zoneMap[r.zone]) zoneMap[r.zone] = [];
+
+    if(!zoneMap[r.zone]){
+      zoneMap[r.zone] = [];
+    }
+
     zoneMap[r.zone].push(r);
   });
 
   return `
-  <div class="kpi-grid section">
-    ${Object.entries(zoneMap).sort((a,b) => b[1].length - a[1].length).map(([zone, rs]) => {
-      const avgF = avg(rs, 'fill');
-      const avgE = avg(rs, 'eff');
-      const totalO = rs.reduce((s,r) => s + r.orders, 0);
-      const crit = rs.filter(r => r.status === 'critical').length;
-      const warn = rs.filter(r => r.status === 'warning').length;
+  <div class="kpi-grid">
+
+    ${Object.entries(zoneMap).map(([zone,rs])=>{
+
+      const fill = avg(rs,'fill');
+      const eff = avg(rs,'eff');
+      const orders = rs.reduce((s,r)=>s+r.orders,0);
+
       return `
-      <div class="zone-card">
-        <div class="zone-card-header">
-          <div class="zone-name">${zone}</div>
-          <div class="zone-count">${rs.length} riders</div>
-        </div>
-        <div style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--text3)">Avg Fill Rate</span>
-            <span style="font-size:12px;font-weight:700;color:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'}">${avgF}%</span>
+        <div class="zone-card">
+
+          <div class="zone-card-header">
+            <div class="zone-name">${zone}</div>
+            <div class="zone-count">${rs.length} riders</div>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="background:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'};width:${avgF}%"></div></div>
+
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              style="
+                width:${fill}%;
+                background:${
+                  fill >= 85
+                  ? 'var(--green)'
+                  : fill >= 75
+                  ? 'var(--yellow)'
+                  : 'var(--red)'
+                }
+              ">
+            </div>
+          </div>
+
+          <div class="zone-stats">
+
+            <div class="zone-stat">
+              Avg Fill
+              <strong>${fill}%</strong>
+            </div>
+
+            <div class="zone-stat">
+              Avg Efficiency
+              <strong>${eff}%</strong>
+            </div>
+
+            <div class="zone-stat">
+              Orders
+              <strong>${orders}</strong>
+            </div>
+
+            <div class="zone-stat">
+              Riders
+              <strong>${rs.length}</strong>
+            </div>
+
+          </div>
+
         </div>
-        <div class="zone-stats">
-          <div class="zone-stat">Avg Efficiency<strong style="color:var(--cyan)">${avgE}%</strong></div>
-          <div class="zone-stat">Total Orders<strong style="color:var(--primary)">${totalO}</strong></div>
-          <div class="zone-stat">Critical<strong style="color:${crit?'var(--red)':'var(--green)'}">${crit}</strong></div>
-          <div class="zone-stat">Warning<strong style="color:${warn?'var(--yellow)':'var(--green)'}">${warn}</strong></div>
-        </div>
-      </div>`;
+      `;
     }).join('')}
-  </div>
 
-  <div class="section">
-    <div class="section-header"><div class="section-title">SLA by Zone</div></div>
-    <div class="grid-2">
-      ${Object.entries(zoneMap).sort((a,b) => b[1].length - a[1].length).map(([zone, rs]) => {
-        const avgF = avg(rs, 'fill');
-        const avgE = avg(rs, 'eff');
-        return `
-        <div class="chart-card">
-          <div class="section-header">
-            <div><div class="section-title">${zone}</div><div class="section-sub">${rs.length} riders</div></div>
-            <span class="badge ${avgF>=85?'badge-green':avgF>=75?'badge-yellow':'badge-red'}">${avgF>=85?'On Target':avgF>=75?'Review':'Below Target'}</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
-                <span style="color:var(--text3)">Fill Rate</span>
-                <span style="font-weight:700;color:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'}">${avgF}%</span>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" style="background:${avgF<75?'var(--red)':avgF<85?'var(--yellow)':'var(--green)'};width:${avgF}%"></div></div>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
-                <span style="color:var(--text3)">Efficiency</span>
-                <span style="font-weight:700;color:var(--cyan)">${avgE}%</span>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" style="background:var(--cyan);width:${Math.min(avgE,100)}%"></div></div>
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
+  </div>
+  `;
 }
 
-// ── MONTHLY TAB ───────────────────────────────────────────────
-function renderMonthly() {
-  // Group stats, treat each rider as a daily summary data point
-  const zoneMap = {};
-  riders.forEach(r => {
-    if (!zoneMap[r.zone]) zoneMap[r.zone] = { riders:[], fill:0, eff:0, orders:0 };
-    zoneMap[r.zone].riders.push(r);
-    zoneMap[r.zone].fill += r.fill;
-    zoneMap[r.zone].eff += r.eff;
-    zoneMap[r.zone].orders += r.orders;
-  });
+/* =========================================================
+   INIT
+========================================================= */
 
-  return `
-  <div class="section kpi-grid">
-    <div class="kpi-card blue">
-      <div class="kpi-label">Total Riders</div>
-      <div class="kpi-value">${riders.length}</div>
-      <div class="kpi-sub">This month</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Avg Fill Rate</div>
-      <div class="kpi-value">${avg(riders,'fill')}%</div>
-      <div class="kpi-sub">Monthly average</div>
-    </div>
-    <div class="kpi-card cyan">
-      <div class="kpi-label">Avg Efficiency</div>
-      <div class="kpi-value">${avg(riders,'eff')}%</div>
-      <div class="kpi-sub">Monthly average</div>
-    </div>
-    <div class="kpi-card yellow">
-      <div class="kpi-label">Total Orders</div>
-      <div class="kpi-value">${riders.reduce((s,r)=>s+r.orders,0)}</div>
-      <div class="kpi-sub">Today's total</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Avg Daily Orders</div>
-      <div class="kpi-value">${(riders.reduce((s,r)=>s+r.orders,0)/Math.max(riders.length,1)).toFixed(1)}</div>
-      <div class="kpi-sub">Per rider</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">Avg Attendance</div>
-      <div class="kpi-value">${Math.round(riders.filter(r=>r.attendance==='Present').length/Math.max(riders.length,1)*100)}%</div>
-      <div class="kpi-sub">Present today</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header"><div class="section-title">Monthly Summary by Zone</div></div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-      <table class="data-table">
-        <thead><tr><th>Zone</th><th>Riders</th><th>Avg Fill Rate</th><th>Avg Efficiency</th><th>Total Orders</th><th>SLA Status</th></tr></thead>
-        <tbody>
-          ${Object.entries(zoneMap).sort((a,b) => b[1].orders - a[1].orders).map(([zone, d]) => {
-            const fr = Math.round(d.fill/d.riders.length);
-            const eff = Math.round(d.eff/d.riders.length*10)/10;
-            return `
-            <tr>
-              <td style="font-weight:700">${zone}</td>
-              <td>${d.riders.length}</td>
-              <td>
-                <div class="progress-label">
-                  <div class="progress-bar" style="width:80px">
-                    <div class="progress-fill" style="background:${fr<75?'var(--red)':fr<85?'var(--yellow)':'var(--green)'};width:${fr}%"></div>
-                  </div>
-                  <span style="font-weight:700;color:${fr<75?'var(--red)':fr<85?'var(--yellow)':'var(--green)'}">${fr}%</span>
-                </div>
-              </td>
-              <td><span style="font-weight:700;color:var(--cyan)">${eff}%</span></td>
-              <td>${d.orders}</td>
-              <td>${fr>=85?'<span class="badge badge-green">On Target</span>':fr>=75?'<span class="badge badge-yellow">Review</span>':'<span class="badge badge-red">Below Target</span>'}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="section table-wrap">
-    <div class="table-toolbar"><div class="section-title">All entries for selected month</div><span class="row-count">${riders.length} riders</span></div>
-    <div class="table-scroll">
-    <table class="data-table">
-      <thead><tr><th>Rider</th><th>Zone</th><th>Fill Rate</th><th>Efficiency</th><th>Orders</th><th>Attendance</th><th>Status</th></tr></thead>
-      <tbody>
-        ${riders.map(r => `
-        <tr>
-          <td><div style="font-weight:600">${r.name}</div>${r.id?`<span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${r.id}</span>`:''}</td>
-          <td>${r.zone}</td>
-          <td><span style="font-weight:700;color:${r.fill<75?'var(--red)':r.fill<85?'var(--yellow)':'var(--green)'}">${r.fill}%</span></td>
-          <td><span style="font-weight:700;color:var(--cyan)">${r.eff}%</span></td>
-          <td>${r.orders}</td>
-          <td><span class="${r.attendance==='Present'?'att-p':r.attendance==='Absent'?'att-a':'att-o'}">${r.attendance}</span></td>
-          <td>${statusBadge(r.status)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    </div>
-  </div>`;
-}
-
-// ── BIND FILTERS ──────────────────────────────────────────────
-function bindFilters(tab) { /* filters bound inline via oninput/onchange */ }
-
-// ── INIT ──────────────────────────────────────────────────────
 loadData();
+
+setInterval(loadData, 60000);
+
 </script>
+
 </body>
 </html>
