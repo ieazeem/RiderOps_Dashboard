@@ -426,7 +426,9 @@ function mapRow(row){
 /* =========================================================
    LOAD DATA
 ========================================================= */
-async function loadData(){
+async function loadData() {
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwpDomyJIhMHgTkbqfJ-2Fgd_lotz6104XIEtYgmlrJU1RNyIQJGJvBaQ11ZrtpZTm6/exec";
+  
   document.getElementById('lastUpdated').textContent = 'Refreshing...';
   document.getElementById('mainContent').innerHTML = `
     <div class="state-box">
@@ -435,16 +437,19 @@ async function loadData(){
       <p>Pulling live rider operations data</p>
     </div>`;
 
-  try{
-    const res = await fetch("https://corsproxy.io/?url=" + encodeURIComponent(SHEET_URL), {
-  cache: 'no-store'
-});
+  try {
+    // Updated fetch block as recommended in image_819cdb.png and image_819d33.png
+    const res = await fetch(SHEET_URL, {
+      method: 'GET',
+      redirect: 'follow', // Essential for Apps Script redirects
+      cache: 'no-store'
+    });
 
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
 
     const text = await res.text();
 
-    if(!text || text.trim()==='') throw new Error('Google Sheet returned empty data');
+    if (!text || text.trim() === '') throw new Error('Google Sheet returned empty data');
 
     const rows = parseCSV(text);
 
@@ -454,11 +459,11 @@ async function loadData(){
 
     const now = new Date();
     document.getElementById('lastUpdated').textContent =
-      `Updated ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+      `Updated ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
 
     renderTab(currentTab);
 
-  }catch(err){
+  } catch (err) {
     console.error(err);
     document.getElementById('lastUpdated').textContent = 'Load failed';
     document.getElementById('mainContent').innerHTML = `
@@ -470,7 +475,6 @@ async function loadData(){
       </div>`;
   }
 }
-
 /* =========================================================
    OVERVIEW
 ========================================================= */
